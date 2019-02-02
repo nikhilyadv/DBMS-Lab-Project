@@ -1,8 +1,4 @@
-_minted*
-*.aux
-*.fdb_latexmk
-*.fls
-*.log
-*.spl
-*.gz
-*.toc
+*
+!*.JPG
+!*.pdf
+!*.tex
