@@ -1,0 +1,74 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \PYG{k}{create} \PYG{k}{table} \PYG{n}{customer} \PYG{p}{(}
+      \PYG{n}{customer\PYGZus{}id} \PYG{n+nb}{VARCHAR} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{primary} \PYG{k}{key} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{name} \PYG{n+nb}{VARCHAR} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{address} \PYG{n+nb}{VARCHAR} \PYG{p}{(}\PYG{l+m+mi}{60}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{phone\PYGZus{}number} \PYG{n+nb}{DECIMAL} \PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{)} \PYG{n}{UNSIGNED} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{email\PYGZus{}id} \PYG{n+nb}{VARCHAR} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}
+    \PYG{p}{);}
+
+    \PYG{k}{create} \PYG{k}{table} \PYG{n}{payment} \PYG{p}{(}
+      \PYG{n}{payment\PYGZus{}id} \PYG{n+nb}{VARCHAR} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{primary} \PYG{k}{key} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{credit\PYGZus{}card\PYGZus{}number} \PYG{n+nb}{VARCHAR} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{date\PYGZus{}} \PYG{k}{timestamp}\PYG{p}{,}
+      \PYG{n}{billing\PYGZus{}address} \PYG{n+nb}{varchar}\PYG{p}{(}\PYG{l+m+mi}{60}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}
+    \PYG{p}{);}
+
+    \PYG{k}{create} \PYG{k}{table} \PYG{n}{order\PYGZus{}} \PYG{p}{(}
+      \PYG{n}{order\PYGZus{}id} \PYG{n+nb}{VARCHAR} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{primary} \PYG{k}{key} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{total\PYGZus{}price} \PYG{n+nb}{INT} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{customer\PYGZus{}id} \PYG{n+nb}{VARCHAR} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{),}
+      \PYG{n}{shipping\PYGZus{}address} \PYG{n+nb}{varchar}\PYG{p}{(}\PYG{l+m+mi}{60}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{payment\PYGZus{}id} \PYG{n+nb}{VARCHAR} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{),}
+      \PYG{k}{foreign} \PYG{k}{key} \PYG{p}{(}\PYG{n}{customer\PYGZus{}id}\PYG{p}{)} \PYG{k}{references} \PYG{n}{customer} \PYG{p}{(}\PYG{n}{customer\PYGZus{}id}\PYG{p}{)} \PYG{k}{on} \PYG{k}{delete} \PYG{k}{set} \PYG{k}{null}\PYG{p}{,}
+      \PYG{k}{foreign} \PYG{k}{key} \PYG{p}{(}\PYG{n}{payment\PYGZus{}id}\PYG{p}{)} \PYG{k}{references} \PYG{n}{payment} \PYG{p}{(}\PYG{n}{payment\PYGZus{}id}\PYG{p}{)} \PYG{k}{on} \PYG{k}{delete} \PYG{k}{set} \PYG{k}{null}
+    \PYG{p}{);}
+
+    \PYG{k}{create} \PYG{k}{table} \PYG{n}{supplier} \PYG{p}{(}
+      \PYG{n}{supplier\PYGZus{}id} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{primary} \PYG{k}{key} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{name} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{address} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{60}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{phone\PYGZus{}number} \PYG{n+nb}{decimal} \PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{)} \PYG{n}{UNSIGNED} \PYG{k}{NOT} \PYG{k}{NULL}\PYG{p}{,}
+      \PYG{n}{email\PYGZus{}id} \PYG{n+nb}{VARCHAR} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}
+    \PYG{p}{);}
+
+    \PYG{k}{create} \PYG{k}{table} \PYG{n}{shipper} \PYG{p}{(}
+      \PYG{n}{shipper\PYGZus{}id} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{primary} \PYG{k}{key} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{name} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{head\PYGZus{}quarters} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{60}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{phone\PYGZus{}number} \PYG{n+nb}{decimal} \PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{)} \PYG{n}{UNSIGNED} \PYG{k}{not} \PYG{k}{null}
+    \PYG{p}{);}
+
+    \PYG{k}{create} \PYG{k}{table} \PYG{n}{track} \PYG{p}{(}
+      \PYG{n}{index\PYGZus{}} \PYG{n+nb}{INT} \PYG{k}{primary} \PYG{k}{key} \PYG{n}{AUTO} \PYG{k}{INCREMENT} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{shipper\PYGZus{}id} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{),}
+      \PYG{n}{tracking\PYGZus{}id} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{),}
+      \PYG{k}{foreign} \PYG{k}{key} \PYG{p}{(}\PYG{n}{shipper\PYGZus{}id}\PYG{p}{)} \PYG{k}{references} \PYG{n}{shipper} \PYG{p}{(}\PYG{n}{shipper\PYGZus{}id}\PYG{p}{)} \PYG{k}{on} \PYG{k}{delete} \PYG{k}{set} \PYG{k}{null}
+    \PYG{p}{);}
+
+    \PYG{k}{create} \PYG{k}{table} \PYG{n}{product} \PYG{p}{(}
+      \PYG{n}{product\PYGZus{}id} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{supplier\PYGZus{}id} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{total\PYGZus{}stock} \PYG{n+nb}{int}\PYG{p}{,}
+      \PYG{n}{description} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{60}\PYG{p}{),}
+      \PYG{k}{foreign} \PYG{k}{key} \PYG{p}{(}\PYG{n}{supplier\PYGZus{}id}\PYG{p}{)} \PYG{k}{references} \PYG{n}{supplier} \PYG{p}{(}\PYG{n}{supplier\PYGZus{}id}\PYG{p}{)} \PYG{k}{on} \PYG{k}{delete} \PYG{k}{cascade}\PYG{p}{,}
+      \PYG{k}{primary} \PYG{k}{key} \PYG{p}{(}\PYG{n}{product\PYGZus{}id}\PYG{p}{,} \PYG{n}{supplier\PYGZus{}id}\PYG{p}{)}
+    \PYG{p}{);}
+
+    \PYG{k}{create} \PYG{k}{table} \PYG{n}{product\PYGZus{}order} \PYG{p}{(}
+      \PYG{n}{product\PYGZus{}id} \PYG{n+nb}{varchar}\PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{order\PYGZus{}id} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{k}{not} \PYG{k}{null}\PYG{p}{,}
+      \PYG{n}{supplier\PYGZus{}id} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{20}\PYG{p}{),}
+      \PYG{n}{product\PYGZus{}rating} \PYG{n+nb}{int} \PYG{k}{check} \PYG{p}{(}\PYG{n}{product\PYGZus{}rating} \PYG{k}{in} \PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{)),}
+      \PYG{n}{supplier\PYGZus{}rating} \PYG{n+nb}{int} \PYG{k}{check} \PYG{p}{(}\PYG{n}{supplier\PYGZus{}rating} \PYG{k}{in} \PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{)),}
+      \PYG{n}{ship\PYGZus{}index} \PYG{n+nb}{int}\PYG{p}{,}
+      \PYG{n}{product\PYGZus{}review} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{60}\PYG{p}{),}
+      \PYG{n}{supplier\PYGZus{}review} \PYG{n+nb}{varchar} \PYG{p}{(}\PYG{l+m+mi}{60}\PYG{p}{),}
+      \PYG{n}{quantity} \PYG{n+nb}{int}\PYG{p}{,}
+      \PYG{k}{primary} \PYG{k}{key} \PYG{p}{(}\PYG{n}{product\PYGZus{}id}\PYG{p}{,} \PYG{n}{order\PYGZus{}id}\PYG{p}{),}
+      \PYG{k}{foreign} \PYG{k}{key} \PYG{p}{(}\PYG{n}{product\PYGZus{}id}\PYG{p}{)} \PYG{k}{references} \PYG{n}{product} \PYG{p}{(}\PYG{n}{product\PYGZus{}id}\PYG{p}{)} \PYG{k}{on} \PYG{k}{delete} \PYG{k}{cascade}\PYG{p}{,}
+      \PYG{k}{foreign} \PYG{k}{key} \PYG{p}{(}\PYG{n}{order\PYGZus{}id}\PYG{p}{)} \PYG{k}{references} \PYG{n}{order\PYGZus{}} \PYG{p}{(}\PYG{n}{order\PYGZus{}id}\PYG{p}{)} \PYG{k}{on} \PYG{k}{delete} \PYG{k}{cascade}\PYG{p}{,}
+      \PYG{k}{foreign} \PYG{k}{key} \PYG{p}{(}\PYG{n}{supplier\PYGZus{}id}\PYG{p}{)} \PYG{k}{references} \PYG{n}{supplier} \PYG{p}{(}\PYG{n}{supplier\PYGZus{}id}\PYG{p}{)} \PYG{k}{on} \PYG{k}{delete} \PYG{k}{set} \PYG{k}{null}\PYG{p}{,}
+      \PYG{k}{foreign} \PYG{k}{key} \PYG{p}{(}\PYG{n}{ship\PYGZus{}index}\PYG{p}{)} \PYG{k}{references} \PYG{n}{track} \PYG{p}{(}\PYG{n}{index\PYGZus{}}\PYG{p}{)} \PYG{k}{on} \PYG{k}{delete} \PYG{k}{set} \PYG{k}{null}
+    \PYG{p}{);}
+\end{Verbatim}
