@@ -11,7 +11,7 @@ class SignUp:
             _window.destroy()
     def switchToLogin (self, _window):
         _window.destroy ()
-        LoginWindow (self.db)
+        LoginWindow.LoginWindow (self.db)
     def window1(self):
         win = Tk()
         win.title("Sign Up")
@@ -85,7 +85,7 @@ class SignUp:
         def check (username, password, ppassword, name, add, phone, email):
             strng = ""
 
-            if (fine (username) and fine (password) and ppassword == password and fine (name) and fine (add) and fine (str (phone)) and fine (email) and not db.exists (username)):
+            if (fine (username) and fine (password) and ppassword == password and fine (name) and fine (add) and fine (str (phone)) and fine (email) and not db.userExists (username)):
                 db.addCustomer (username, password, ppassword, name, add, phone, email)
                 output.delete (0.0, END)
                 strng = "{} successfully inserted".format (username)
@@ -100,7 +100,7 @@ class SignUp:
                 output.delete (0.0, END)
                 output.insert (END, strng)
         Button(sign, text= 'Register', command= lambda: check (userText.get (), passText.get (), repPassText.get (), name.get (), add.get (), phone.get (), email.get ())).grid(row=8, sticky=W, pady=4)
-        Button (sign, text = 'Switch to Login', command = lambda: switchToLogin (sign)).grid (row = 9, sticky = W, pady = 4)
+        Button (sign, text = 'Switch to Login', command = lambda: self.switchToLogin (sign)).grid (row = 9, sticky = W, pady = 4)
         sign.mainloop()
     def supplierSign (self):
         sign = Tk ()
@@ -154,7 +154,7 @@ class SignUp:
                 output.delete (0.0, END)
                 output.insert (END, strng)
         Button(sign, text= 'Register', command= lambda: check (userText.get (), passText.get (), repPassText.get (), name.get (), add.get (), phone.get (), email.get ())).grid(row=8, sticky=W, pady=4)
-        Button (sign, text = 'Switch to Login', command = lambda: switchToLogin (sign)).grid (row = 9, sticky = W, pady = 4)
+        Button (sign, text = 'Switch to Login', command = lambda: self.switchToLogin (sign)).grid (row = 9, sticky = W, pady = 4)
         sign.mainloop()
     def shipperSign (self):
         sign = Tk ()
@@ -208,5 +208,5 @@ class SignUp:
                 output.delete (0.0, END)
                 output.insert (END, strng)
         Button(sign, text= 'Register', command= lambda: check (userText.get (), passText.get (), repPassText.get (), name.get (), add.get (), phone.get (), email.get ())).grid(row=8, sticky=W, pady=4)
-        Button (sign, text = 'Switch to Login', command = lambda: switchToLogin (sign)).grid (row = 9, sticky = W, pady = 4)
+        Button (sign, text = 'Switch to Login', command = lambda: self.switchToLogin (sign)).grid (row = 9, sticky = W, pady = 4)
         sign.mainloop()
