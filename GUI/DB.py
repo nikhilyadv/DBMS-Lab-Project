@@ -8,20 +8,15 @@ class DB:
     def __del__(self):  # destructor
         self.conn.close()  # close connection
 
-    def view(self):
-        self.cur.execute("SELECT * FROM book")
-        rows = self.cur.fetchall()
-        return rows
-
-    def insert(self, title, author, isbn):
-        print ("just checking {} {} {}".format(title, author, isbn))
-        self.cur.execute("INSERT INTO book (title, author, isbn) VALUES (\"{}\",\"{}\",{})".format(title, author, isbn))
+    def updateproduct (self, product_id, supplier_id, price, total_stock)
+        self.cur.execute("UPDATE product set price={}, total_stock={} where product_id={} and supplier_id={}".format(price, total_stock, product_id, supplier_id))
         self.conn.commit()
-        self.view()
+        return true
 
-    def update(self, id, title, author, isbn):
-        self.cur.execute("UPDATE book SET title={}, author={}, isbn={} WHERE id={}".format(title, author, isbn, id))
-        self.view()
+    def addproduct (self, product_id, supplier_id, price, total_stock, description) :
+        self.cur.execute("INSERT INTO product VALUES ({},{},{},{},{})".format(product_id, supplier_id, price, total_stock, description))
+        self.conn.commit()
+        return true
 
     def delete(self, id):
         self.cur.execute("DELETE FROM book WHERE id={}".format(id))
