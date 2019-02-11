@@ -18,7 +18,7 @@ class DB:
         self.conn.commit()
         return True
 
-    def addCustomer (self, username, passcode, name, address, phone, email, role) :
+    def addUser (self, username, passcode, name, address, phone, email, role) :
         self.cur.execute("INSERT INTO Users VALUES (\"{}\", \"{}\", \"{}\")".format(username, passcode, role))
         self.conn.commit()
         table_name = ""

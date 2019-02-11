@@ -43,7 +43,6 @@ class Supplier:
         prod.protocol("WM_DELETE_WINDOW", lambda: self.on_closing (prod))
 
         def add(product_id, supplier_id, price, total_stock, description):
-            print (product_id, supplier_id, price, total_stock, description, "\n")
             self.db.addproduct (product_id, supplier_id, price, total_stock, description)
             prod.destroy ()
             self.window ()

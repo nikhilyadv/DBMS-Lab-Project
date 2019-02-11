@@ -86,7 +86,7 @@ class SignUp:
             strng = ""
 
             if (fine (username) and fine (password) and ppassword == password and fine (name) and fine (add) and fine (str (phone)) and fine (email) and not self.db.userExists (username)):
-                self.db.addCustomer (username, password, name, add, phone, email, "CUS")
+                self.db.addUser (username, password, name, add, phone, email, "CUS")
                 output.delete (0.0, END)
                 strng = "{} successfully inserted".format (username)
                 output.insert (END, strng)
@@ -140,7 +140,7 @@ class SignUp:
             strng = ""
 
             if (fine (username) and fine (password) and ppassword == password and fine (name) and fine (add) and fine (str (phone)) and fine (email) and not self.db.userExists (username)):
-                self.db.addCustomer (username, password, name, add, phone, email, "SUP")
+                self.db.addUser (username, password, name, add, phone, email, "SUP")
                 output.delete (0.0, END)
                 strng = "{} successfully inserted".format (username)
                 output.insert (END, strng)
@@ -194,7 +194,7 @@ class SignUp:
             strng = ""
 
             if (fine (username) and fine (password) and ppassword == password and fine (name) and fine (add) and fine (str (phone)) and fine (email) and not self.db.userExists (username)):
-                self.db.addCustomer (username, password, name, add, phone, email, "SHI")
+                self.db.addUser (username, password, name, add, phone, email, "SHI")
                 output.delete (0.0, END)
                 strng = "{} successfully inserted".format (username)
                 output.insert (END, strng)
