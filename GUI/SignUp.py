@@ -85,15 +85,15 @@ class SignUp:
         def check (username, password, ppassword, name, add, phone, email):
             strng = ""
 
-            if (fine (username) and fine (password) and ppassword == password and fine (name) and fine (add) and fine (str (phone)) and fine (email) and not db.userExists (username)):
-                db.addCustomer (username, password, ppassword, name, add, phone, email)
+            if (fine (username) and fine (password) and ppassword == password and fine (name) and fine (add) and fine (str (phone)) and fine (email) and not self.db.userExists (username)):
+                self.db.addCustomer (username, password, ppassword, name, add, phone, email)
                 output.delete (0.0, END)
                 strng = "{} successfully inserted".format (username)
                 output.insert (END, strng)
             else:
                 if (password != ppassword):
                     strng = "Your Passwords don't match!\n"
-                elif (db.exists (username)):
+                elif (self.db.userExists (username)):
                     strng = "This username already exists!\n"
                 else:
                     strng = "You have an entry missing!\n"
@@ -139,15 +139,15 @@ class SignUp:
         def check (username, password, ppassword, name, add, phone, email):
             strng = ""
 
-            if (fine (username) and fine (password) and ppassword == password and fine (name) and fine (add) and fine (str (phone)) and fine (email) and not db.exists (username)):
-                db.addCustomer (username, password, ppassword, name, add, phone, email)
+            if (fine (username) and fine (password) and ppassword == password and fine (name) and fine (add) and fine (str (phone)) and fine (email) and not self.db.userExists (username)):
+                self.db.addCustomer (username, password, ppassword, name, add, phone, email)
                 output.delete (0.0, END)
                 strng = "{} successfully inserted".format (username)
                 output.insert (END, strng)
             else:
                 if (password != ppassword):
                     strng = "Your Passwords don't match!\n"
-                elif (db.exists (username)):
+                elif (self.db.userExists (username)):
                     strng = "This username already exists!\n"
                 else:
                     strng = "You have an entry missing!\n"
@@ -193,15 +193,15 @@ class SignUp:
         def check (username, password, ppassword, name, add, phone, email):
             strng = ""
 
-            if (fine (username) and fine (password) and ppassword == password and fine (name) and fine (add) and fine (str (phone)) and fine (email) and not db.exists (username)):
-                db.addCustomer (username, password, ppassword, name, add, phone, email)
+            if (fine (username) and fine (password) and ppassword == password and fine (name) and fine (add) and fine (str (phone)) and fine (email) and not self.db.userExists (username)):
+                self.db.addCustomer (username, password, ppassword, name, add, phone, email)
                 output.delete (0.0, END)
                 strng = "{} successfully inserted".format (username)
                 output.insert (END, strng)
             else:
                 if (password != ppassword):
                     strng = "Your Passwords don't match!\n"
-                elif (db.exists (username)):
+                elif (self.db.userExists (username)):
                     strng = "This username already exists!\n"
                 else:
                     strng = "You have an entry missing!\n"
