@@ -23,8 +23,9 @@ class LoginWindow:
                 output.delete (0.0, END)
                 output.insert (END, strng)
             else:
-                if (supp.get () == 1 and db.validate (username, password, "SUP")):
-                    Supplier.Supplier (db)
+                if (supp.get () == 1 and self.db.validate (username, password, "SUP")):
+                    log.destroy ()
+                    Supplier.Supplier (self.db, username)
         def openSign (log):
             log.destroy ()
             SignUp.SignUp (self.db)

@@ -34,7 +34,7 @@ class Supplier:
         Entry(prod, textvariable = price).grid (row = 0, column = 3, sticky = W)
         Entry(prod, textvariable = total_stock).grid (row = 0, column = 5, sticky = W)
 
-        Button(prod, text = "Update Changes", command= lambda: add(product_id.get (), supplier_id, price.get (), total_stock.get ()))
+        Button(prod, text = "Update Changes", command= lambda: add(product_id.get (), supplier_id, price.get (), total_stock.get ())).grid (row = 1, column = 0, sticky = W)
         prod.mainloop()
     
     def newprod (self):
@@ -42,7 +42,8 @@ class Supplier:
         prod.title("Add Product")
         prod.protocol("WM_DELETE_WINDOW", lambda: self.on_closing (prod))
 
-        def add(product_id, supplier_id, price, total_stock, description) :
+        def add(product_id, supplier_id, price, total_stock, description):
+            print (product_id, supplier_id, price, total_stock, description, "\n")
             self.db.addproduct (product_id, supplier_id, price, total_stock, description)
             prod.destroy ()
             self.window ()
@@ -62,8 +63,8 @@ class Supplier:
         Entry(prod, textvariable = price).grid (row = 0, column = 3, sticky = W)
         Entry(prod, textvariable = total_stock).grid (row = 0, column = 5, sticky = W)
         Entry(prod, textvariable = description).grid (row = 1, column = 1, sticky = W)
-
-        Button(prod, text = "Add Product", command= lambda: add(product_id.get (), supplier_id, price.get (), total_stock.get (), description.get ()))
+        print (product_id.get (), supplier_id, price.get (), total_stock.get (), description.get (), "\n")
+        Button(prod, text = "Add Product", command= lambda: add(product_id.get (), supplier_id, price.get (), total_stock.get (), description.get ())).grid (row = 2, column = 0, sticky = W)
         prod.mainloop()
     
     def window(self):
@@ -77,5 +78,5 @@ class Supplier:
             supp.destroy ()
             self.existprod ()
         Button(supp, text= 'Add new products', command= addnewprods).grid(row=3, column=2)
-        Button(supp, text= 'Add existing products', command= addexistingprods),grid(row=3, column=4)
+        Button(supp, text= 'Add existing products', command= addexistingprods).grid(row=3, column=4)
         supp.mainloop()
