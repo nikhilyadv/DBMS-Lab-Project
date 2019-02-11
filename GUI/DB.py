@@ -21,7 +21,14 @@ class DB:
     def addCustomer (self, username, passcode, name, address, phone, email, role) :
         self.cur.execute("INSERT INTO Users VALUES (\"{}\", \"{}\", \"{}\")".format(username, passcode, role))
         self.conn.commit()
-        self.cur.execute("INSERT INTO customer VALUES (\"{}\", \"{}\", \"{}\", {}, \"{}\")".format(username, name, address, phone, email))
+        table_name = ""
+        if role == "CUS":
+            table_name = "customer"
+        elif role == "SUP":
+            table_name = "supplier"
+        elif role == "SHI":
+            table_name = "shipper"
+        self.cur.execute("INSERT INTO {} VALUES (\"{}\", \"{}\", \"{}\", {}, \"{}\")".format(table_name, username, name, address, phone, email))
         self.conn.commit()
 
     def validate (self, username, passcode, role) :
