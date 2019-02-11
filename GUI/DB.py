@@ -5,8 +5,8 @@ class DB:
         self.conn = sql.connect (user = username, password = passcode, db = "AmaKart")
         self.cur = self.conn.cursor ()
 
-    def __del__(self):  # destructor
-        self.conn.close()  # close connection
+    def __del__(self):  
+        self.conn.close()  
 
     def updateproduct (self, product_id, supplier_id, price, total_stock) :
         self.cur.execute("UPDATE product set price={}, total_stock={} where product_id=\"{}\" and supplier_id=\"{}\"".format(price, total_stock, product_id, supplier_id))
@@ -14,10 +14,15 @@ class DB:
         return True
 
     def addproduct (self, product_id, supplier_id, price, total_stock, description) :
-        print ("INSERT INTO product VALUES (\"{}\", \"{}\", {}, {}, \"{}\")".format(product_id, supplier_id, price, total_stock, description))
         self.cur.execute("INSERT INTO product VALUES (\"{}\", \"{}\", {}, {}, \"{}\")".format(product_id, supplier_id, price, total_stock, description))
         self.conn.commit()
         return True
+
+    def addCustomer (self, username, passcode, name, address, phone, email, role) :
+        self.cur.execute("INSERT INTO Users VALUES (\"{}\", \"{}\", \"{}\")".format(username, passcode, role))
+        self.conn.commit()
+        self.cur.execute("INSERT INTO customer VALUES (\"{}\", \"{}\", \"{}\", {}, \"{}\")".format(username, name, address, phone, email))
+        self.conn.commit()
 
     def validate (self, username, passcode, role) :
         self.cur.execute("SELECT * FROM Users WHERE username=\"{}\" and passcode=\"{}\" and role=\"{}\"".format(username,passcode,role))

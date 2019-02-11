@@ -1,7 +1,7 @@
 create table Users (
   username VARCHAR (20) primary key not null,
   passcode VARCHAR (20) not null,
-  roles VARCHAR (20) not null
+  role VARCHAR (20) not null
 );
 
 create table customer (
