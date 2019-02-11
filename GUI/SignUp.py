@@ -1,5 +1,7 @@
+from tkinter import *
+from tkinter import messagebox
 
-class SignUp ():
+class SignUp (db):
     def on_closing(_window):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             _window.destroy()
@@ -58,12 +60,18 @@ class SignUp ():
         repPassText = StringVar ()
         name = StringVar ()
         add = StringVar ()
-
         phone = IntVar ()
+        email = StringVar ()
+
 
         Entry(sign, textvariable=userText).grid (row = 0, column = 1, sticky = W)
         Entry(sign, textvariable=passText, show = "*").grid (row = 1, column = 1, sticky = W)
         Entry(sign, textvariable=repPassText, show = "*").grid (row = 2, column = 1, sticky = W)
+        Entry(sign, textvariable=name).grid (row = 0, column = 1, sticky = W)
+        Entry(sign, textvariable=add).grid (row = 0, column = 1, sticky = W)
+        Entry(sign, textvariable=phone).grid (row = 0, column = 1, sticky = W)
+        Entry(sign, textvariable=userText).grid (row = 0, column = 1, sticky = W)
+        Entry(sign, textvariable=userText).grid (row = 0, column = 1, sticky = W)
         usr = IntVar ()
         supp = IntVar ()
         ship = IntVar ()

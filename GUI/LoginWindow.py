@@ -1,4 +1,7 @@
-def LoginWindow ():
+from tkinter import *
+from tkinter import messagebox
+
+def LoginWindow (db):
     def enter (usr, supp, ship, output):
         cnt = usr.get () + supp.get () + ship.get ()
         strng = ""

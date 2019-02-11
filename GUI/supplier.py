@@ -1,3 +1,6 @@
+from tkinter import *
+from tkinter import messagebox
+
 class supplier:
     def on_closing(_window):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
