@@ -1,0 +1,2 @@
+db.exists (username)):
+                #     str
