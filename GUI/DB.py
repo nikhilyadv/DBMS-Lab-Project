@@ -1,10 +1,9 @@
+import MySQLdb as sql # install using https://pypi.org/project/mysqlclient/
+
 class DB:
-    def __init__ (self):
-        self.conn = sql.connect (user = "root", password = "root", db = "delMe")
+    def __init__ (self, username, passcode):
+        self.conn = sql.connect (user = username, password = passcode, db = "AmaKart")
         self.cur = self.conn.cursor ()
-        self.cur.execute(
-            "CREATE TABLE IF NOT EXISTS book (id INTEGER AUTO_INCREMENT PRIMARY KEY, title varchar(20), author varchar(20), isbn INTEGER)")
-        self.conn.commit ()
 
     def __del__(self):  # destructor
         self.conn.close()  # close connection
