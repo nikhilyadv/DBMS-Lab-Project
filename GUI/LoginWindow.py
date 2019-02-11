@@ -1,7 +1,10 @@
 from tkinter import *
 from tkinter import messagebox
 
-def LoginWindow (db):
+def LoginWindow ():
+    def on_closing(_window):
+        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            _window.destroy()
     def enter (usr, supp, ship, output):
         cnt = usr.get () + supp.get () + ship.get ()
         strng = ""
@@ -34,3 +37,4 @@ def LoginWindow (db):
     Button(log, text= 'Enter', command= lambda: enter(usr, supp, ship, output)).grid(row=3, sticky=W, pady=4)
     Button (log, text = "SignUp", command = lambda: openSign (log)).grid (row = 4, sticky = W, pady = 4)
     log.mainloop()
+LoginWindow ()

@@ -63,21 +63,14 @@ class SignUp (db):
         phone = IntVar ()
         email = StringVar ()
 
-
         Entry(sign, textvariable=userText).grid (row = 0, column = 1, sticky = W)
         Entry(sign, textvariable=passText, show = "*").grid (row = 1, column = 1, sticky = W)
         Entry(sign, textvariable=repPassText, show = "*").grid (row = 2, column = 1, sticky = W)
         Entry(sign, textvariable=name).grid (row = 0, column = 1, sticky = W)
         Entry(sign, textvariable=add).grid (row = 0, column = 1, sticky = W)
         Entry(sign, textvariable=phone).grid (row = 0, column = 1, sticky = W)
-        Entry(sign, textvariable=userText).grid (row = 0, column = 1, sticky = W)
-        Entry(sign, textvariable=userText).grid (row = 0, column = 1, sticky = W)
-        usr = IntVar ()
-        supp = IntVar ()
-        ship = IntVar ()
-        Checkbutton(sign, text="User", variable=usr).grid(row=3, column = 0, sticky=W)
-        Checkbutton(sign, text="Supplier", variable=supp).grid(row=3, column = 1, sticky=W)
-        Checkbutton(sign, text="Shipper", variable=ship).grid(row=3, column = 2, sticky=W)
+        Entry(sign, textvariable=email).grid (row = 0, column = 1, sticky = W)
+        def check
         Button(sign, text= 'Register', command= lambda: reg(usr, supp, ship, output, userText.get (), passText.get (), repPassText.get ())).grid(row=4, sticky=W, pady=4)
         Button (sign, text = 'Switch to Login', command = lambda: getLogin (sign)).grid (row = 5, sticky = W, pady = 4)
         sign.mainloop()
