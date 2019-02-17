@@ -38,6 +38,7 @@ create table order_ (
 );
 
 /* Here: supplier_id -> R is the only relevant dependency and hence it is in BCNF */
+/* Rating will be updated with the help of triggers. */
 create table supplier (
   supplier_id varchar (20) primary key not null,
   name varchar (20) not null,
@@ -67,6 +68,7 @@ create table track (
 );
 
 /*  Here: (product_id, supplier_id) -> R is the only relevant dependency and hence it is in BCNF  */
+/* Rating will be updated with the help of triggers. */
 create table product (
   product_id varchar (20) not null,
   supplier_id varchar (20) not null,
