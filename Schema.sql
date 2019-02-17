@@ -1,4 +1,4 @@
-/* Since you people are stupid, I must mention that, a dependency A -> B is called relevant dependency if all other dependencies are of the form A -> C where C is a subset of B */
+/* Notation: A dependency A -> B is called relevant dependency if all other dependencies are of the form A -> C where C is a subset of B */
 
 
 /*  There is only one relevant dependency, username -> R and hence this table is in BCNF */
@@ -36,6 +36,7 @@ create table order_ (
   foreign key (payment_id) references payment (payment_id) on delete set null
 );
 
+/* Here: supplier_id -> R is the only relevant dependency and hence it is in BCNF */
 create table supplier (
   supplier_id varchar (20) primary key not null,
   name varchar (20) not null,
@@ -45,6 +46,7 @@ create table supplier (
   foreign key (supplier_id) references Users(username) on delete cascade
 );
 
+/*  Here: shipper_id -> R is the only relevant dependency and hence it is in BCNF  */
 create table shipper (
   shipper_id varchar (20) primary key not null,
   name varchar (20) not null,
@@ -54,6 +56,7 @@ create table shipper (
   foreign key (shipper_id) references Users(username) on delete cascade
 );
 
+/*  Here: index_ -> R is the only relevant dependency and hence it is in BCNF  */
 create table track (
   index_ INT AUTO_INCREMENT primary key not null,
   shipper_id varchar (20),
@@ -61,6 +64,7 @@ create table track (
   foreign key (shipper_id) references shipper (shipper_id) on delete set null
 );
 
+/*  Here: (product_id, supplier_id) -> R is the only relevant dependency and hence it is in BCNF  */
 create table product (
   product_id varchar (20) not null,
   supplier_id varchar (20) not null,
@@ -71,6 +75,7 @@ create table product (
   primary key (product_id, supplier_id)
 );
 
+/*  Doubt.  */
 create table product_order (
   product_id varchar(20) not null,
   order_id varchar (20) not null,
