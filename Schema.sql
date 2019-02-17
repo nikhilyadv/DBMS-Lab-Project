@@ -26,7 +26,8 @@ create table payment (
   billing_address varchar(60) not null
 );
 
-/*   Here: order_id -> R is the only relevant dependency and hence it is in BCNF  */
+/* Here: order_id -> R is the only relevant dependency and hence it is in BCNF  */
+/* Initially payment id can be null and then later once the customer does the payment, trigger will add the payment id */
 create table order_ (
   order_id VARCHAR (20) primary key not null,
   customer_id VARCHAR (20),
