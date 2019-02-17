@@ -98,6 +98,27 @@ create table product_order (
   foreign key (ship_index) references track (index_) on delete set null
 );
 
+/* Triggers will update the following two review table */
+
+create table supplierReviews (
+  index_ INT AUTO_INCREMENT not null,
+  supplier_id varchar (20) not null,
+  review varchar (60),
+  primary key (index_, supplier_id),
+  foreign key (supplier_id) references supplier (supplier_id) on delete cascade,
+);
+
+create table productReviews (
+  index_ INT AUTO_INCREMENT not null,
+  product_id varchar (20) not null,
+  supplier_id varchar (20) not null,
+  review varchar (60),
+  foreign key (supplier_id) references supplier (supplier_id) on delete cascade,
+  foreign key (product_id) references product (product_id) on delete cascade,
+  primary key (index_, product_id, supplier_id)
+);
+
+
 INSERT INTO Users Values ("Nikhil", "lol", "CUS");
 INSERT INTO Users Values ("Sourabh", "foo", "SUP");
 INSERT INTO Users Values ("FEDEx", "goo", "SHI");
