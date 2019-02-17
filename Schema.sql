@@ -1,9 +1,14 @@
+/* Since you people are stupid, I must mention that, a dependency A -> B is called relevant dependency if all other dependencies are of the form A -> C where C is a subset of B */
+
+
+/*  There is only one relevant dependency, username -> R and hence this table is in BCNF */
 create table Users (
   username VARCHAR (20) primary key not null,
   passcode VARCHAR (20) not null,
   role VARCHAR (20) not null
 );
 
+/*  Here: customer_id -> R is the only relevant dependency and hence it is in BCNF */
 create table customer (
   customer_id VARCHAR (20) primary key not null,
   name VARCHAR (20) not null,
@@ -13,6 +18,7 @@ create table customer (
   foreign key (customer_id) references Users(username) on delete cascade
 );
 
+/*   Here: payment_id -> R is the only relevant dependency and hence it is in BCNF  */
 create table payment (
   payment_id VARCHAR (20) primary key not null,
   credit_card_number VARCHAR (20) not null,
@@ -20,6 +26,7 @@ create table payment (
   billing_address varchar(60) not null
 );
 
+/*   Here: order_id -> R is the only relevant dependency and hence it is in BCNF  */
 create table order_ (
   order_id VARCHAR (20) primary key not null,
   customer_id VARCHAR (20),
