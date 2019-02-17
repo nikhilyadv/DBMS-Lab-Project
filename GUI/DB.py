@@ -1,13 +1,24 @@
 import MySQLdb as sql # install using https://pypi.org/project/mysqlclient/
 
 class DB:
-    def __init__ (self, username, passcode):
-        self.conn = sql.connect (user = username, password = passcode, db = "AmaKart")
-        self.cur = self.conn.cursor ()
-
     def __del__(self):  
         self.conn.close()  
 
+    def createUser (self, username, passcode, role):
+        self.login("root","root","norole")
+        self.cur.execute("CREATE USER {} IDENTIFIED BY \"{}\";".format(username, passcode))
+        self.conn.commit()
+        self.cur.execute("GRANT {} to {}".format(role, username))
+        self.conn.commit()
+
+    def login (self, username, passcode, role):
+        self.conn = sql.connect (user = username, password = passcode, db = "AmaKart")
+        self.cur = self.conn.cursor ()
+        if (role != "norole"):
+            self.cur.execute("SET ROLE {};".format(role))
+    
+    
+"""
     def updateproduct (self, product_id, supplier_id, price, total_stock) :
         self.cur.execute("UPDATE product set price={}, total_stock={} where product_id=\"{}\" and supplier_id=\"{}\"".format(price, total_stock, product_id, supplier_id))
         self.conn.commit()
@@ -43,4 +54,5 @@ class DB:
         row = self.cur.fetchall()
         if len(row) == 1 :
             return True
-        return False
+        return False 
+"""
