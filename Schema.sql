@@ -76,7 +76,7 @@ create table product (
   primary key (product_id, supplier_id)
 );
 
-/*  Doubt.  */
+/*  Here: (product_id, order_id, supplier_id) -> R is the only relevant dependency and hence it is in BCNF  */
 create table product_order (
   product_id varchar(20) not null,
   order_id varchar (20) not null,
@@ -87,7 +87,7 @@ create table product_order (
   product_review varchar (60),
   supplier_review varchar (60),
   quantity int,
-  primary key (product_id, order_id),
+  primary key (product_id, order_id, supplier_id),
   foreign key (product_id) references product (product_id) on delete cascade,
   foreign key (order_id) references order_ (order_id) on delete cascade,
   foreign key (supplier_id) references supplier (supplier_id) on delete set null,
