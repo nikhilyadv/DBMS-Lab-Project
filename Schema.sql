@@ -44,6 +44,7 @@ create table supplier (
   address varchar (60) not null,
   phone_number decimal (10) UNSIGNED NOT NULL,
   email_id VARCHAR (20) not null,
+  rating float,
   foreign key (supplier_id) references Users(username) on delete cascade
 );
 
@@ -72,6 +73,7 @@ create table product (
   price float not NULL,
   total_stock int,
   description varchar (60),
+  rating float,
   foreign key (supplier_id) references supplier (supplier_id) on delete cascade,
   primary key (product_id, supplier_id)
 );
