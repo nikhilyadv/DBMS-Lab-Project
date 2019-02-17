@@ -97,11 +97,11 @@ CREATE VIEW orderPrice AS (select order_id, sum(selling_price * quantity) as tot
 
 CREATE VIEW previousOrders AS (SELECT T1.order_id, T1.shipping_address, T2.date_, T3.total_price
                                FROM (order_ as T1) NATURAL JOIN (payment as T2) NATURAL JOIN (orderPrice as T3)
-                               WHERE T1.customer_id IN (SELECT user()));
+                               WHERE CONCAT(T1.customer_id, "@localhost") IN (SELECT user()));
 
 CREATE VIEW listOrders AS (SELECT order_id
                             FROM order_ 
-                            WHERE customer_id IN (SELECT user()));
+                            WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
 
 CREATE VIEW trackID AS (SELECT order_id, product_id, ship_index
                         FROM product_order
@@ -112,14 +112,15 @@ CREATE VIEW packageStatus AS (SELECT T1.order_id, T1.product_id, T1.ship_index, 
 
 CREATE VIEW supplierProducts AS (SELECT product_id, product_name, price, total_stock, pickup_address, description 
                                   FROM product
-                                  WHERE supplier_id = (SELECT user()));
+                                  WHERE CONCAT(supplier_id, "@localhost") = (SELECT user()));
 
 CREATE VIEW supplierOrders AS (SELECT T1.supplier_id, T1.product_id, T1.quantity, T1.selling_price, T2.date_
                                 FROM (product_order as T1) natural join (payment as T2)
-                                WHERE T1.supplier_id = (SELECT user()));
+                                WHERE CONCAT(T1.supplier_id, "@localhost") = (SELECT user()));
 
 CREATE VIEW shipperTrack AS (SELECT index_, pickup_address AS source, shipping_address AS destination, tracking_id
-                              FROM (track JOIN product_order ON index_ = ship_index) NATURAL JOIN order_ NATURAL JOIN product WHERE shipper_id = (SELECT user()));
+                              FROM (track JOIN product_order ON index_ = ship_index) NATURAL JOIN order_ NATURAL JOIN product 
+                              WHERE CONCAT(shipper_id, "@localhost") = (SELECT user()));
 
 DROP ROLE dbadmin;
 DROP ROLE customer;
@@ -140,16 +141,16 @@ FOR EACH ROW BEGIN
 END//
 DELIMITER ;
 
-INSERT INTO customer Values ("Nikhil@localhost","Nikhil Kumar","ROOM-119",8281112705,"111601013@");
-INSERT INTO supplier Values ("Sourabh@localhost","Sourabh Agg","ROOM-211",8281112700,"111601025@");
-INSERT INTO shipper Values ("FEDEx@localhost","FEDEx","Delhi",1800123343,"111601020@");
+INSERT INTO customer Values ("Nikhil","Nikhil Kumar","ROOM-119",8281112705,"111601013@");
+INSERT INTO supplier Values ("Sourabh","Sourabh Agg","ROOM-211",8281112700,"111601025@");
+INSERT INTO shipper Values ("FEDEx","FEDEx","Delhi",1800123343,"111601020@");
 
-INSERT INTO product Values ("1","Rasgulla","Sourabh@localhost",10,100.0,"RM3xx","Rasgulla from Aggarwal Sweets");
+INSERT INTO product Values ("1","Rasgulla","Sourabh",10,100.0,"RM3xx","Rasgulla from Aggarwal Sweets");
 
 INSERT INTO payment Values ("1","4362536563578",NULL,"CompLabFF");
 
-INSERT INTO order_ Values ("1","Nikhil@localhost","RM-119","1");
+INSERT INTO order_ Values ("1","Nikhil","RM-119","1");
 
-INSERT INTO track(shipper_id) Values ("FEDEx@localhost");
+INSERT INTO track(shipper_id) Values ("FEDEx");
 
-INSERT INTO product_order(product_id, order_id, supplier_id, product_rating, supplier_rating, ship_index, product_review, supplier_review, quantity) Values ("1","1","Sourabh@localhost",5,4,1,NULL,NULL,10);
+INSERT INTO product_order(product_id, order_id, supplier_id, product_rating, supplier_rating, ship_index, product_review, supplier_review, quantity) Values ("1","1","Sourabh",5,4,1,NULL,NULL,10);
