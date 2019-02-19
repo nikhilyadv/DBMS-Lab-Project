@@ -4,7 +4,33 @@
 \usepackage{float}
 \usepackage{minted}
 \usepackage{hyperref}
+% End loading packages
+
+\newcommand{\bck}{
+    \textbackslash
+}
+\newcommand{\iph}[2]{
+    \includegraphics[width=#1\textwidth,height=#1\textheight,keepaspectratio]{#2}
+}
+\newcommand{\ph}[1]{
+    \includegraphics[width=0.5\textwidth,height=0.5\textheight,keepaspectratio]{#1}
+}
+\newcommand{\ita}[1]{
+    \textit{#1}
+}
+\newcommand{\swastik}[1]{%
+    \begin{tikzpicture}[#1]
+        \draw (-1,1)  -- (-1,0) -- (1,0) -- (1,-1);
+        \draw (-1,-1) -- (0,-1) -- (0,1) -- (1,1);
+    \end{tikzpicture}%
+}
+
+% End setting basic commands
+
 \setminted{breaklines=true, tabsize=2, breaksymbolleft=}
+
+% End setting basic settings.
+
 \begin{document}
 \title{Database Design And Implementation For E-Commerce}
 \author{\small{Sourabh Aggarwal (111601025), Nikhil Kumar Yadav (111601013)}}
@@ -17,6 +43,11 @@
 \section{Contribution}
 As of now, we did everything together.
 \section{Introduction}
+In this project, our aim was to come up with a reasonably scalable database along with basic GUI for E-Commerce purpose.
+
+We started by listing down various requirements presented in the next section. After that we proceeed on builing an ER Diagram to fullfil the same. After that it was time to implement all this in SQL. In due time, we managed to put various important features provided by almost all E-Commerce site in our project. 
+
+So the following report touches on each of these aspects in brief and sequential manner. 
 
 \subsection{Requirements}
 Following is the list of requirements.
@@ -40,7 +71,120 @@ Following is the list of requirements.
     \includegraphics[width=1\textwidth]{ERD2} 
     \caption{Entity Relationship Diagram for e-commerce}
 \end{figure}
-\section{Database Schema}
+\section{Database Schema And Normalization}
+In this section we describe various aspects of our schema and also mention that it is indeed normalized (BCNF).
+
+\it{Notation: }A dependency $A \rightarrow B$ is called relevant dependency if all other dependencies are of the form $A \rightarrow C$ where $C$ is a subset of $B$.
+
+\begin{itemize}
+  \item A table for basic details of customer.
+  \begin{minted}{SQL}
+/*  Here: customer_id -> R is the only relevant dependency and hence it is in BCNF */
+create table customer (
+  customer_id VARCHAR (20) primary key not null,
+  name VARCHAR (20) not null,
+  address VARCHAR (60) not null,
+  phone_number DECIMAL (10) UNSIGNED not null,
+  email_id VARCHAR (20) not null
+);
+  \end{minted}
+  \item A table for basic details of seller.
+  \begin{minted}{SQL}
+    /* Here: seller_id -> R is the only relevant dependency and hence it is in BCNF */
+    /* Rating will be updated with the help of triggers. */
+    create table seller (
+      seller_id varchar (20) primary key not null,
+      name varchar (20) not null,
+      address varchar (60) not null,
+      phone_number decimal (10) UNSIGNED NOT NULL,
+      email_id VARCHAR (20) not null,
+      rating float
+    );
+  \end{minted}
+  \item A table for basic details of shipper.
+  \begin{minted}{SQL}
+    /*  Here: shipper_id -> R is the only relevant dependency and hence it is in BCNF  */
+create table shipper (
+  shipper_id varchar (20) primary key not null,
+  name varchar (20) not null,
+  head_quarters varchar (60) not null,
+  phone_number decimal (10) UNSIGNED not null,
+  email_id VARCHAR (20) not null
+);
+
+  \end{minted}
+  \item Having described these basic tables, we can now describe table for products. Note that each product can be sold by different sellers in different price and quantity, thus, primary key is formed by both product\_id and seller\_id. 
+  \begin{minted}{SQL}
+    /*  Here: (product_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
+    /* Rating will be updated with the help of triggers. */
+    create table product (
+      product_id varchar (20) not null,
+      product_name varchar (20) not null,
+      seller_id varchar (20) not null,
+      price float not NULL,
+      total_stock int,
+      pickup_address varchar (60) not null,
+      description varchar (60),
+      rating float,
+      foreign key (seller_id) references seller (seller_id) on delete cascade,
+      primary key (product_id, seller_id)
+    );
+  \end{minted}
+  \item When user makes a payment, we want to store payment details for which we have the following table.
+  \begin{minted}{SQL}
+/*   Here: payment_id -> R is the only relevant dependency and hence it is in BCNF  */
+create table payment (
+  payment_id VARCHAR (20) primary key not null,
+  credit_card_number VARCHAR (20) not null,
+  date_ timestamp,
+  billing_address varchar(60) not null
+);
+  \end{minted}
+  \item User will have a front end feature to add items in cart. When the user is ready to buy, it will generate an \ita{order\_id} for all those products which he or she chose. Note that \ita{order\_id} will be generated \ita{only} when user successfully does the payment.
+  \begin{minted}{SQL}
+    /* Here: order_id -> R is the only relevant dependency and hence it is in BCNF  */
+    create table order_ (
+      order_id VARCHAR (20) primary key not null,
+      customer_id VARCHAR (20),
+      shipping_address varchar(60) not null,
+      payment_id VARCHAR (20),
+      foreign key (customer_id) references customer (customer_id) on delete set null,
+      foreign key (payment_id) references payment (payment_id) on delete set null
+    );
+  \end{minted}
+  \item After generating the payment, we have to put the details of the bought items along with their order\_id.
+  \begin{minted}{SQL}
+    /*  Here: (product_id, order_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
+    create table product_order (
+      product_id varchar(20) not null,
+      order_id varchar (20) not null,
+      seller_id varchar (20),
+      product_rating int check (product_rating in (NULL, 1, 2, 3, 4, 5)),
+      seller_rating int check (seller_rating in (NULL, 1, 2, 3, 4, 5)),
+      ship_index int,
+      product_review varchar (60),
+      seller_review varchar (60),
+      quantity int,
+      selling_price float,
+      primary key (product_id, order_id, seller_id),
+      foreign key (product_id) references product (product_id) on delete cascade,
+      foreign key (order_id) references order_ (order_id) on delete cascade,
+      foreign key (seller_id) references seller (seller_id) on delete cascade,
+      foreign key (ship_index) references track (index_) on delete set null
+    );
+  \end{minted}
+  \item Note that we used a foreign key in the above table which we haven't defined yet, which is \ita{ship\_index}. It is basically a unique identifier for each ordered product serving as an index of track table which we will use to track our items.
+  \begin{minted}{SQL}
+    /*  Here: index_ -> R is the only relevant dependency and hence it is in BCNF  */
+    create table track (
+      index_ INT AUTO_INCREMENT primary key not null,
+      shipper_id varchar (20),
+      tracking_id varchar (20),
+      foreign key (shipper_id) references shipper (shipper_id) on delete set null
+    );
+  \end{minted}
+
+\end{itemize}
 \begin{minted}{SQL}
 
   create table Users (
