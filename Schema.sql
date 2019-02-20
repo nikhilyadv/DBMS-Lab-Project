@@ -1,6 +1,4 @@
-/* Notation: A dependency A -> B is called relevant dependency if all other dependencies are of the form A -> C where C is a subset of B */
-
-/*  Here: customer_id -> R is the only relevant dependency and hence it is in BCNF */
+/*  Here: customer_id -> R is the only non trivial dependency and hence it is in BCNF */
 create table customer (
   customer_id VARCHAR (20) primary key not null,
   name VARCHAR (20) not null,
@@ -9,7 +7,7 @@ create table customer (
   email_id VARCHAR (20) not null
 );
 
-/*   Here: payment_id -> R is the only relevant dependency and hence it is in BCNF  */
+/*   Here: payment_id -> R is the only non trivial dependency and hence it is in BCNF  */
 create table payment (
   payment_id VARCHAR (20) primary key not null,
   credit_card_number VARCHAR (20) not null,
@@ -17,7 +15,7 @@ create table payment (
   billing_address varchar(60) not null
 );
 
-/* Here: order_id -> R is the only relevant dependency and hence it is in BCNF  */
+/* Here: order_id -> R is the only non trivial dependency and hence it is in BCNF  */
 /* Initially payment id can be null and then later once the customer does the payment, trigger will add the payment id */
 create table order_ (
   order_id VARCHAR (20) primary key not null,
@@ -28,7 +26,7 @@ create table order_ (
   foreign key (payment_id) references payment (payment_id) on delete set null
 );
 
-/* Here: seller_id -> R is the only relevant dependency and hence it is in BCNF */
+/* Here: seller_id -> R is the only non trivial dependency and hence it is in BCNF */
 /* Rating will be updated with the help of triggers. */
 create table seller (
   seller_id varchar (20) primary key not null,
@@ -39,7 +37,7 @@ create table seller (
   rating float
 );
 
-/*  Here: shipper_id -> R is the only relevant dependency and hence it is in BCNF  */
+/*  Here: shipper_id -> R is the only non trivial dependency and hence it is in BCNF  */
 create table shipper (
   shipper_id varchar (20) primary key not null,
   name varchar (20) not null,
@@ -48,7 +46,7 @@ create table shipper (
   email_id VARCHAR (20) not null
 );
 
-/*  Here: index_ -> R is the only relevant dependency and hence it is in BCNF  */
+/*  Here: index_ -> R is the only non trivial dependency and hence it is in BCNF  */
 create table track (
   index_ INT AUTO_INCREMENT primary key not null,
   shipper_id varchar (20),
@@ -56,7 +54,7 @@ create table track (
   foreign key (shipper_id) references shipper (shipper_id) on delete set null
 );
 
-/*  Here: (product_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
+/*  Here: (product_id, seller_id) -> R is the only non trivial dependency and hence it is in BCNF  */
 /* Rating will be updated with the help of triggers. */
 create table product (
   product_id varchar (20) not null,
@@ -71,7 +69,7 @@ create table product (
   primary key (product_id, seller_id)
 );
 
-/*  Here: (product_id, order_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
+/*  Here: (product_id, order_id, seller_id) -> R is the only non trivial dependency and hence it is in BCNF  */
 create table product_order (
   product_id varchar(20) not null,
   order_id varchar (20) not null,
