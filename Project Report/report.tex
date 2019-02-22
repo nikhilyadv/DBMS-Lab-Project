@@ -1,9 +1,11 @@
-\documentclass[a4paper,12pt]{article} % must appear at the beginning of every latex file
+\documentclass[a4paper,12pt]{article} 
+\usepackage{enumitem}
 \usepackage{color}
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{minted}
 \usepackage{hyperref}
+
 % End loading packages
 
 \newcommand{\bck}{
@@ -74,7 +76,7 @@ Following is the list of requirements.
 \section{Database Schema And Normalization}
 In this section we describe various aspects of our schema and also mention that it is indeed normalized (BCNF).
 
-\it{Notation: }A dependency $A \rightarrow B$ is called relevant dependency if all other dependencies are of the form $A \rightarrow C$ where $C$ is a subset of $B$.
+\ita{Notation: }A dependency $A \rightarrow B$ is called relevant if all other dependencies from $A$ are of the form $A \rightarrow C$ where $C \subseteq B$.
 
 \begin{itemize}
   \item A table for basic details of customer.
@@ -279,7 +281,7 @@ Now the product has been added successfully.
 \newpage
 \section{Useful links}
 \begin{center}
-\textbf{Hosted on github with love - } \href{https://github.com/nikhilyadv/DBMS-Lab-Project}{Link}\\
+\textbf{Complete project - } \href{https://github.com/nikhilyadv/DBMS-Lab-Project}{Link}\\
 \textbf{GUI source code - } \href{https://github.com/nikhilyadv/DBMS-Lab-Project/tree/master/GUI}{Link}
 \end{center}
 \newpage
