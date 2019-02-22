@@ -4,18 +4,38 @@ class DB:
     def __del__(self):  
         self.conn.close()  
 
-    def createUser (self, username, passcode, role):
+    def checkWhetherUserExists (self, username):
+        self.login("root","root","norole")
+        self.cur.execute("SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = \"{}\")".format(username))
+        row = self.cur.fetchall()
+        print (row[0][0], "\n")
+        if row[0][0] == 0:
+            return True
+        return False
+ 
+
+    def createUser (self, username, passcode, role, name, address, phonenumber, email):
+        if self.checkWhetherUserExists(username) == False:
+            return False
         self.login("root","root","norole")
         self.cur.execute("CREATE USER {} IDENTIFIED BY \"{}\";".format(username, passcode))
         self.conn.commit()
         self.cur.execute("GRANT {} to {}".format(role, username))
         self.conn.commit()
+        self.cur.execute("INSERT INTO customer VALUES(\"{}\",\"{}\",\"{}\",{},\"{}\");".format(username, name, address, phonenumber, email))
+        self.conn.commit()
+        return True
+ 
 
     def login (self, username, passcode, role):
         self.conn = sql.connect (user = username, password = passcode, db = "AmaKart")
         self.cur = self.conn.cursor ()
         if (role != "norole"):
             self.cur.execute("SET ROLE {};".format(role))
+    
+"""    def updateInfo (self, username, passcode, name, address, phonenumber, email):
+        self.cur.execute("UPDATE customer_add ;".format(username, passcode))
+        self.conn.commit()"""
     
     
 """

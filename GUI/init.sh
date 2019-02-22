@@ -96,6 +96,9 @@ create table product_order (
   foreign key (ship_index) references track (index_) on delete set null
 );
 
+CREATE VIEW customer_add AS (SELECT * 
+                             FROM customer 
+                             WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
 
 CREATE VIEW orderPrice AS (select order_id, sum(selling_price * quantity) as total_price
                            FROM (product_order)

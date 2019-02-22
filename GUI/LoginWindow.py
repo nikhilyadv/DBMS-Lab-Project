@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
-import Supplier
+import Seller 
 import SignUp
 
 class LoginWindow:

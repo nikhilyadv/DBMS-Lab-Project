@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 
-class Supplier:
+class Seller:
     def __init__ (self, db, username):
         self.db = db
         self.supplier_id = username

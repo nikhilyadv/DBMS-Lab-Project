@@ -2,5 +2,5 @@ import DB
 import LoginWindow
 import SignUp
 
-db = DB.DB("root", "root")
+db = DB.DB ()
 hi = LoginWindow.LoginWindow (db)

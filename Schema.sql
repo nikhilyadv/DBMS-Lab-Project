@@ -88,8 +88,11 @@ create table product_order (
   foreign key (ship_index) references track (index_) on delete set null
 );
 
+CREATE VIEW customer_add AS (SELECT * 
+                             FROM customer 
+                             WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
 
-CREATE VIEW orderPrice AS (select order_id, sum(selling_price * quantity) as total_price
+CREATE VIEW orderPrice AS (SELECT order_id, sum(selling_price * quantity) as total_price
                            FROM (product_order)
                            GROUP BY order_id); 
 
@@ -133,6 +136,7 @@ CREATE ROLE shipper;
 GRANT ALL PRIVILEGES ON AmaKart.* TO dbadmin;
 
 -- Make sure that any view on which a role gets access on should have the filter "SELECT user()"
+GRANT ALL PRIVILEGES ON AmaKart.customer_add TO customer;
 GRANT SELECT ON AmaKart.previousOrders TO customer;
 GRANT SELECT ON AmaKart.listOrders TO customer;
 GRANT SELECT ON AmaKart.packageStatus TO customer;
