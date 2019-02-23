@@ -101,6 +101,7 @@ create table Users (
   passcode VARCHAR (20) not null,
   roles VARCHAR (20) not null
 );
+
 -- #########################################
 -- ###########CUSTOMER VIEWS################
 -- #########################################
@@ -194,12 +195,16 @@ GRANT SELECT ON AmaKart.sellerOrders TO seller;
 
 GRANT SELECT ON AmaKart.shipperTrack TO shipper;
 
+-- When a product is sold, we want to mention its selling_price as later the seller can update the price
+
 DELIMITER //
 CREATE TRIGGER setPrice BEFORE INSERT on product_order
 FOR EACH ROW BEGIN
   SET NEW.selling_price = (SELECT price FROM product WHERE product_id = NEW.product_id and seller_id = NEW.seller_id);
 END//
 DELIMITER ;
+
+-- When a customer passes a rating for product we have to update it in our product table
 
 DELIMITER //
 CREATE TRIGGER updateRatingProduct AFTER UPDATE on product_order
@@ -210,6 +215,9 @@ FOR EACH ROW BEGIN
 END//
 DELIMITER ;
 
+
+-- When a customer passes a rating for seller we have to update it in our seller table
+
 DELIMITER //
 CREATE TRIGGER updateRatingSeller AFTER UPDATE on product_order
 FOR EACH ROW BEGIN
@@ -219,11 +227,13 @@ FOR EACH ROW BEGIN
 END//
 DELIMITER ;
 
+-- When a product is sold, we need to add an entry to our track table for the same
+
 DELIMITER //
-CREATE TRIGGER addTrack AFTER INSERT on product_order
+CREATE TRIGGER addTrack BEFORE INSERT on product_order
 FOR EACH ROW BEGIN
   INSERT INTO track () Values ();
-  UPDATE product_order SET ship_index = (SELECT MAX (index_) FROM track) WHERE product_id = NEW.product_id AND order_id = NEW.order_id AND seller_id = NEW.seller_id;
+  SET NEW.ship_index = (SELECT MAX (index_) FROM track);
 END//
 DELIMITER ;
 

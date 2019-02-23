@@ -185,25 +185,91 @@ create table payment (
       foreign key (shipper_id) references shipper (shipper_id) on delete set null
     );
   \end{minted}
+  \item We also have an auxiliary table for keeping track of users with their old passwords as mysql.user encrypts the passwords and there is no way to get it back also this table is required for validation when the user tries to log in the system.
+  \begin{minted}{SQL}
+    -- Clearly this table is in BCNF.
 
+create table Users (
+  username VARCHAR (20) primary key not null,
+  passcode VARCHAR (20) not null,
+  roles VARCHAR (20) not null
+);
+  \end{minted}
 \end{itemize}
+\newpage
 \section{Roles, Triggers, Views}
 \subsection{Views}
+\begin{minted}{SQL}
+  -- #########################################
+-- ###########CUSTOMER VIEWS################
+-- #########################################
 
-\begin{itemize}
-    \item A view to allow a customer to check his personal previous orders/order history.
-    \item A view to check the current status of a particular package.
-    \item A view to check the spendings done by the customer per month.
-    \item A view for supplier to check his pending (not shipped) packages.
-    \item A view for supplier to check his previously processed packages.
-    \item A view for supplier to check various important statistics like sale per month. 
-    \item A view for shipper to check his not yet delivered packages.
-    \item A view for shipper to know his past delivered packages.
-    \item A view for shipper to know various statistics like sales per month, sales associated with particular supplier, etc.
-\end{itemize}
+-- This view will allow customer to view its details.
 
+CREATE VIEW customer_add AS (SELECT * 
+                             FROM customer 
+                             WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
+
+-- This view will allow customer to see the total cost of his/her various orders
+
+CREATE VIEW orderPrice AS (SELECT order_id, sum(selling_price * quantity) as total_price
+                           FROM (product_order)
+                           GROUP BY order_id); 
+
+-- This view will tell the customer details corresponding to his/her all order_id mentioning complete order details (order_id, shipping_address, date_, total_price) except the products in that order. 
+
+CREATE VIEW previousOrders AS (SELECT T1.order_id, T1.shipping_address, T2.date_, T3.total_price
+                               FROM (order_ as T1) NATURAL JOIN (payment as T2) NATURAL JOIN (orderPrice as T3)
+                               WHERE CONCAT(T1.customer_id, "@localhost") IN (SELECT user()));
+
+-- This view will allow customer to just see his various order_id. 
+
+CREATE VIEW listOrders AS (SELECT order_id
+                            FROM order_ 
+                            WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
+
+-- This view will give entry to the track table for each (product_id, order_id) pair
+
+CREATE VIEW trackID AS (SELECT order_id, product_id, ship_index
+                        FROM product_order
+                        WHERE order_id IN (SELECT * FROM listOrders));
+
+-- This view will augment the previous view with tracking_id as well.
+
+CREATE VIEW packageStatus AS (SELECT T1.order_id, T1.product_id, T1.ship_index, T2.tracking_id
+                              FROM (trackID as T1) JOIN (track as T2) ON (T1.ship_index = T2.index_));
+
+
+-- #########################################
+-- ###########SELLER VIEWS##################
+-- #########################################
+
+-- This view will allow seller to see his/her various products.
+
+CREATE VIEW sellerProducts AS (SELECT product_id, product_name, price, total_stock, pickup_address, description 
+                                  FROM product
+                                  WHERE CONCAT(seller_id, "@localhost") in (SELECT user()));
+
+-- This view allow seller to see various orders which he or she have sold (seller_id, product_id, quantity, selling_price, date_) 
+
+CREATE VIEW sellerOrders AS (SELECT T1.seller_id, T1.product_id, T1.quantity, T1.selling_price, T2.date_
+                                FROM (product_order as T1) natural join (payment as T2)
+                                WHERE CONCAT(T1.seller_id, "@localhost") in (SELECT user()));
+
+-- #########################################
+-- ###########SHIPPER VIEWS#################
+-- #########################################
+
+-- This view will allow shipper details (pickup_address, shipping_address, tracking_id)
+
+CREATE VIEW shipperTrack AS (SELECT index_, pickup_address AS source, shipping_address AS destination, tracking_id
+                              FROM (track JOIN product_order ON index_ = ship_index) NATURAL JOIN order_ NATURAL JOIN product 
+                              WHERE CONCAT(shipper_id, "@localhost") = (SELECT user()));
+\end{minted}
 
 \subsection{Roles}
+Basically we have three roles.
+
 \begin{itemize}
     \item A role for database administrator.
     \item A role for customer.
@@ -211,22 +277,75 @@ create table payment (
     \item A role for shipper.
 \end{itemize}
 
-\subsection{Triggers}
+And their details is best understood with the help of the following code:
+\begin{minted}{SQL}
+  CREATE ROLE dbadmin;
+CREATE ROLE customer;
+CREATE ROLE seller;
+CREATE ROLE shipper;
 
-\begin{itemize}
-    \item Trigger to notify addition of a new customer.
-    \item Trigger to notify addition of a new supplier.
-    \item Trigger to notify addition of a new shipper.
-    \item Trigger to notify addition of new item.
-    \item A trigger to add a tuple in track relation before an insertion into \textit{product\_order} relation.
-    \item Trigger to notify cutomer of successful order.
-    \item Trigger to notify supplier about successful dispatch.
-    \item Trigger to notify when the stock goes below a specific amount.
-    \item Trigger to delete corresponding entries in various tables if the stock decreases to 0.
-    \item Trigger to notify customer that the package has been delivered.
-    \item Trigger to notify supplier that the package has been recieved.
-    \item Trigger to notify supplier that a customer has left a review.
-\end{itemize}
+GRANT ALL PRIVILEGES ON AmaKart.* TO dbadmin;
+
+-- Make sure that any view on which a role gets access on should have the filter "SELECT user()"
+GRANT ALL PRIVILEGES ON AmaKart.customer_add TO customer;
+GRANT SELECT ON AmaKart.previousOrders TO customer;
+GRANT SELECT ON AmaKart.listOrders TO customer;
+GRANT SELECT ON AmaKart.packageStatus TO customer;
+
+-- I am not sure about these two please check
+GRANT INSERT ON AmaKart.order_ TO customer;
+GRANT INSERT ON AmaKart.payment TO customer;
+
+GRANT SELECT ON AmaKart.sellerProducts TO seller;
+GRANT SELECT ON AmaKart.sellerOrders TO seller;
+
+GRANT SELECT ON AmaKart.shipperTrack TO shipper;
+\end{minted}
+
+\subsection{Triggers}
+\begin{minted}{SQL}
+  -- When a product is sold, we want to mention its selling_price as later the seller can update the price
+
+DELIMITER //
+CREATE TRIGGER setPrice BEFORE INSERT on product_order
+FOR EACH ROW BEGIN
+  SET NEW.selling_price = (SELECT price FROM product WHERE product_id = NEW.product_id and seller_id = NEW.seller_id);
+END//
+DELIMITER ;
+
+-- When a customer passes a rating for product we have to update it in our product table
+
+DELIMITER //
+CREATE TRIGGER updateRatingProduct AFTER UPDATE on product_order
+FOR EACH ROW BEGIN
+  IF NEW.product_rating != NULL THEN
+    UPDATE product SET rating = (SELECT AVG(product_rating) FROM product_order WHERE product_id = NEW.product_id) WHERE product_id = NEW.product_id;
+  END IF;
+END//
+DELIMITER ;
+
+
+-- When a customer passes a rating for seller we have to update it in our seller table
+
+DELIMITER //
+CREATE TRIGGER updateRatingSeller AFTER UPDATE on product_order
+FOR EACH ROW BEGIN
+  IF NEW.seller_rating != NULL THEN
+    UPDATE seller SET rating = (SELECT AVG(seller_rating) FROM product_order WHERE seller_id = NEW.seller_id) WHERE seller_id = NEW.seller_id;
+  END IF;
+END//
+DELIMITER ;
+
+-- When a product is sold, we need to add an entry to our track table for the same
+
+DELIMITER //
+CREATE TRIGGER addTrack BEFORE INSERT on product_order
+FOR EACH ROW BEGIN
+  INSERT INTO track () Values ();
+  SET NEW.ship_index = (SELECT MAX (index_) FROM track);
+END//
+DELIMITER ;
+\end{minted}
 
 \newpage
 \section{Use Cases}
