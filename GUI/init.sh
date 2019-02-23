@@ -1,12 +1,11 @@
 #!/bin/bash
 
 mysql -u root -proot <<MY_QUERY
-drop database AmaKart;
-create database AmaKart;
-use AmaKart;
-/* Notation: A dependency A -> B is called relevant dependency if all other dependencies are of the form A -> C where C is a subset of B */
+DROP DATABASE AmaKart;
+CREATE DATABASE AmaKart;
+USE AmaKart;
 
-/*  Here: customer_id -> R is the only relevant dependency and hence it is in BCNF */
+/*  Here: customer_id -> R is the only non trivial dependency and hence it is in BCNF */
 create table customer (
   customer_id VARCHAR (20) primary key not null,
   name VARCHAR (20) not null,
@@ -15,7 +14,7 @@ create table customer (
   email_id VARCHAR (20) not null
 );
 
-/*   Here: payment_id -> R is the only relevant dependency and hence it is in BCNF  */
+/*   Here: payment_id -> R is the only non trivial dependency and hence it is in BCNF  */
 create table payment (
   payment_id VARCHAR (20) primary key not null,
   credit_card_number VARCHAR (20) not null,
@@ -23,7 +22,7 @@ create table payment (
   billing_address varchar(60) not null
 );
 
-/* Here: order_id -> R is the only relevant dependency and hence it is in BCNF  */
+/* Here: order_id -> R is the only non trivial dependency and hence it is in BCNF  */
 /* Initially payment id can be null and then later once the customer does the payment, trigger will add the payment id */
 create table order_ (
   order_id VARCHAR (20) primary key not null,
@@ -34,7 +33,7 @@ create table order_ (
   foreign key (payment_id) references payment (payment_id) on delete set null
 );
 
-/* Here: seller_id -> R is the only relevant dependency and hence it is in BCNF */
+/* Here: seller_id -> R is the only non trivial dependency and hence it is in BCNF */
 /* Rating will be updated with the help of triggers. */
 create table seller (
   seller_id varchar (20) primary key not null,
@@ -45,7 +44,7 @@ create table seller (
   rating float
 );
 
-/*  Here: shipper_id -> R is the only relevant dependency and hence it is in BCNF  */
+/*  Here: shipper_id -> R is the only non trivial dependency and hence it is in BCNF  */
 create table shipper (
   shipper_id varchar (20) primary key not null,
   name varchar (20) not null,
@@ -54,7 +53,7 @@ create table shipper (
   email_id VARCHAR (20) not null
 );
 
-/*  Here: index_ -> R is the only relevant dependency and hence it is in BCNF  */
+/*  Here: index_ -> R is the only non trivial dependency and hence it is in BCNF  */
 create table track (
   index_ INT AUTO_INCREMENT primary key not null,
   shipper_id varchar (20),
@@ -62,7 +61,7 @@ create table track (
   foreign key (shipper_id) references shipper (shipper_id) on delete set null
 );
 
-/*  Here: (product_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
+/*  Here: (product_id, seller_id) -> R is the only non trivial dependency and hence it is in BCNF  */
 /* Rating will be updated with the help of triggers. */
 create table product (
   product_id varchar (20) not null,
@@ -77,7 +76,7 @@ create table product (
   primary key (product_id, seller_id)
 );
 
-/*  Here: (product_id, order_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
+/*  Here: (product_id, order_id, seller_id) -> R is the only non trivial dependency and hence it is in BCNF  */
 create table product_order (
   product_id varchar(20) not null,
   order_id varchar (20) not null,
@@ -96,36 +95,76 @@ create table product_order (
   foreign key (ship_index) references track (index_) on delete set null
 );
 
+
+-- We also have an auxiliary table for keeping track of users with their old passwords as mysql.user encrypts the passwords and there is no way to get it back also this table is required for validation when the user tries to log in the system.
+-- Clearly this table is in BCNF.
+
+create table Users (
+  username VARCHAR (20) primary key not null,
+  passcode VARCHAR (20) not null,
+  roles VARCHAR (20) not null
+);
+-- #########################################
+-- ###########CUSTOMER VIEWS################
+-- #########################################
+
+-- This view will allow customer to view its details.
+
 CREATE VIEW customer_add AS (SELECT * 
                              FROM customer 
                              WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
 
-CREATE VIEW orderPrice AS (select order_id, sum(selling_price * quantity) as total_price
+-- This view will allow customer to see the total cost of his/her various orders
+
+CREATE VIEW orderPrice AS (SELECT order_id, sum(selling_price * quantity) as total_price
                            FROM (product_order)
                            GROUP BY order_id); 
+
+-- This view will tell the customer details corresponding to his/her all order_id mentioning complete order details (order_id, shipping_address, date_, total_price) except the products in that order. 
 
 CREATE VIEW previousOrders AS (SELECT T1.order_id, T1.shipping_address, T2.date_, T3.total_price
                                FROM (order_ as T1) NATURAL JOIN (payment as T2) NATURAL JOIN (orderPrice as T3)
                                WHERE CONCAT(T1.customer_id, "@localhost") IN (SELECT user()));
 
+-- This view will allow customer to just see his various order_id. 
+
 CREATE VIEW listOrders AS (SELECT order_id
                             FROM order_ 
                             WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
+
+-- This view will give entry to the track table for each (product_id, order_id) pair
 
 CREATE VIEW trackID AS (SELECT order_id, product_id, ship_index
                         FROM product_order
                         WHERE order_id IN (SELECT * FROM listOrders));
 
+-- This view will augment the previous view with tracking_id as well.
+
 CREATE VIEW packageStatus AS (SELECT T1.order_id, T1.product_id, T1.ship_index, T2.tracking_id
                               FROM (trackID as T1) JOIN (track as T2) ON (T1.ship_index = T2.index_));
 
+
+-- #########################################
+-- ###########SELLER VIEWS##################
+-- #########################################
+
+-- This view will allow seller to see his/her various products.
+
 CREATE VIEW sellerProducts AS (SELECT product_id, product_name, price, total_stock, pickup_address, description 
                                   FROM product
-                                  WHERE CONCAT(seller_id, "@localhost") = (SELECT user()));
+                                  WHERE CONCAT(seller_id, "@localhost") in (SELECT user()));
+
+-- This view allow seller to see various orders which he or she have sold (seller_id, product_id, quantity, selling_price, date_) 
 
 CREATE VIEW sellerOrders AS (SELECT T1.seller_id, T1.product_id, T1.quantity, T1.selling_price, T2.date_
                                 FROM (product_order as T1) natural join (payment as T2)
-                                WHERE CONCAT(T1.seller_id, "@localhost") = (SELECT user()));
+                                WHERE CONCAT(T1.seller_id, "@localhost") in (SELECT user()));
+
+-- #########################################
+-- ###########SHIPPER VIEWS#################
+-- #########################################
+
+-- This view will allow shipper details (pickup_address, shipping_address, tracking_id)
 
 CREATE VIEW shipperTrack AS (SELECT index_, pickup_address AS source, shipping_address AS destination, tracking_id
                               FROM (track JOIN product_order ON index_ = ship_index) NATURAL JOIN order_ NATURAL JOIN product 
@@ -144,6 +183,7 @@ CREATE ROLE shipper;
 GRANT ALL PRIVILEGES ON AmaKart.* TO dbadmin;
 
 -- Make sure that any view on which a role gets access on should have the filter "SELECT user()"
+GRANT ALL PRIVILEGES ON AmaKart.customer_add TO customer;
 GRANT SELECT ON AmaKart.previousOrders TO customer;
 GRANT SELECT ON AmaKart.listOrders TO customer;
 GRANT SELECT ON AmaKart.packageStatus TO customer;
@@ -173,23 +213,23 @@ FOR EACH ROW BEGIN
 END//
 DELIMITER ;
 
-
-
 -- Inserting data and creating dummy users without password
-DROP USER AmaKartAdmin;
 DROP USER Nikhil;
 DROP USER Sourabh;
 DROP USER FEDEx;
 
-CREATE USER AmaKartAdmin IDENTIFIED BY "root";
-CREATE USER Nikhil;
-CREATE USER Sourabh;
-CREATE USER FEDEx;
+CREATE USER Nikhil IDENTIFIED BY "hi";
+CREATE USER Sourabh IDENTIFIED BY "hi";
+CREATE USER FEDEx IDENTIFIED BY "hi";
 
-GRANT dbadmin to AmaKartAdmin;
+
 GRANT customer to Nikhil;
 GRANT seller to Sourabh;
 GRANT shipper to FEDEx;
+
+INSERT INTO Users VALUES ("Nikhil", "hi", "customer");
+INSERT INTO Users VALUES ("Sourabh", "hi", "seller");
+INSERT INTO Users VALUES ("FEDEx", "hi", "shipper");
 
 INSERT INTO customer Values ("Nikhil","Nikhil Kumar","ROOM-119",8281112705,"111601013@");
 INSERT INTO seller Values ("Sourabh","Sourabh Agg","ROOM-211",8281112700,"111601025@",NULL);
@@ -204,4 +244,5 @@ INSERT INTO order_ Values ("1","Nikhil","RM-119","1");
 INSERT INTO track(shipper_id) Values ("FEDEx");
 
 INSERT INTO product_order(product_id, order_id, seller_id, product_rating, seller_rating, ship_index, product_review, seller_review, quantity) Values ("1","1","Sourabh",5,4,1,NULL,NULL,10);
+
 MY_QUERY

@@ -1,3 +1,7 @@
+DROP DATABASE AmaKart;
+CREATE DATABASE AmaKart;
+USE AmaKart;
+
 /*  Here: customer_id -> R is the only non trivial dependency and hence it is in BCNF */
 create table customer (
   customer_id VARCHAR (20) primary key not null,
@@ -88,6 +92,15 @@ create table product_order (
   foreign key (ship_index) references track (index_) on delete set null
 );
 
+
+-- We also have an auxiliary table for keeping track of users with their old passwords as mysql.user encrypts the passwords and there is no way to get it back also this table is required for validation when the user tries to log in the system.
+-- Clearly this table is in BCNF.
+
+create table Users (
+  username VARCHAR (20) primary key not null,
+  passcode VARCHAR (20) not null,
+  roles VARCHAR (20) not null
+);
 -- #########################################
 -- ###########CUSTOMER VIEWS################
 -- #########################################
@@ -192,28 +205,36 @@ DELIMITER //
 CREATE TRIGGER updateRatingProduct AFTER UPDATE on product_order
 FOR EACH ROW BEGIN
   IF NEW.product_rating != NULL THEN
-    UPDATE product SET rating = (SELECT AVG(product_rating) FROM product_order WHERE product_id = NEW.product_id and seller_id = NEW.seller_id) WHERE product_id = NEW.product_id;
+    UPDATE product SET rating = (SELECT AVG(product_rating) FROM product_order WHERE product_id = NEW.product_id) WHERE product_id = NEW.product_id;
   END IF;
 END//
 DELIMITER ;
 
-
+CREATE TRIGGER updateRatingSeller AFTER UPDATE on product_order
+FOR EACH ROW BEGIN
+  IF NEW.seller_rating != NULL THEN
+    UPDATE seller SET rating = (SELECT AVG(seller_rating) FROM product_order WHERE seller_id = NEW.seller_id) WHERE seller_id = NEW.seller_id;
+  END IF;
+END//
+DELIMITER ;
 
 -- Inserting data and creating dummy users without password
 DROP USER Nikhil;
 DROP USER Sourabh;
 DROP USER FEDEx;
-DROP USER sourabh;
 
-CREATE USER Nikhil;
-CREATE USER Sourabh;
-CREATE USER FEDEx;
-CREATE USER sourabh IDENTIFIED BY "hi";
+CREATE USER Nikhil IDENTIFIED BY "hi";
+CREATE USER Sourabh IDENTIFIED BY "hi";
+CREATE USER FEDEx IDENTIFIED BY "hi";
+
 
 GRANT customer to Nikhil;
 GRANT seller to Sourabh;
 GRANT shipper to FEDEx;
-GRANT seller to sourabh;
+
+INSERT INTO Users VALUES ("Nikhil", "hi", "customer");
+INSERT INTO Users VALUES ("Sourabh", "hi", "seller");
+INSERT INTO Users VALUES ("FEDEx", "hi", "shipper");
 
 INSERT INTO customer Values ("Nikhil","Nikhil Kumar","ROOM-119",8281112705,"111601013@");
 INSERT INTO seller Values ("Sourabh","Sourabh Agg","ROOM-211",8281112700,"111601025@",NULL);

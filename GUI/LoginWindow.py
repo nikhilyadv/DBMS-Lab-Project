@@ -11,8 +11,8 @@ class LoginWindow:
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             _window.destroy()
     def loginWin (self):
-        def enter (usr, supp, ship, output, username, password):
-            cnt = usr.get () + supp.get () + ship.get ()
+        def enter (usr, seller, ship, output, username, password):
+            cnt = usr.get () + seller.get () + ship.get ()
             strng = ""
             if (cnt == 0):
                 strng = "You haven't checked any of the check box\n"
@@ -23,7 +23,7 @@ class LoginWindow:
                 output.delete (0.0, END)
                 output.insert (END, strng)
             else:
-                if (supp.get () == 1):
+                if (seller.get () == 1 and self.db.validate (username, password, "seller")):
                     log.destroy ()
                     self.db.loginUser (username, password, "seller")
                     Seller.Seller (self.db, username)
@@ -42,11 +42,11 @@ class LoginWindow:
         Entry(log, textvariable=userText).grid (row = 0, column = 1, sticky = W)
         Entry(log, textvariable=passText, show = "*").grid (row = 1, column = 1, sticky = W)
         usr = IntVar ()
-        supp = IntVar ()
+        seller = IntVar ()
         ship = IntVar ()
         Checkbutton(log, text="User", variable=usr).grid(row=2, column = 0, sticky=W)
-        Checkbutton(log, text="Seller", variable=supp).grid(row=2, column = 1, sticky=W)
+        Checkbutton(log, text="Seller", variable=seller).grid(row=2, column = 1, sticky=W)
         Checkbutton(log, text="Shipper", variable=ship).grid(row=2, column = 2, sticky=W)
-        Button(log, text= 'Enter', command= lambda: enter(usr, supp, ship, output, userText.get (), passText.get ())).grid(row=3, sticky=W, pady=4)
+        Button(log, text= 'Enter', command= lambda: enter(usr, seller, ship, output, userText.get (), passText.get ())).grid(row=3, sticky=W, pady=4)
         Button (log, text = "SignUp", command = lambda: openSign (log)).grid (row = 4, sticky = W, pady = 4)
         log.mainloop()

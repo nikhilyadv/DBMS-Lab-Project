@@ -2,7 +2,9 @@ import MySQLdb as sql # install using https://pypi.org/project/mysqlclient/
 
 class DB:
     def __init__(self):
-        self.login ("root", "root", "norole")
+        self.conn = sql.connect (user = "root", password = "root", db = "AmaKart")
+        self.cur = self.conn.cursor ()
+
     def __del__(self):  
         self.conn.close()  
 
@@ -14,32 +16,39 @@ class DB:
             return True
         return False
  
-
     def createUser (self, username, passcode, role, name, address, phonenumber, email):
         if self.checkWhetherUserExists(username) == False:
             return False
+        self.cur.execute("INSERT INTO Users VALUES (\"{}\", \"{}\", \"{}\")".format(username, passcode, role))
+        self.conn.commit()
         self.cur.execute("CREATE USER {} IDENTIFIED BY \"{}\";".format(username, passcode))
+        
         self.conn.commit()
         self.cur.execute("GRANT {} to {}".format(role, username))
         self.conn.commit()
-        self.cur.execute("INSERT INTO customer VALUES(\"{}\",\"{}\",\"{}\",{},\"{}\");".format(username, name, address, phonenumber, email))
+        if (role == "seller"):
+            self.cur.execute("INSERT INTO {} VALUES(\"{}\",\"{}\",\"{}\",{},\"{}\", NULL);".format(role, username, name, address, phonenumber, email)) 
+        else:
+            self.cur.execute("INSERT INTO {} VALUES(\"{}\",\"{}\",\"{}\",{},\"{}\");".format(role, username, name, address, phonenumber, email))
         self.conn.commit()
         return True
  
-    
     def loginUser (self, username, passcode, role):
         self.conn = sql.connect (user = username, password = passcode)
         self.cur = self.conn.cursor ()
-        if (role != "norole"):
-            self.cur.execute("SET ROLE {};".format(role))
-            self.conn.commit ()
-            self.cur.execute("use AmaKart;")
-            self.conn.commit ()
+        self.cur.execute("SET ROLE {};".format(role))
+        self.conn.commit ()
+        self.cur.execute("use AmaKart;")
+        self.conn.commit ()
 
-    def login (self, username, passcode, role):
-        self.conn = sql.connect (user = username, password = passcode, db = "AmaKart")
-        self.cur = self.conn.cursor ()
+    def validate (self, username, passcode, role) :
+        self.cur.execute("SELECT * FROM Users WHERE username=\"{}\" and passcode=\"{}\" and roles=\"{}\"".format(username,passcode,role))
+        row = self.cur.fetchall()
+        if len(row) == 1 :
+            return True
+        return False
     
+   
 """    def updateInfo (self, username, passcode, name, address, phonenumber, email):
         self.cur.execute("UPDATE customer_add ;".format(username, passcode))
         self.conn.commit()"""
