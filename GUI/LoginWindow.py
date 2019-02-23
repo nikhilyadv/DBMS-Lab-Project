@@ -23,9 +23,10 @@ class LoginWindow:
                 output.delete (0.0, END)
                 output.insert (END, strng)
             else:
-                if (supp.get () == 1 and self.db.validate (username, password, "SUP")):
+                if (supp.get () == 1):
                     log.destroy ()
-                    Supplier.Supplier (self.db, username)
+                    self.db.loginUser (username, password, "seller")
+                    Seller.Seller (self.db, username)
         def openSign (log):
             log.destroy ()
             SignUp.SignUp (self.db)
@@ -44,7 +45,7 @@ class LoginWindow:
         supp = IntVar ()
         ship = IntVar ()
         Checkbutton(log, text="User", variable=usr).grid(row=2, column = 0, sticky=W)
-        Checkbutton(log, text="Supplier", variable=supp).grid(row=2, column = 1, sticky=W)
+        Checkbutton(log, text="Seller", variable=supp).grid(row=2, column = 1, sticky=W)
         Checkbutton(log, text="Shipper", variable=ship).grid(row=2, column = 2, sticky=W)
         Button(log, text= 'Enter', command= lambda: enter(usr, supp, ship, output, userText.get (), passText.get ())).grid(row=3, sticky=W, pady=4)
         Button (log, text = "SignUp", command = lambda: openSign (log)).grid (row = 4, sticky = W, pady = 4)

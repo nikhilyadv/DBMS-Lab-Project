@@ -1,11 +1,12 @@
 import MySQLdb as sql # install using https://pypi.org/project/mysqlclient/
 
 class DB:
+    def __init__(self):
+        self.login ("root", "root", "norole")
     def __del__(self):  
         self.conn.close()  
 
     def checkWhetherUserExists (self, username):
-        self.login("root","root","norole")
         self.cur.execute("SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = \"{}\")".format(username))
         row = self.cur.fetchall()
         print (row[0][0], "\n")
@@ -17,7 +18,6 @@ class DB:
     def createUser (self, username, passcode, role, name, address, phonenumber, email):
         if self.checkWhetherUserExists(username) == False:
             return False
-        self.login("root","root","norole")
         self.cur.execute("CREATE USER {} IDENTIFIED BY \"{}\";".format(username, passcode))
         self.conn.commit()
         self.cur.execute("GRANT {} to {}".format(role, username))
@@ -26,12 +26,19 @@ class DB:
         self.conn.commit()
         return True
  
+    
+    def loginUser (self, username, passcode, role):
+        self.conn = sql.connect (user = username, password = passcode)
+        self.cur = self.conn.cursor ()
+        if (role != "norole"):
+            self.cur.execute("SET ROLE {};".format(role))
+            self.conn.commit ()
+            self.cur.execute("use AmaKart;")
+            self.conn.commit ()
 
     def login (self, username, passcode, role):
         self.conn = sql.connect (user = username, password = passcode, db = "AmaKart")
         self.cur = self.conn.cursor ()
-        if (role != "norole"):
-            self.cur.execute("SET ROLE {};".format(role))
     
 """    def updateInfo (self, username, passcode, name, address, phonenumber, email):
         self.cur.execute("UPDATE customer_add ;".format(username, passcode))
