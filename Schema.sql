@@ -210,11 +210,20 @@ FOR EACH ROW BEGIN
 END//
 DELIMITER ;
 
+DELIMITER //
 CREATE TRIGGER updateRatingSeller AFTER UPDATE on product_order
 FOR EACH ROW BEGIN
   IF NEW.seller_rating != NULL THEN
     UPDATE seller SET rating = (SELECT AVG(seller_rating) FROM product_order WHERE seller_id = NEW.seller_id) WHERE seller_id = NEW.seller_id;
   END IF;
+END//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER addTrack AFTER INSERT on product_order
+FOR EACH ROW BEGIN
+  INSERT INTO track () Values ();
+  UPDATE product_order SET ship_index = (SELECT MAX (index_) FROM track) WHERE product_id = NEW.product_id AND order_id = NEW.order_id AND seller_id = NEW.seller_id;
 END//
 DELIMITER ;
 
