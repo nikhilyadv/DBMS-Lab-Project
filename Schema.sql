@@ -168,6 +168,20 @@ CREATE VIEW shipperTrack AS (SELECT index_, pickup_address AS source, shipping_a
                               FROM (track JOIN product_order ON index_ = ship_index) NATURAL JOIN order_ NATURAL JOIN product 
                               WHERE CONCAT(shipper_id, "@localhost") = (SELECT user()));
 
+-- #########################################
+-- ###########CUSTOMER PROCEDURES###########
+-- #########################################
+
+-- Procedure for customer to see his or her past purchases within a specific time duration
+
+DELIMITER //
+CREATE PROCEDURE seePurchasesBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
+BEGIN
+    select * from payment natural join order_ natural join product_order where CONCAT(order_.customer_id, "@localhost") IN (SELECT user()) AND payment.date_ BETWEEN startTime AND endTime;
+END;
+//
+DELIMITER ;
+
 DROP ROLE dbadmin;
 DROP ROLE customer;
 DROP ROLE seller;
@@ -194,6 +208,11 @@ GRANT SELECT ON AmaKart.sellerProducts TO seller;
 GRANT SELECT ON AmaKart.sellerOrders TO seller;
 
 GRANT SELECT ON AmaKart.shipperTrack TO shipper;
+
+-- Procedures/Functions Grant
+GRANT EXECUTE ON PROCEDURE AmaKart.seePurchasesBetweenDuration TO customer;
+
+
 
 -- When a product is sold, we want to mention its selling_price as later the seller can update the price
 
@@ -261,7 +280,7 @@ INSERT INTO shipper Values ("FEDEx","FEDEx","Delhi",1800123343,"111601020@");
 
 INSERT INTO product Values ("1","Rasgulla","Sourabh",10,100.0,"RM3xx","Rasgulla from Aggarwal Sweets",NULL);
 
-INSERT INTO payment Values ("1","4362536563578",NULL,"CompLabFF");
+INSERT INTO payment Values ("1","4362536563578",'2019-01-01',"CompLabFF");
 
 INSERT INTO order_ Values ("1","Nikhil","RM-119","1");
 
