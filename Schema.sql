@@ -182,6 +182,28 @@ END;
 //
 DELIMITER ;
 
+-- Procedure to see latest N Purchases
+
+DELIMITER //
+CREATE PROCEDURE seeLatestNPurchases(IN N INT)
+BEGIN
+    select * from payment natural join order_ natural join product_order where CONCAT(order_.customer_id, "@localhost") IN (SELECT user()) ORDER BY payment.date_ DESC LIMIT N;
+END;
+//
+DELIMITER ;
+
+-- Procedure to see products within price range
+
+DELIMITER //
+CREATE PROCEDURE queryProducts(IN lowRange FLOAT, IN highRange FLOAT)
+BEGIN
+    select * from product where price BETWEEN lowRange AND highRange ORDER BY price ASC;
+END;
+//
+DELIMITER ;
+
+
+
 DROP ROLE dbadmin;
 DROP ROLE customer;
 DROP ROLE seller;
@@ -211,6 +233,8 @@ GRANT SELECT ON AmaKart.shipperTrack TO shipper;
 
 -- Procedures/Functions Grant
 GRANT EXECUTE ON PROCEDURE AmaKart.seePurchasesBetweenDuration TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNPurchases TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.queryProducts TO customer;
 
 
 
