@@ -47,6 +47,13 @@ class DB:
         if len(row) == 1 :
             return True
         return False
+    # left for reference as of now.
+    def _hi(self):
+        self.cur.execute ("call getDetails();")
+        row = self.cur.fetchall()
+        print ("I am pri")
+        print (row)
+        print ("\n")
     
    
 """    def updateInfo (self, username, passcode, name, address, phonenumber, email):
@@ -92,3 +99,5 @@ class DB:
             return True
         return False 
 """
+db = DB()
+db._hi()
