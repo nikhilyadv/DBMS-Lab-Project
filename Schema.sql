@@ -202,7 +202,54 @@ END;
 //
 DELIMITER ;
 
+-- Procedure to see reviews of a product withing a duration
+DELIMITER //
+CREATE PROCEDURE recentProductReviewsBetweenDuration(IN pid varchar(20), IN sid varchar(20), IN startTime TIMESTAMP, IN endTime TIMESTAMP)
+BEGIN
+    SELECT name, product_review FROM (product_order natural join order_ natural join customer natural join payment) WHERE product_id = pid AND seller_id = sid AND (payment.date_ BETWEEN startTime AND endTime);
+END;
+//
+DELIMITER ;
 
+-- Procedure to add review for a product
+DELIMITER //
+CREATE PROCEDURE addReviewProduct(IN pid varchar(20), IN oid varchar(20), IN rev varchar(60))
+BEGIN
+    UPDATE product_order SET product_review = rev WHERE product_id = pid and order_id = oid;
+END;
+//
+DELIMITER ;
+
+-- Procedure to add review for a seller 
+DELIMITER //
+CREATE PROCEDURE addReviewSeller(IN pid varchar(20), IN oid varchar(20), IN rev varchar(60))
+BEGIN
+    UPDATE product_order SET seller_review = rev WHERE product_id = pid and order_id = oid;
+END;
+//
+DELIMITER ;
+
+-- Procedure to add rating for product
+DELIMITER //
+CREATE PROCEDURE addRatingProduct(IN pid varchar(20), IN oid varchar(20), IN rating INT)
+BEGIN
+    IF (rating IN (1,2,3,4,5)) THEN
+      UPDATE product_order SET product_rating =  rating WHERE product_id = pid and order_id = oid;
+    END IF;
+END;
+//
+DELIMITER ;
+
+-- Procedure to add rating for seller
+DELIMITER //
+CREATE PROCEDURE addRatingSeller(IN pid varchar(20), IN oid varchar(20), IN rating INT)
+BEGIN
+    IF (rating IN (1,2,3,4,5)) THEN
+      UPDATE product_order SET seller_rating = rating WHERE product_id = pid and order_id = oid;
+    END IF;
+END;
+//
+DELIMITER ;
 
 DROP ROLE dbadmin;
 DROP ROLE customer;
@@ -223,8 +270,8 @@ GRANT SELECT ON AmaKart.listOrders TO customer;
 GRANT SELECT ON AmaKart.packageStatus TO customer;
 
 -- I am not sure about these two please check
-GRANT INSERT ON AmaKart.order_ TO customer;
-GRANT INSERT ON AmaKart.payment TO customer;
+-- GRANT INSERT ON AmaKart.order_ TO customer;
+-- GRANT INSERT ON AmaKart.payment TO customer;
 
 GRANT SELECT ON AmaKart.sellerProducts TO seller;
 GRANT SELECT ON AmaKart.sellerOrders TO seller;
@@ -235,8 +282,11 @@ GRANT SELECT ON AmaKart.shipperTrack TO shipper;
 GRANT EXECUTE ON PROCEDURE AmaKart.seePurchasesBetweenDuration TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNPurchases TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.queryProducts TO customer;
-
-
+GRANT EXECUTE ON PROCEDURE AmaKart.recentProductReviewsBetweenDuration TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.addReviewProduct TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.addReviewSeller TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.addRatingProduct TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 
 -- When a product is sold, we want to mention its selling_price as later the seller can update the price
 
