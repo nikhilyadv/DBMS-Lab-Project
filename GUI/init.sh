@@ -339,6 +339,23 @@ END;
 //
 DELIMITER ;
 
+-- #########################################
+-- ################FUNCTIONS################
+-- #########################################
+
+-- Function to return the total earning of a seller between supplied dates
+DELIMITER //
+CREATE FUNCTION sellerStatsBetweenDate (startTime TIMESTAMP, endTime TIMESTAMP)
+RETURNS FLOAT DETERMINISTIC  
+BEGIN
+    DECLARE temp FLOAT;
+    SELECT count(quantity*selling_price) INTO temp FROM product_order natural join payment WHERE date_ BETWEEN startTime and endTime;
+    RETURN temp;
+END;
+//
+DELIMITER ;
+
+
 DROP ROLE dbadmin;
 DROP ROLE customer;
 DROP ROLE seller;
@@ -388,7 +405,7 @@ GRANT EXECUTE ON PROCEDURE AmaKart.addRatingProduct TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 
-
+GRANT EXECUTE ON FUNCTION AmaKart.sellerStatsBetweenDate TO seller;
 
 -- When a product is sold, we want to mention its selling_price as later the seller can update the price
 DELIMITER //

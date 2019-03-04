@@ -320,7 +320,6 @@ DELIMITER ;
 -- #########################################
 
 -- Procedure for shipper to see his or her past shipments within a specific time duration
-
 DELIMITER //
 CREATE PROCEDURE seeShipmentsBetweenDuration(IN startTime DATE, IN endTime DATE)
 BEGIN
@@ -334,6 +333,22 @@ DELIMITER //
 CREATE PROCEDURE seeLatestNShipments(IN N INT)
 BEGIN
     select * from track where CONCAT(shipper_id, "@localhost") IN (SELECT user()) ORDER BY date_ DESC LIMIT N;
+END;
+//
+DELIMITER ;
+
+-- #########################################
+-- ################FUNCTIONS################
+-- #########################################
+
+-- Function to return the total earning of a seller between supplied dates
+DELIMITER //
+CREATE FUNCTION sellerStatsBetweenDate(startTime TIMESTAMP, endTime TIMESTAMP)
+RETURNS FLOAT DETERMINISTIC  
+BEGIN
+    DECLARE temp FLOAT;
+    SELECT count(quantity*selling_price) INTO temp FROM product_order natural join payment WHERE date_ BETWEEN startTime and endTime;
+    RETURN temp;
 END;
 //
 DELIMITER ;
@@ -386,8 +401,10 @@ GRANT EXECUTE ON PROCEDURE AmaKart.addReviewSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingProduct TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
--- When a product is sold, we want to mention its selling_price as later the seller can update the price
 
+GRANT EXECUTE ON FUNCTION AmaKart.sellerStatsBetweenDate TO seller;
+
+-- When a product is sold, we want to mention its selling_price as later the seller can update the price
 DELIMITER //
 CREATE TRIGGER setPrice BEFORE INSERT on product_order
 FOR EACH ROW BEGIN
@@ -396,7 +413,6 @@ END//
 DELIMITER ;
 
 -- When a customer passes a rating for product we have to update it in our product table
-
 DELIMITER //
 CREATE TRIGGER updateRatingProduct AFTER UPDATE on product_order
 FOR EACH ROW BEGIN
@@ -408,7 +424,6 @@ DELIMITER ;
 
 
 -- When a customer passes a rating for seller we have to update it in our seller table
-
 DELIMITER //
 CREATE TRIGGER updateRatingSeller AFTER UPDATE on product_order
 FOR EACH ROW BEGIN
@@ -419,7 +434,6 @@ END//
 DELIMITER ;
 
 -- When a product is sold, we need to add an entry to our track table for the same
-
 DELIMITER //
 CREATE TRIGGER addTrack BEFORE INSERT on product_order
 FOR EACH ROW BEGIN
