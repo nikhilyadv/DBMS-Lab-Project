@@ -58,6 +58,7 @@ create table track (
   index_ INT AUTO_INCREMENT primary key not null,
   shipper_id varchar (20),
   tracking_id varchar (20),
+  date_ DATE,
   foreign key (shipper_id) references shipper (shipper_id) on delete set null
 );
 
@@ -198,9 +199,25 @@ DELIMITER ;
 -- Procedure to see products within price range
 
 DELIMITER //
+<<<<<<< HEAD
 CREATE PROCEDURE queryProducts(IN lowRange FLOAT, IN highRange FLOAT)
 BEGIN
     select * from product where price BETWEEN lowRange AND highRange ORDER BY price ASC;
+=======
+CREATE PROCEDURE queryProductsTim(IN productName varchar(20), IN lowRange FLOAT, IN highRange FLOAT)
+BEGIN
+    select * from product where product_name like CONCAT('%', productName, '%') AND price BETWEEN lowRange AND highRange ORDER BY price ASC;
+END;
+//
+DELIMITER ;
+
+-- Procedure to see products sorted by rating
+
+DELIMITER //
+CREATE PROCEDURE queryProductsRat(IN productName varchar(20))
+BEGIN
+    select * from product where product_name like CONCAT('%', productName, '%') ORDER BY rating DESC;
+>>>>>>> 0956fcf8d709669c5bb66115163a10c99fd29af2
 END;
 //
 DELIMITER ;
@@ -237,7 +254,11 @@ DELIMITER //
 CREATE PROCEDURE addRatingProduct(IN pid varchar(20), IN oid varchar(20), IN rating INT)
 BEGIN
     IF (rating IN (1,2,3,4,5)) THEN
+<<<<<<< HEAD
       UPDATE product_order SET product_rating = rating WHERE product_id = pid and order_id = oid;
+=======
+      UPDATE product_order SET product_rating =  rating WHERE product_id = pid and order_id = oid;
+>>>>>>> 0956fcf8d709669c5bb66115163a10c99fd29af2
     END IF;
 END;
 //
@@ -254,6 +275,77 @@ END;
 //
 DELIMITER ;
 
+<<<<<<< HEAD
+=======
+-- #########################################
+-- ###########SELLER   PROCEDURES###########
+-- #########################################
+
+-- Procedure for seller to see his or her past sold products within a specific time duration
+
+DELIMITER //
+CREATE PROCEDURE seeSellingsBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
+BEGIN
+    select * from product where (product_id, seller_id) in (select product_order.product_id, product_order.seller_id from payment natural join order_ natural join product_order where CONCAT(product_order.seller_id, "@localhost") IN (SELECT user()) AND payment.date_ BETWEEN startTime AND endTime);
+END;
+//
+DELIMITER ;
+
+-- Procedure to see latest N Sellings
+
+DELIMITER //
+CREATE PROCEDURE seeLatestNSellings(IN N INT)
+BEGIN
+    select * from product where (product_id, seller_id) in (select product_id, seller_id from payment natural join order_ natural join product_order where CONCAT(product_order.seller_id, "@localhost") IN (SELECT user()) ORDER BY payment.date_ DESC) LIMIT N;
+END;
+//
+DELIMITER ;
+
+-- Procedure to see similary products with increasing price
+
+DELIMITER //
+CREATE PROCEDURE selQuerySimProducts(IN productName varchar(20))
+BEGIN
+    select * from product where product_name like CONCAT('%', productName, '%') AND CONCAT(seller_id, "@localhost") IN (SELECT user()) ORDER BY price ASC;
+END;
+//
+DELIMITER ;
+
+-- Procedure to see similar products sorted by rating
+
+DELIMITER //
+CREATE PROCEDURE selQueryProductsRat(IN productName varchar(20))
+BEGIN
+    select * from product where product_name like CONCAT('%', productName, '%') AND CONCAT(seller_id, "@localhost") IN (SELECT user()) ORDER BY rating DESC;
+END;
+//
+DELIMITER ;
+
+-- #########################################
+-- ###########SHIPPER PROCEDURES############
+-- #########################################
+
+-- Procedure for shipper to see his or her past shipments within a specific time duration
+
+DELIMITER //
+CREATE PROCEDURE seeShipmentsBetweenDuration(IN startTime DATE, IN endTime DATE)
+BEGIN
+    select * from track where CONCAT(shipper_id, "@localhost") IN (SELECT user()) AND date_ BETWEEN startTime AND endTime;
+END;
+//
+DELIMITER ;
+
+-- Procedure to see latest N Shipments
+
+DELIMITER //
+CREATE PROCEDURE seeLatestNShipments(IN N INT)
+BEGIN
+    select * from track where CONCAT(shipper_id, "@localhost") IN (SELECT user()) ORDER BY date_ DESC LIMIT N;
+END;
+//
+DELIMITER ;
+
+>>>>>>> 0956fcf8d709669c5bb66115163a10c99fd29af2
 DROP ROLE dbadmin;
 DROP ROLE customer;
 DROP ROLE seller;
@@ -272,10 +364,13 @@ GRANT SELECT ON AmaKart.previousOrders TO customer;
 GRANT SELECT ON AmaKart.listOrders TO customer;
 GRANT SELECT ON AmaKart.packageStatus TO customer;
 
+<<<<<<< HEAD
 -- I am not sure about these two please check
 -- GRANT INSERT ON AmaKart.order_ TO customer;
 -- GRANT INSERT ON AmaKart.payment TO customer;
 
+=======
+>>>>>>> 0956fcf8d709669c5bb66115163a10c99fd29af2
 GRANT SELECT ON AmaKart.sellerProducts TO seller;
 GRANT SELECT ON AmaKart.sellerOrders TO seller;
 
@@ -284,15 +379,33 @@ GRANT SELECT ON AmaKart.shipperTrack TO shipper;
 -- Procedures/Functions Grant
 GRANT EXECUTE ON PROCEDURE AmaKart.seePurchasesBetweenDuration TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNPurchases TO customer;
+<<<<<<< HEAD
 GRANT EXECUTE ON PROCEDURE AmaKart.queryProducts TO customer;
+=======
+GRANT EXECUTE ON PROCEDURE AmaKart.queryProductsTim TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.queryProductsRat TO customer;
+
+GRANT EXECUTE ON PROCEDURE AmaKart.seeSellingsBetweenDuration TO seller;
+GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNSellings TO seller;
+GRANT EXECUTE ON PROCEDURE AmaKart.selQuerySimProducts TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.selQueryProductsRat TO customer;
+
+GRANT EXECUTE ON PROCEDURE AmaKart.seeShipmentsBetweenDuration TO shipper;
+GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNShipments TO shipper;
+
+>>>>>>> 0956fcf8d709669c5bb66115163a10c99fd29af2
 GRANT EXECUTE ON PROCEDURE AmaKart.recentProductReviewsBetweenDuration TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addReviewProduct TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addReviewSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingProduct TO customer;
+<<<<<<< HEAD
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 
 
 
+=======
+GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer
+>>>>>>> 0956fcf8d709669c5bb66115163a10c99fd29af2
 -- When a product is sold, we want to mention its selling_price as later the seller can update the price
 
 DELIMITER //
