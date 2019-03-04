@@ -96,7 +96,6 @@ create table product_order (
 
 -- We also have an auxiliary table for keeping track of users with their old passwords as mysql.user encrypts the passwords and there is no way to get it back also this table is required for validation when the user tries to log in the system.
 -- Clearly this table is in BCNF.
-
 create table Users (
   username VARCHAR (20) primary key not null,
   passcode VARCHAR (20) not null,
@@ -108,37 +107,31 @@ create table Users (
 -- #########################################
 
 -- This view will allow customer to view its details.
-
 CREATE VIEW customer_add AS (SELECT * 
                              FROM customer 
                              WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
 
 -- This view will allow customer to see the total cost of his/her various orders
-
 CREATE VIEW orderPrice AS (SELECT order_id, sum(selling_price * quantity) as total_price
                            FROM (product_order)
                            GROUP BY order_id); 
 
 -- This view will tell the customer details corresponding to his/her all order_id mentioning complete order details (order_id, shipping_address, date_, total_price) except the products in that order. 
-
 CREATE VIEW previousOrders AS (SELECT T1.order_id, T1.shipping_address, T2.date_, T3.total_price
                                FROM (order_ as T1) NATURAL JOIN (payment as T2) NATURAL JOIN (orderPrice as T3)
                                WHERE CONCAT(T1.customer_id, "@localhost") IN (SELECT user()));
 
 -- This view will allow customer to just see his various order_id. 
-
 CREATE VIEW listOrders AS (SELECT order_id
                             FROM order_ 
                             WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
 
 -- This view will give entry to the track table for each (product_id, order_id) pair
-
 CREATE VIEW trackID AS (SELECT order_id, product_id, ship_index
                         FROM product_order
                         WHERE order_id IN (SELECT * FROM listOrders));
 
 -- This view will augment the previous view with tracking_id as well.
-
 CREATE VIEW packageStatus AS (SELECT T1.order_id, T1.product_id, T1.ship_index, T2.tracking_id
                               FROM (trackID as T1) JOIN (track as T2) ON (T1.ship_index = T2.index_));
 
@@ -148,13 +141,11 @@ CREATE VIEW packageStatus AS (SELECT T1.order_id, T1.product_id, T1.ship_index, 
 -- #########################################
 
 -- This view will allow seller to see his/her various products.
-
 CREATE VIEW sellerProducts AS (SELECT product_id, product_name, price, total_stock, pickup_address, description 
                                   FROM product
                                   WHERE CONCAT(seller_id, "@localhost") in (SELECT user()));
 
 -- This view allow seller to see various orders which he or she have sold (seller_id, product_id, quantity, selling_price, date_) 
-
 CREATE VIEW sellerOrders AS (SELECT T1.seller_id, T1.product_id, T1.quantity, T1.selling_price, T2.date_
                                 FROM (product_order as T1) natural join (payment as T2)
                                 WHERE CONCAT(T1.seller_id, "@localhost") in (SELECT user()));
@@ -164,7 +155,6 @@ CREATE VIEW sellerOrders AS (SELECT T1.seller_id, T1.product_id, T1.quantity, T1
 -- #########################################
 
 -- This view will allow shipper details (pickup_address, shipping_address, tracking_id)
-
 CREATE VIEW shipperTrack AS (SELECT index_, pickup_address AS source, shipping_address AS destination, tracking_id
                               FROM (track JOIN product_order ON index_ = ship_index) NATURAL JOIN order_ NATURAL JOIN product 
                               WHERE CONCAT(shipper_id, "@localhost") = (SELECT user()));
@@ -174,7 +164,6 @@ CREATE VIEW shipperTrack AS (SELECT index_, pickup_address AS source, shipping_a
 -- #########################################
 
 -- Procedure for customer to see his or her past purchases within a specific time duration
-
 DELIMITER //
 CREATE PROCEDURE seePurchasesBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
 BEGIN
@@ -184,7 +173,6 @@ END;
 DELIMITER ;
 
 -- Procedure to see latest N Purchases
-
 DELIMITER //
 CREATE PROCEDURE seeLatestNPurchases(IN N INT)
 BEGIN
@@ -194,7 +182,6 @@ END;
 DELIMITER ;
 
 -- Procedure to see products within price range
-
 DELIMITER //
 CREATE PROCEDURE queryProductsTim(IN productName varchar(20), IN lowRange FLOAT, IN highRange FLOAT)
 BEGIN
@@ -203,7 +190,6 @@ END;
 //
 DELIMITER ;
 
-<<<<<<< HEAD
 -- Procedure to see reviews of a product withing a duration
 DELIMITER //
 CREATE PROCEDURE recentProductReviewsBetweenDuration(IN pid varchar(20), IN sid varchar(20), IN startTime TIMESTAMP, IN endTime TIMESTAMP)
@@ -231,9 +217,7 @@ END;
 //
 DELIMITER ;
 
-=======
 -- Procedure to see products sorted by rating
-
 DELIMITER //
 CREATE PROCEDURE queryProductsRat(IN productName varchar(20))
 BEGIN
@@ -269,7 +253,6 @@ END;
 //
 DELIMITER ;
 
->>>>>>> 0956fcf8d709669c5bb66115163a10c99fd29af2
 -- Procedure to add rating for product
 DELIMITER //
 CREATE PROCEDURE addRatingProduct(IN pid varchar(20), IN oid varchar(20), IN rating INT)
@@ -291,15 +274,12 @@ BEGIN
 END;
 //
 DELIMITER ;
-<<<<<<< HEAD
-=======
 
 -- #########################################
 -- ###########SELLER   PROCEDURES###########
 -- #########################################
 
 -- Procedure for seller to see his or her past sold products within a specific time duration
-
 DELIMITER //
 CREATE PROCEDURE seeSellingsBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
 BEGIN
@@ -309,7 +289,6 @@ END;
 DELIMITER ;
 
 -- Procedure to see latest N Sellings
-
 DELIMITER //
 CREATE PROCEDURE seeLatestNSellings(IN N INT)
 BEGIN
@@ -319,7 +298,6 @@ END;
 DELIMITER ;
 
 -- Procedure to see similary products with increasing price
-
 DELIMITER //
 CREATE PROCEDURE selQuerySimProducts(IN productName varchar(20))
 BEGIN
@@ -329,7 +307,6 @@ END;
 DELIMITER ;
 
 -- Procedure to see similar products sorted by rating
-
 DELIMITER //
 CREATE PROCEDURE selQueryProductsRat(IN productName varchar(20))
 BEGIN
@@ -353,7 +330,6 @@ END;
 DELIMITER ;
 
 -- Procedure to see latest N Shipments
-
 DELIMITER //
 CREATE PROCEDURE seeLatestNShipments(IN N INT)
 BEGIN
@@ -361,7 +337,6 @@ BEGIN
 END;
 //
 DELIMITER ;
->>>>>>> 0956fcf8d709669c5bb66115163a10c99fd29af2
 
 DROP ROLE dbadmin;
 DROP ROLE customer;
@@ -381,13 +356,10 @@ GRANT SELECT ON AmaKart.previousOrders TO customer;
 GRANT SELECT ON AmaKart.listOrders TO customer;
 GRANT SELECT ON AmaKart.packageStatus TO customer;
 
-<<<<<<< HEAD
 -- I am not sure about these two please check
 -- GRANT INSERT ON AmaKart.order_ TO customer;
 -- GRANT INSERT ON AmaKart.payment TO customer;
 
-=======
->>>>>>> 0956fcf8d709669c5bb66115163a10c99fd29af2
 GRANT SELECT ON AmaKart.sellerProducts TO seller;
 GRANT SELECT ON AmaKart.sellerOrders TO seller;
 
@@ -396,9 +368,7 @@ GRANT SELECT ON AmaKart.shipperTrack TO shipper;
 -- Procedures/Functions Grant
 GRANT EXECUTE ON PROCEDURE AmaKart.seePurchasesBetweenDuration TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNPurchases TO customer;
-<<<<<<< HEAD
 GRANT EXECUTE ON PROCEDURE AmaKart.queryProducts TO customer;
-=======
 GRANT EXECUTE ON PROCEDURE AmaKart.queryProductsTim TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.queryProductsRat TO customer;
 
@@ -410,17 +380,12 @@ GRANT EXECUTE ON PROCEDURE AmaKart.selQueryProductsRat TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeShipmentsBetweenDuration TO shipper;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNShipments TO shipper;
 
->>>>>>> 0956fcf8d709669c5bb66115163a10c99fd29af2
 GRANT EXECUTE ON PROCEDURE AmaKart.recentProductReviewsBetweenDuration TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addReviewProduct TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addReviewSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingProduct TO customer;
-<<<<<<< HEAD
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
-
-=======
-GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer
->>>>>>> 0956fcf8d709669c5bb66115163a10c99fd29af2
+GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 -- When a product is sold, we want to mention its selling_price as later the seller can update the price
 
 DELIMITER //
