@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import messagebox
-import Seller 
+from Shipper import Shipper
+from Seller import Seller 
+from Customer import Customer
 import SignUp
 
 class LoginWindow:
@@ -26,7 +28,15 @@ class LoginWindow:
                 if (seller.get () == 1 and self.db.validate (username, password, "seller")):
                     log.destroy ()
                     self.db.loginUser (username, password, "seller")
-                    Seller.Seller (self.db, username)
+                    Seller (self.db, username)
+                elif (ship.get () == 1 and self.db.validate (username, password, "shipper")):
+                    log.destroy ()
+                    self.db.loginUser (username, password, "shipper")
+                    Shipper (self.db, username)
+                else:
+                    log.destroy ()
+                    self.db.loginUser (username, password, "customer")
+                    Customer (self.db, username)
         def openSign (log):
             log.destroy ()
             SignUp.SignUp (self.db)
@@ -44,7 +54,7 @@ class LoginWindow:
         usr = IntVar ()
         seller = IntVar ()
         ship = IntVar ()
-        Checkbutton(log, text="User", variable=usr).grid(row=2, column = 0, sticky=W)
+        Checkbutton(log, text="Customer", variable=usr).grid(row=2, column = 0, sticky=W)
         Checkbutton(log, text="Seller", variable=seller).grid(row=2, column = 1, sticky=W)
         Checkbutton(log, text="Shipper", variable=ship).grid(row=2, column = 2, sticky=W)
         Button(log, text= 'Enter', command= lambda: enter(usr, seller, ship, output, userText.get (), passText.get ())).grid(row=3, sticky=W, pady=4)

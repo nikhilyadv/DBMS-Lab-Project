@@ -42,7 +42,7 @@ class DB:
 
 db = DB()
 
-
+# Function to get the selected tuple
 def get_selected_row(event):
     global selected_tuple
     index = list1.selection()[0]
@@ -124,11 +124,11 @@ e3.grid(row=1, column=1)
 list1 = ttk.Treeview (window)
 list1['columns'] = ('1', '2', '3', '4')
 list1.heading ('1', text = 'a')
-list1.heading ('2', text = 'a')
-list1.heading ('3', text = 'a')
-list1.heading ('4', text = 'a')
+list1.heading ('2', text = 'b')
+list1.heading ('3', text = 'c')
+list1.heading ('4', text = 'd')
 list1.column ('1', width = 35, anchor = 'c')
-list1.column ('2', width = 35, anchor = 'c')
+list1.column ('2', width = 55, anchor = 'c')
 list1.column ('3', width = 35, anchor = 'c')
 list1.column ('4', width = 35, anchor = 'c')
 list1['show'] = 'headings'

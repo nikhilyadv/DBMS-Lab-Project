@@ -99,7 +99,6 @@ create table product_order (
 
 -- We also have an auxiliary table for keeping track of users with their old passwords as mysql.user encrypts the passwords and there is no way to get it back also this table is required for validation when the user tries to log in the system.
 -- Clearly this table is in BCNF.
-
 create table Users (
   username VARCHAR (20) primary key not null,
   passcode VARCHAR (20) not null,
@@ -111,37 +110,31 @@ create table Users (
 -- #########################################
 
 -- This view will allow customer to view its details.
-
 CREATE VIEW customer_add AS (SELECT * 
                              FROM customer 
                              WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
 
 -- This view will allow customer to see the total cost of his/her various orders
-
 CREATE VIEW orderPrice AS (SELECT order_id, sum(selling_price * quantity) as total_price
                            FROM (product_order)
                            GROUP BY order_id); 
 
 -- This view will tell the customer details corresponding to his/her all order_id mentioning complete order details (order_id, shipping_address, date_, total_price) except the products in that order. 
-
 CREATE VIEW previousOrders AS (SELECT T1.order_id, T1.shipping_address, T2.date_, T3.total_price
                                FROM (order_ as T1) NATURAL JOIN (payment as T2) NATURAL JOIN (orderPrice as T3)
                                WHERE CONCAT(T1.customer_id, "@localhost") IN (SELECT user()));
 
 -- This view will allow customer to just see his various order_id. 
-
 CREATE VIEW listOrders AS (SELECT order_id
                             FROM order_ 
                             WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
 
 -- This view will give entry to the track table for each (product_id, order_id) pair
-
 CREATE VIEW trackID AS (SELECT order_id, product_id, ship_index
                         FROM product_order
                         WHERE order_id IN (SELECT * FROM listOrders));
 
 -- This view will augment the previous view with tracking_id as well.
-
 CREATE VIEW packageStatus AS (SELECT T1.order_id, T1.product_id, T1.ship_index, T2.tracking_id
                               FROM (trackID as T1) JOIN (track as T2) ON (T1.ship_index = T2.index_));
 
@@ -151,13 +144,11 @@ CREATE VIEW packageStatus AS (SELECT T1.order_id, T1.product_id, T1.ship_index, 
 -- #########################################
 
 -- This view will allow seller to see his/her various products.
-
 CREATE VIEW sellerProducts AS (SELECT product_id, product_name, price, total_stock, pickup_address, description 
                                   FROM product
                                   WHERE CONCAT(seller_id, "@localhost") in (SELECT user()));
 
 -- This view allow seller to see various orders which he or she have sold (seller_id, product_id, quantity, selling_price, date_) 
-
 CREATE VIEW sellerOrders AS (SELECT T1.seller_id, T1.product_id, T1.quantity, T1.selling_price, T2.date_
                                 FROM (product_order as T1) natural join (payment as T2)
                                 WHERE CONCAT(T1.seller_id, "@localhost") in (SELECT user()));
@@ -167,7 +158,6 @@ CREATE VIEW sellerOrders AS (SELECT T1.seller_id, T1.product_id, T1.quantity, T1
 -- #########################################
 
 -- This view will allow shipper details (pickup_address, shipping_address, tracking_id)
-
 CREATE VIEW shipperTrack AS (SELECT index_, pickup_address AS source, shipping_address AS destination, tracking_id
                               FROM (track JOIN product_order ON index_ = ship_index) NATURAL JOIN order_ NATURAL JOIN product 
                               WHERE CONCAT(shipper_id, "@localhost") = (SELECT user()));
@@ -177,7 +167,6 @@ CREATE VIEW shipperTrack AS (SELECT index_, pickup_address AS source, shipping_a
 -- #########################################
 
 -- Procedure for customer to see his or her past purchases within a specific time duration
-
 DELIMITER //
 CREATE PROCEDURE seePurchasesBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
 BEGIN
@@ -197,18 +186,36 @@ DELIMITER ;
 
 -- Procedure to see products within price range
 DELIMITER //
-CREATE PROCEDURE queryProducts(IN lowRange FLOAT, IN highRange FLOAT)
+CREATE PROCEDURE queryProductsTim(IN productName varchar(20), IN lowRange FLOAT, IN highRange FLOAT)
 BEGIN
-    select * from product where price BETWEEN lowRange AND highRange ORDER BY price ASC;
+    select * from product where product_name like CONCAT('%', productName, '%') AND price BETWEEN lowRange AND highRange ORDER BY price ASC;
 END;
 //
 DELIMITER ;
 
--- Procedure to see product withing price range with some name
+-- Procedure to see reviews of a product withing a duration
 DELIMITER //
-CREATE PROCEDURE queryProductsTim(IN productName varchar(20), IN lowRange FLOAT, IN highRange FLOAT)
+CREATE PROCEDURE recentProductReviewsBetweenDuration(IN pid varchar(20), IN sid varchar(20), IN startTime TIMESTAMP, IN endTime TIMESTAMP)
 BEGIN
-    select * from product where product_name like CONCAT('%', productName, '%') AND price BETWEEN lowRange AND highRange ORDER BY price ASC;
+    SELECT name, product_review FROM (product_order natural join order_ natural join customer natural join payment) WHERE product_id = pid AND seller_id = sid AND (payment.date_ BETWEEN startTime AND endTime);
+END;
+//
+DELIMITER ;
+
+-- Procedure to add review for a product
+DELIMITER //
+CREATE PROCEDURE addReviewProduct(IN pid varchar(20), IN oid varchar(20), IN rev varchar(60))
+BEGIN
+    UPDATE product_order SET product_review = rev WHERE product_id = pid and order_id = oid;
+END;
+//
+DELIMITER ;
+
+-- Procedure to add review for a seller 
+DELIMITER //
+CREATE PROCEDURE addReviewSeller(IN pid varchar(20), IN oid varchar(20), IN rev varchar(60))
+BEGIN
+    UPDATE product_order SET seller_review = rev WHERE product_id = pid and order_id = oid;
 END;
 //
 DELIMITER ;
@@ -254,7 +261,7 @@ DELIMITER //
 CREATE PROCEDURE addRatingProduct(IN pid varchar(20), IN oid varchar(20), IN rating INT)
 BEGIN
     IF (rating IN (1,2,3,4,5)) THEN
-      UPDATE product_order SET product_rating = rating WHERE product_id = pid and order_id = oid;
+      UPDATE product_order SET product_rating =  rating WHERE product_id = pid and order_id = oid;
     END IF;
 END;
 //
@@ -276,7 +283,6 @@ DELIMITER ;
 -- #########################################
 
 -- Procedure for seller to see his or her past sold products within a specific time duration
-
 DELIMITER //
 CREATE PROCEDURE seeSellingsBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
 BEGIN
@@ -286,7 +292,6 @@ END;
 DELIMITER ;
 
 -- Procedure to see latest N Sellings
-
 DELIMITER //
 CREATE PROCEDURE seeLatestNSellings(IN N INT)
 BEGIN
@@ -296,7 +301,6 @@ END;
 DELIMITER ;
 
 -- Procedure to see similary products with increasing price
-
 DELIMITER //
 CREATE PROCEDURE selQuerySimProducts(IN productName varchar(20))
 BEGIN
@@ -306,7 +310,6 @@ END;
 DELIMITER ;
 
 -- Procedure to see similar products sorted by rating
-
 DELIMITER //
 CREATE PROCEDURE selQueryProductsRat(IN productName varchar(20))
 BEGIN
@@ -320,7 +323,6 @@ DELIMITER ;
 -- #########################################
 
 -- Procedure for shipper to see his or her past shipments within a specific time duration
-
 DELIMITER //
 CREATE PROCEDURE seeShipmentsBetweenDuration(IN startTime DATE, IN endTime DATE)
 BEGIN
@@ -330,7 +332,6 @@ END;
 DELIMITER ;
 
 -- Procedure to see latest N Shipments
-
 DELIMITER //
 CREATE PROCEDURE seeLatestNShipments(IN N INT)
 BEGIN
@@ -345,7 +346,7 @@ DELIMITER ;
 
 -- Function to return the total earning of a seller between supplied dates
 DELIMITER //
-CREATE FUNCTION sellerStatsBetweenDate (startTime TIMESTAMP, endTime TIMESTAMP)
+CREATE FUNCTION sellerStatsBetweenDate(startTime TIMESTAMP, endTime TIMESTAMP)
 RETURNS FLOAT DETERMINISTIC  
 BEGIN
     DECLARE temp FLOAT;
@@ -354,7 +355,6 @@ BEGIN
 END;
 //
 DELIMITER ;
-
 
 DROP ROLE dbadmin;
 DROP ROLE customer;
@@ -427,7 +427,6 @@ DELIMITER ;
 
 
 -- When a customer passes a rating for seller we have to update it in our seller table
-
 DELIMITER //
 CREATE TRIGGER updateRatingSeller AFTER UPDATE on product_order
 FOR EACH ROW BEGIN
@@ -438,7 +437,6 @@ END//
 DELIMITER ;
 
 -- When a product is sold, we need to add an entry to our track table for the same
-
 DELIMITER //
 CREATE TRIGGER addTrack BEFORE INSERT on product_order
 FOR EACH ROW BEGIN

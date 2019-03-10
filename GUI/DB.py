@@ -11,7 +11,6 @@ class DB:
     def checkWhetherUserExists (self, username):
         self.cur.execute("SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = \"{}\")".format(username))
         row = self.cur.fetchall()
-        print (row[0][0], "\n")
         if row[0][0] == 0:
             return True
         return False
@@ -54,7 +53,13 @@ class DB:
         print ("I am pri")
         print (row)
         print ("\n")
-    
+    ######################################################
+    ###########CUSTOMER FUNCTIONS#########################
+    ######################################################
+    def getProductsFromNameNIL(self, pname):
+        self.cur.execute ("call queryProductsRat(\"{}\");".format (pname))
+        rows = self.cur.fetchall ()
+        return rows
    
 """    def updateInfo (self, username, passcode, name, address, phonenumber, email):
         self.cur.execute("UPDATE customer_add ;".format(username, passcode))
@@ -99,5 +104,3 @@ class DB:
             return True
         return False 
 """
-db = DB()
-db._hi()

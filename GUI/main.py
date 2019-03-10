@@ -1,6 +1,6 @@
-import DB
+from DB import DB
 import LoginWindow
 import SignUp
 
-db = DB.DB ()
+db = DB ()
 hi = LoginWindow.LoginWindow (db)
