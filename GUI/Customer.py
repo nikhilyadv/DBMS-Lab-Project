@@ -42,12 +42,14 @@ class Customer:
         win.mainloop ()
     def populateProducts (self, productName, plist):
         rows = self.db.getProductsFromNameNIL(productName)
-        auximage = Image.open ("/home/sourabh/Documents/Github/DBMS-Lab-Project/TkinterReference/small.png")
-        self.auxphoto = ImageTk.PhotoImage (auximage)
+        
         plist.delete (*plist.get_children ())
         for row in rows:
+            self.auximage = Image.open ('/home/sourabh/Documents/Github/DBMS-Lab-Project/TkinterReference/small.png')
+            self.auximage.thumbnail((100, 200), Image.ANTIALIAS)
+            self.auximage = ImageTk.PhotoImage (self.auximage)
             print (row)
-            plist.insert ('', 'end', text = '#0s text', values = row, image = self.auxphoto)
+            plist.insert ('', 'end', values = row, image = self.auximage)
     def browse (self):
         browseWin = Tk ()
         browseWin.title ("Browse Products")
@@ -61,8 +63,7 @@ class Customer:
         ############ Product List #############
         plist = ttk.Treeview (browseWin)
         plist['columns'] = ('pid', 'pname', 'sellerid', 'price', 'tstock', 'pickupaddress', 'description', 'rating')
-        plist.heading('#0', text = 'Pic directory', anchor = 'center')
-        plist.column ('#0', anchor = 'w', width = 200)
+        plist.heading ('#0', text = 'Image')
         plist.heading ('pid', text = 'Product ID')
         plist.heading ('pname', text = 'Product Name')
         plist.heading ('sellerid', text = 'Seller ID')
@@ -71,7 +72,7 @@ class Customer:
         plist.heading ('pickupaddress', text = 'Pickup Address')
         plist.heading ('description', text = 'Description')
         plist.heading ('rating', text = 'Rating')
-        plist['show'] = 'headings'
-        plist.grid(row = 1, column = 0, rowspan = 18, columnspan = 50)
+        # plist['show'] = 'headings'
+        plist.grid(row = 1, column = 0, rowspan = 18, columnspan = 100)
         Button(browseWin, text= 'Search', command= lambda: self.populateProducts (prodText.get (), plist)).grid(row=0, column = 2, sticky=W)
         browseWin.mainloop()
