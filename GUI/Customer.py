@@ -3,6 +3,7 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter import PhotoImage
 from PIL import Image, ImageTk
+import requests
 import LoginWindow
 
 class Customer:
@@ -45,11 +46,11 @@ class Customer:
         
         plist.delete (*plist.get_children ())
         for row in rows:
-            self.auximage = Image.open ('/home/sourabh/Documents/Github/DBMS-Lab-Project/TkinterReference/small.png')
+            self.auximage = Image.open (requests.get(row[2], stream = True).raw)
             self.auximage.thumbnail((100, 200), Image.ANTIALIAS)
             self.auximage = ImageTk.PhotoImage (self.auximage)
             print (row)
-            plist.insert ('', 'end', values = row, image = self.auximage)
+            plist.insert ('', 'end', values = (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8]), image = self.auximage)
     def browse (self):
         browseWin = Tk ()
         browseWin.title ("Browse Products")
@@ -72,7 +73,6 @@ class Customer:
         plist.heading ('pickupaddress', text = 'Pickup Address')
         plist.heading ('description', text = 'Description')
         plist.heading ('rating', text = 'Rating')
-        # plist['show'] = 'headings'
         plist.grid(row = 1, column = 0, rowspan = 18, columnspan = 100)
         Button(browseWin, text= 'Search', command= lambda: self.populateProducts (prodText.get (), plist)).grid(row=0, column = 2, sticky=W)
         browseWin.mainloop()

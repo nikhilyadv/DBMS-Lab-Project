@@ -67,6 +67,7 @@ create table track (
 create table product (
   product_id varchar (20) not null,
   product_name varchar (20) not null,
+  product_image varchar(300),
   seller_id varchar (20) not null,
   price float not NULL,
   total_stock int,
@@ -441,7 +442,7 @@ INSERT INTO customer Values ("Nikhil","Nikhil Kumar","ROOM-119",8281112705,"1116
 INSERT INTO seller Values ("Sourabh","Sourabh Agg","ROOM-211",8281112700,"111601025@",NULL);
 INSERT INTO shipper Values ("FEDEx","FEDEx","Delhi",1800123343,"111601020@");
 
-INSERT INTO product Values ("1","Rasgulla", "Sourabh",10,100.0,"RM3xx","Rasgulla from Aggarwal Sweets", NULL);
+INSERT INTO product Values ("1","Rasgulla", 'https://i.ndtvimg.com/i/2017-10/rasgulla-recipe_620x330_51508133855.jpg?downsize=650:400&output-quality=70&output-format=webp', "Sourabh",10,100.0,"RM3xx","Rasgulla from Aggarwal Sweets", NULL);
 
 INSERT INTO payment Values ("1","4362536563578",'2019-01-01',"CompLabFF");
 
@@ -450,6 +451,5 @@ INSERT INTO order_ Values ("1","Nikhil","RM-119","1");
 INSERT INTO track(shipper_id) Values ("FEDEx");
 
 INSERT INTO product_order(product_id, order_id, seller_id, product_rating, seller_rating, ship_index, product_review, seller_review, quantity) Values ("1","1","Sourabh",5,4,1,NULL,NULL,10);
-
 
 MY_QUERY
