@@ -64,6 +64,7 @@ create table track (
 create table product (
   product_id varchar (20) not null,
   product_name varchar (20) not null,
+  product_image BLOB,
   seller_id varchar (20) not null,
   price float not NULL,
   total_stock int,
@@ -226,32 +227,7 @@ END;
 //
 DELIMITER ;
 
--- Procedure to see reviews of a product withing a duration
-DELIMITER //
-CREATE PROCEDURE recentProductReviewsBetweenDuration(IN pid varchar(20), IN sid varchar(20), IN startTime TIMESTAMP, IN endTime TIMESTAMP)
-BEGIN
-    SELECT name, product_review FROM (product_order natural join order_ natural join customer natural join payment) WHERE product_id = pid AND seller_id = sid AND (payment.date_ BETWEEN startTime AND endTime);
-END;
-//
-DELIMITER ;
 
--- Procedure to add review for a product
-DELIMITER //
-CREATE PROCEDURE addReviewProduct(IN pid varchar(20), IN oid varchar(20), IN rev varchar(60))
-BEGIN
-    UPDATE product_order SET product_review = rev WHERE product_id = pid and order_id = oid;
-END;
-//
-DELIMITER ;
-
--- Procedure to add review for a seller 
-DELIMITER //
-CREATE PROCEDURE addReviewSeller(IN pid varchar(20), IN oid varchar(20), IN rev varchar(60))
-BEGIN
-    UPDATE product_order SET seller_review = rev WHERE product_id = pid and order_id = oid;
-END;
-//
-DELIMITER ;
 
 -- Procedure to add rating for product
 DELIMITER //
@@ -383,7 +359,6 @@ GRANT SELECT ON AmaKart.shipperTrack TO shipper;
 -- Procedures/Functions Grant
 GRANT EXECUTE ON PROCEDURE AmaKart.seePurchasesBetweenDuration TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNPurchases TO customer;
-GRANT EXECUTE ON PROCEDURE AmaKart.queryProducts TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.queryProductsTim TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.queryProductsRat TO customer;
 
@@ -464,7 +439,7 @@ INSERT INTO customer Values ("Nikhil","Nikhil Kumar","ROOM-119",8281112705,"1116
 INSERT INTO seller Values ("Sourabh","Sourabh Agg","ROOM-211",8281112700,"111601025@",NULL);
 INSERT INTO shipper Values ("FEDEx","FEDEx","Delhi",1800123343,"111601020@");
 
-INSERT INTO product Values ("1","Rasgulla","Sourabh",10,100.0,"RM3xx","Rasgulla from Aggarwal Sweets",NULL);
+INSERT INTO product Values ("1","Rasgulla", LOAD_FILE('/home/sourabh/Documents/Github/DBMS-Lab-Project/TkinterReference/small.png'), "Sourabh",10,100.0,"RM3xx","Rasgulla from Aggarwal Sweets", NULL);
 
 INSERT INTO payment Values ("1","4362536563578",'2019-01-01',"CompLabFF");
 

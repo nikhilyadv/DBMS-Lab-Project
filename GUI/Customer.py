@@ -43,11 +43,11 @@ class Customer:
     def populateProducts (self, productName, plist):
         rows = self.db.getProductsFromNameNIL(productName)
         auximage = Image.open ("/home/sourabh/Documents/Github/DBMS-Lab-Project/TkinterReference/small.png")
-        auxphoto = ImageTk.PhotoImage (auximage)
+        self.auxphoto = ImageTk.PhotoImage (auximage)
         plist.delete (*plist.get_children ())
         for row in rows:
             print (row)
-            plist.insert ('', 'end', text = '#0s text', values = row, image = auxphoto)
+            plist.insert ('', 'end', text = '#0s text', values = row, image = self.auxphoto)
     def browse (self):
         browseWin = Tk ()
         browseWin.title ("Browse Products")
