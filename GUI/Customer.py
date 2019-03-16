@@ -15,9 +15,11 @@ class Customer:
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             _window.destroy()
     def switchToBasic(self,_window):
-        if messagebox.askokcancel("Quit", "Do you want to quit?"):
-            _window.destroy() 
-            self.basic()
+        # if messagebox.askokcancel("Quit", "Do you want to quit?"):
+        #     _window.destroy() 
+        #     self.basic()
+        _window.destroy()
+        self.basic()
     def switchToCart (self, _window):
         _window.destroy ()
         self.Cart ()
@@ -88,7 +90,6 @@ class Customer:
         Label(browseWin, text = "Enter product name").grid (row = 0, column = 0, sticky = W)
 
         prodText = StringVar()
-
         Entry(browseWin, textvariable=prodText).grid (row = 0, column = 1, sticky = W)
         Button (browseWin, text = 'Switch to Login', command = lambda: self.switchToLogin (browseWin)).grid (row = 20, sticky = W, pady = 4)
         ############ Product List #############
@@ -104,7 +105,30 @@ class Customer:
         plist.heading ('description', text = 'Description')
         plist.heading ('rating', text = 'Rating')
         plist.grid(row = 1, column = 0, rowspan = 18, columnspan = 100)
-        Button(browseWin, text= 'Search', command= lambda: self.populateProducts (prodText.get (), plist)).grid(row=0, column = 2, sticky=W)
+        Button(browseWin, text= 'Search', command= lambda: self.populateProducts (prodText.get (), plist)).grid(row=0, column=2, sticky=W)
+        def selectItem(a):
+            def check(output, quantity, pid, sid, q):
+                if quantity > 0:
+                    self.db.addProductToCart(self.customer_id, pid, sid, quantity)
+                    if (q >= quantity):
+                        tempstr = "Added successfully"
+                    else :
+                        tempstr = "Please Reduce quantity"
+                    output.delete (0.0, END)
+                    output.insert (END, tempstr)                    
+                else:
+                    tempstr = "Wrong quantity entered Please enter a positive interger less then quantity of the product avaliable\n"
+                    output.delete (0.0, END)
+                    output.insert (END, tempstr)
+            curItem = plist.focus()
+            selectedrow = plist.item(curItem)
+            quantityText = IntVar()
+            Entry(browseWin, textvariable=quantityText).grid (row = 0, column = 3, sticky = W)
+            Button(browseWin, text= 'Add to cart', command= lambda: check(output, quantityText.get (), selectedrow['values'][0], selectedrow['values'][2], selectedrow['values'][4])).grid(row=0, column = 4, sticky=W)
+            output = Text (browseWin, height = 1, width = 150, wrap = WORD, bg = "white")
+            output.grid (row = 20, column = 5)
+            # print (plist.item(curItem))
+        plist.bind('<ButtonRelease-1>', selectItem)
         browseWin.mainloop()
 
     def previousOrders (self):

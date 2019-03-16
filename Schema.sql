@@ -349,6 +349,21 @@ END;
 //
 DELIMITER ;
 
+-- Function to return the total earning of a seller between supplied dates
+DELIMITER //
+CREATE FUNCTION addProductToCart(cid varchar(20), pid varchar(20), sid varchar(20), q int)
+RETURNS INT DETERMINISTIC  
+BEGIN
+    IF ((SELECT count(*) from showCart where customer_id = cid and product_id = pid and seller_id = sid) = 1) THEN
+      UPDATE cart set quantity = q where customer_id = cid and product_id = pid and seller_id = sid; 
+    ELSE
+      INSERT INTO showCart VALUES (cid,pid,sid,q);
+    END IF;
+    RETURN 0;
+END;
+//
+DELIMITER ;
+
 DROP ROLE dbadmin;
 DROP ROLE customer;
 DROP ROLE seller;
@@ -400,6 +415,7 @@ GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 
 GRANT EXECUTE ON FUNCTION AmaKart.sellerStatsBetweenDate TO seller;
+GRANT EXECUTE ON FUNCTION AmaKart.addProductToCart TO customer;
 
 -- When a product is sold, we want to mention its selling_price as later the seller can update the price
 DELIMITER //

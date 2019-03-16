@@ -52,21 +52,15 @@ class DB:
         row = self.cur.fetchall()
         return row[0][2]
 
-    # left for reference as of now.
-    def _hi(self):
-        self.cur.execute ("call getDetails();")
-        row = self.cur.fetchall()
-        print ("I am pri")
-        print (row)
-        print ("\n")
-    ######################################################
-    ###########CUSTOMER FUNCTIONS#########################
-    ######################################################
-
     def getProductsFromCart (self):
         self.cur.execute ("call getProductsFromCart();")
         rows = self.cur.fetchall ()
         return rows
+
+    def addProductToCart (self, cid, pid, sid, quantity):
+        self.cur.execute ("Select addProductToCart(\"{}\",\"{}\",\"{}\",{});".format(cid,pid,sid,quantity))
+        self.conn.commit ()
+        return True
 
     def getProductsFromNameNIL (self, pname):
         self.cur.execute ("call queryProductsRat(\"{}\");".format (pname))
