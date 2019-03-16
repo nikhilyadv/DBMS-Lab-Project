@@ -14,6 +14,11 @@ class Customer:
     def on_closing(self, _window):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             _window.destroy()
+    def switchToBasic(self,_window):
+        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            _window.destroy() 
+        self.basic()
+
     def switchToLogin (self, _window):
         _window.destroy ()
         LoginWindow.LoginWindow (self.db)
@@ -34,7 +39,7 @@ class Customer:
         self.basic ()
     def basic (self):
         win = Tk ()
-        win.title ("Welcome")
+        win.title ("Welcome Home Page")
         win.protocol("WM_DELETE_WINDOW", lambda: self.on_closing (win))  # handle window closing
         Button(win, text= 'Browse Products', command= lambda: self.switchToBrowse (win)).grid(row=1, column = 0, sticky=W)
         Button(win, text= 'Update your info', command= lambda: self.switchToUpdate (win)).grid(row=2, column = 0, sticky=W)
@@ -54,7 +59,7 @@ class Customer:
     def browse (self):
         browseWin = Tk ()
         browseWin.title ("Browse Products")
-        browseWin.protocol("WM_DELETE_WINDOW", lambda: self.on_closing (browseWin))  # handle window closing
+        browseWin.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (browseWin))  # handle window closing
         Label(browseWin, text = "Enter product name").grid (row = 0, column = 0, sticky = W)
 
         prodText = StringVar()
