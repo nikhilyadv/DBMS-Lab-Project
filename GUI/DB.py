@@ -58,8 +58,8 @@ class DB:
         return rows
 
     def addProductToCart (self, cid, pid, sid, quantity):
-        self.cur.execute ("Select addProducsaddtToCart(\"{}\",\"{}\",\"{}\",{});".format(cid,pid,sid,quantity))
-        self.conn.commit ()
+        self.cur.execute ("call addProductToCart(\"{}\",\"{}\",\"{}\",{});".format(cid,pid,sid,quantity))
+        rows = self.cur.fetchall ()
         return True
 
     def getProductsFromNameNIL (self, pname):
@@ -71,7 +71,3 @@ class DB:
         self.cur.execute ("call makeorder(\"{}\",\"{}\",\"{}\",\"{}\");".format(cnum,badd,cid,sadd))
         self.conn.commit()
         return True
-
-    def purchaseEverthingInCart (self):
-        self.cur.execute ("call purchaseEverthingInCart();")
-        rows = self.cur.fetchall ()

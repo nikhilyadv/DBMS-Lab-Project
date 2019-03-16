@@ -3,10 +3,12 @@ from tkinter import messagebox
 from Shipper import Shipper
 from Seller import Seller 
 from Customer import Customer
+from DB import DB
 import SignUp
 
 class LoginWindow:
-    def __init__ (self, db):
+    def __init__ (self):
+        db = DB()
         self.db = db
         self.loginWin()
     def on_closing(self, _window):

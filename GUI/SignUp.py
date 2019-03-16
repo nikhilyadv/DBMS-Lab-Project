@@ -11,7 +11,7 @@ class SignUp:
             _window.destroy()
     def switchToLogin (self, _window):
         _window.destroy ()
-        LoginWindow.LoginWindow (self.db)
+        LoginWindow.LoginWindow ()
     def window1(self):
         win = Tk()
         win.title("Sign Up")

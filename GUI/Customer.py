@@ -36,7 +36,7 @@ class Customer:
         self.updateInfo ()
     def switchToLogin (self, _window):
         _window.destroy ()
-        LoginWindow.LoginWindow (self.db)
+        LoginWindow.LoginWindow ()
 
     def basic (self):
         win = Tk ()
@@ -82,11 +82,8 @@ class Customer:
             Entry(purchwin, textvariable=shipping_address).grid(row=2, column=1)
             
             def checkandclose(cnum,badd,sadd):
-                print (cnum)
-                print (badd)
-                if (cnum != "") and (badd != ""):
-                    pid = self.db.payandmakeorder(cnum,badd,self.customer_id,sadd)
-                    # self.db.purchaseEverthingInCart()
+                if (cnum != "") and (badd != "") and (sadd != ""):
+                    self.db.payandmakeorder(cnum,badd,self.customer_id,sadd)
                     purchwin.destroy()
                     self.switchToBasic (cartwin)
             Button(purchwin, text= 'Proceed', command= lambda: checkandclose(card_number.get(), billing_address.get(), shipping_address.get())).grid(row=3, column=1, sticky=W)
@@ -158,7 +155,7 @@ class Customer:
             Button(browseWin, text= 'Add to cart', command= lambda: check(output, quantityText.get (), selectedrow['values'][0], selectedrow['values'][2], selectedrow['values'][4])).grid(row=0, column = 4, sticky=W)
             output = Text (browseWin, height = 1, width = 150, wrap = WORD, bg = "white")
             output.grid (row = 20, column = 5)
-            # print (plist.item(curItem))
+            print (plist.item(curItem))
         plist.bind('<ButtonRelease-1>', selectItem)
         browseWin.mainloop()
 

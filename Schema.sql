@@ -211,13 +211,17 @@ BEGIN
       select product_id from showCart limit i,1 into pid; 
       select seller_id from showCart limit i,1 into sid; 
       select quantity from showCart limit i,1 into q; 
-      IF (q > all (SELECT quantity from product where product_id = pid and seller_id = sid)) THEN
-          SELECT quantity from product where product_id = pid and seller_id = sid into q;
+      IF (q > all (SELECT total_stock from product where product_id = pid and seller_id = sid)) THEN
+          SELECT total_stock from product where product_id = pid and seller_id = sid into q;
       END IF;
-      DELETE from showCart where product_id = pid and seller_id = sid;
       select price from product where product_id = pid and seller_id = sid into price;
       INSERT INTO product_order(product_id,order_id,seller_id,quantity,selling_price) VALUES (pid,oid,sid,q,price);
-      SET i = i+1;
+      SET i = i + 1;
+    END WHILE;
+    SET i = 0;
+    WHILE i < n DO
+      DELETE from showCart where product_id = pid and seller_id = sid;
+      SET i = i + 1;
     END WHILE;
 END;
 //
@@ -232,10 +236,23 @@ BEGIN
     DECLARE oid INT;
     set curr_time = NOW();
     INSERT INTO payment(credit_card_number,date_,billing_address) values (cnum,curr_time,badd);
-    SELECT payment_id from payment where credit_card_number = cnum and date_ = curr_time and billing_address = badd into payid;
+    SELECT payment_id from payment where credit_card_number = cnum and date_ = curr_time and billing_address = badd order by payment_id desc into payid;
     INSERT INTO order_ (customer_id,payment_id,shipping_address) VALUES (cid,payid,sadd);
-    SELECT order_id from order_ where customer_id = cid and payment_id = payid and shipping_address = sadd into oid;
+    SELECT order_id from order_ where customer_id = cid and payment_id = payid and shipping_address = sadd order by order_id desc into oid;
     call purchaseEverthingInCart(oid);
+END;
+//
+DELIMITER ;
+
+-- Procedure to return the total earning of a seller between supplied dates
+DELIMITER //
+CREATE PROCEDURE addProductToCart(IN cid varchar(20),IN pid varchar(20),IN sid varchar(20),IN q int)
+BEGIN
+    IF ((SELECT count(*) from showCart where product_id = pid and seller_id = sid) = 1) THEN
+      UPDATE showCart set quantity = q and product_id = pid and seller_id = sid; 
+    ELSE
+      INSERT INTO showCart VALUES (cid,pid,sid,q);
+    END IF;
 END;
 //
 DELIMITER ;
@@ -394,33 +411,6 @@ END;
 //
 DELIMITER ;
 
--- Function to return the total earning of a seller between supplied dates
-DELIMITER //
-CREATE FUNCTION addProductToCart(cid varchar(20), pid varchar(20), sid varchar(20), q int)
-RETURNS INT DETERMINISTIC  
-BEGIN
-    IF ((SELECT count(*) from showCart where product_id = pid and seller_id = sid) = 1) THEN
-      UPDATE cart set quantity = q and product_id = pid and seller_id = sid; 
-    ELSE
-      INSERT INTO showCart VALUES (cid,pid,sid,q);
-    END IF;
-    RETURN 0;
-END;
-//
-DELIMITER ;
-
-DROP ROLE dbadmin;
-DROP ROLE customer;
-DROP ROLE seller;
-DROP ROLE shipper;
-
-CREATE ROLE dbadmin;
-CREATE ROLE customer;
-CREATE ROLE seller;
-CREATE ROLE shipper;
-
-GRANT ALL PRIVILEGES ON AmaKart.* TO dbadmin;
-
 -- Make sure that any view on which a role gets access on should have the filter "SELECT user()"
 GRANT ALL PRIVILEGES ON AmaKart.customer_add TO customer;
 GRANT ALL PRIVILEGES ON AmaKart.showCart TO customer;
@@ -443,6 +433,9 @@ GRANT EXECUTE ON PROCEDURE AmaKart.getProductsfromCart TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNPurchases TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.queryProductsTim TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.queryProductsRat TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.makeorder TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.purchaseEverthingInCart TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.addProductToCart TO customer;
 
 GRANT EXECUTE ON PROCEDURE AmaKart.seeSellingsBetweenDuration TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNSellings TO seller;
@@ -460,7 +453,6 @@ GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 
 GRANT EXECUTE ON FUNCTION AmaKart.sellerStatsBetweenDate TO seller;
-GRANT EXECUTE ON FUNCTION AmaKart.addProductToCart TO customer;
 
 -- When a product is sold, we want to mention its selling_price as later the seller can update the price
 DELIMITER //
@@ -523,6 +515,7 @@ INSERT INTO seller Values ("Sourabh","Sourabh Agg","ROOM-211",8281112700,"111601
 INSERT INTO shipper Values ("FEDEx","FEDEx","Delhi",1800123343,"111601020@");
 
 INSERT INTO product Values ("1","Rasgulla", 'https://i.ndtvimg.com/i/2017-10/rasgulla-recipe_620x330_51508133855.jpg?downsize=650:400&output-quality=70&output-format=webp', "Sourabh",10,100.0,"RM3xx","Rasgulla from Aggarwal Sweets", NULL);
+INSERT INTO product Values ("2","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
 
 INSERT INTO payment Values ("1","4362536563578",'2019-01-01',"CompLabFF");
 
