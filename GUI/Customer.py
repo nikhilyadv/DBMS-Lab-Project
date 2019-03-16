@@ -105,11 +105,14 @@ class Customer:
     def populateProducts (self, productName, plist):
         rows = self.db.getProductsFromNameNIL(productName)
         plist.delete (*plist.get_children ())
+        plist._images = []
         for row in rows:
-            self.auximage = Image.open (requests.get(row[2], stream = True).raw)
-            self.auximage.thumbnail((100, 200), Image.ANTIALIAS)
-            self.auximage = ImageTk.PhotoImage (self.auximage)
-            plist.insert ('', 'end', values = (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8]), image = self.auximage)
+            auximage = Image.open (requests.get(row[2], stream = True).raw)
+            auximage.thumbnail((100, 200), Image.ANTIALIAS)
+            auximage = ImageTk.PhotoImage (auximage)
+            plist._images.append(auximage)
+            # plist.insert ('', 'end', values = (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8]), image = (ImageTk.PhotoImage(Image.open(requests.get(row[2],stream = True).raw).thumbnail((100, 200),Image.ANTIALIAS))))
+            plist.insert ('', 'end', values = (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8]), image = plist._images[-1])
 
     def browse (self):
         browseWin = Tk ()
@@ -121,7 +124,18 @@ class Customer:
         Entry(browseWin, textvariable=prodText).grid (row = 0, column = 1, sticky = W)
         Button (browseWin, text = 'Switch to Login', command = lambda: self.switchToLogin (browseWin)).grid (row = 20, sticky = W, pady = 4)
         ############ Product List #############
-        plist = ttk.Treeview (browseWin)
+        ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
+        plist = ttk.Treeview (browseWin, style='PViewStyle.Treeview')
+        scbVDirSel =Scrollbar(browseWin, orient=VERTICAL, command=plist.yview)
+        scbVDirSel.grid(row=1, column=100, rowspan=50, sticky=NS, in_=browseWin)
+        plist.configure(yscrollcommand=scbVDirSel.set) 
+
+
+        # vsb = ttk.Scrollbar(browseWin)
+        # vsb.pack(side=RIGHT,fill=Y)
+        # vsb.config( command = plist.yview)
+        # plist.configure(yscrollcommand=vsb.set)
+
         plist['columns'] = ('pid', 'pname', 'sellerid', 'price', 'tstock', 'pickupaddress', 'description', 'rating')
         plist.heading ('#0', text = 'Image')
         plist.heading ('pid', text = 'Product ID')
