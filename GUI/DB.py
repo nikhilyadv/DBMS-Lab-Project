@@ -40,12 +40,18 @@ class DB:
         self.cur.execute("use AmaKart;")
         self.conn.commit ()
 
-    def validate (self, username, passcode, role) :
-        self.cur.execute("SELECT * FROM Users WHERE username=\"{}\" and passcode=\"{}\" and roles=\"{}\"".format(username,passcode,role))
+    def validate (self, username, passcode):
+        self.cur.execute("SELECT * FROM Users WHERE username=\"{}\" and passcode=\"{}\"".format(username,passcode))
         row = self.cur.fetchall()
         if len(row) == 1 :
             return True
         return False
+
+    def getrole (self, username, passcode):
+        self.cur.execute("SELECT * FROM Users WHERE username=\"{}\" and passcode=\"{}\"".format(username,passcode))
+        row = self.cur.fetchall()
+        return row[0][2]
+
     # left for reference as of now.
     def _hi(self):
         self.cur.execute ("call getDetails();")
