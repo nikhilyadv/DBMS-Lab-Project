@@ -129,6 +129,10 @@ CREATE VIEW orderPrice AS (SELECT order_id, sum(selling_price * quantity) as tot
                            FROM (product_order)
                            GROUP BY order_id); 
 
+-- This view will allow customer to see and add products to his cart
+CREATE VIEW showCart AS (SELECT * FROM cart
+                          WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
+
 -- This view will tell the customer details corresponding to his/her all order_id mentioning complete order details (order_id, shipping_address, date_, total_price) except the products in that order. 
 CREATE VIEW previousOrders AS (SELECT T1.order_id, T1.shipping_address, T2.date_, T3.total_price
                                FROM (order_ as T1) NATURAL JOIN (payment as T2) NATURAL JOIN (orderPrice as T3)
@@ -181,6 +185,15 @@ DELIMITER //
 CREATE PROCEDURE seePurchasesBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
 BEGIN
     select * from payment natural join order_ natural join product_order where CONCAT(order_.customer_id, "@localhost") IN (SELECT user()) AND payment.date_ BETWEEN startTime AND endTime;
+END;
+//
+DELIMITER ;
+
+-- Procedure for customer to see his or her cart
+DELIMITER //
+CREATE PROCEDURE getProductsFromCart ()
+BEGIN
+    select * from showCart natural join product;
 END;
 //
 DELIMITER ;
@@ -238,8 +251,6 @@ BEGIN
 END;
 //
 DELIMITER ;
-
-
 
 -- Procedure to add rating for product
 DELIMITER //
@@ -355,6 +366,7 @@ GRANT ALL PRIVILEGES ON AmaKart.* TO dbadmin;
 
 -- Make sure that any view on which a role gets access on should have the filter "SELECT user()"
 GRANT ALL PRIVILEGES ON AmaKart.customer_add TO customer;
+GRANT ALL PRIVILEGES ON AmaKart.showCart TO customer;
 GRANT SELECT ON AmaKart.previousOrders TO customer;
 GRANT SELECT ON AmaKart.listOrders TO customer;
 GRANT SELECT ON AmaKart.packageStatus TO customer;
@@ -370,6 +382,7 @@ GRANT SELECT ON AmaKart.shipperTrack TO shipper;
 
 -- Procedures/Functions Grant
 GRANT EXECUTE ON PROCEDURE AmaKart.seePurchasesBetweenDuration TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.getProductsfromCart TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNPurchases TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.queryProductsTim TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.queryProductsRat TO customer;
@@ -461,4 +474,5 @@ INSERT INTO track(shipper_id) Values ("FEDEx");
 
 INSERT INTO product_order(product_id, order_id, seller_id, product_rating, seller_rating, ship_index, product_review, seller_review, quantity) Values ("1","1","Sourabh",5,4,1,NULL,NULL,10);
 
+INSERT INTO cart Values ("Nikhil","1","Sourabh","2");
 MY_QUERY

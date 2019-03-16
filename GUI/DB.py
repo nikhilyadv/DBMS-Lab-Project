@@ -62,7 +62,13 @@ class DB:
     ######################################################
     ###########CUSTOMER FUNCTIONS#########################
     ######################################################
-    def getProductsFromNameNIL(self, pname):
+
+    def getProductsFromCart (self):
+        self.cur.execute ("call getProductsFromCart();")
+        rows = self.cur.fetchall ()
+        return rows
+
+    def getProductsFromNameNIL (self, pname):
         self.cur.execute ("call queryProductsRat(\"{}\");".format (pname))
         rows = self.cur.fetchall ()
         return rows
