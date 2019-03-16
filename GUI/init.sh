@@ -97,6 +97,15 @@ create table product_order (
   foreign key (ship_index) references track (index_) on delete set null
 );
 
+create table cart (
+  customer_id varchar(20),
+  product_id varchar(20),
+  seller_id varchar(20),
+  quantity int,
+  primary key (customer_id,product_id,seller_id),
+  foreign key (customer_id) references customer(customer_id) on delete cascade,
+  foreign key (product_id,seller_id) references product(product_id,seller_id) on delete cascade
+);
 
 -- We also have an auxiliary table for keeping track of users with their old passwords as mysql.user encrypts the passwords and there is no way to get it back also this table is required for validation when the user tries to log in the system.
 -- Clearly this table is in BCNF.
