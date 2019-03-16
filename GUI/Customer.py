@@ -17,9 +17,6 @@ class Customer:
     def on_closingwithoutwarning(self, _window):
         _window.destroy()
     def switchToBasic(self,_window):
-        # if messagebox.askokcancel("Quit", "Do you want to quit?"):
-        #     _window.destroy() 
-        #     self.basic()
         _window.destroy()
         self.basic()
     def switchToCart (self, _window):
@@ -101,12 +98,13 @@ class Customer:
     def populateProductsforCart (self, plist):
         rows = self.db.getProductsFromCart ()
         plist.delete (*plist.get_children ())
+        plist._images = []
         for row in rows:
-            self.auximage = Image.open (requests.get(row[5], stream = True).raw)
-            self.auximage.thumbnail((100, 200), Image.ANTIALIAS)
-            self.auximage = ImageTk.PhotoImage (self.auximage)
-            # print (row)
-            plist.insert ('', 'end', values = (row[0], row[4], row[1], row[6], row[3], row[6]), image = self.auximage)
+            auximage = Image.open (requests.get(row[5], stream = True).raw)
+            auximage.thumbnail((100, 200), Image.ANTIALIAS)
+            auximage = ImageTk.PhotoImage (auximage)
+            plist._images.append(auximage)
+            plist.insert ('', 'end', values = (row[0], row[4], row[1], row[6], row[3], row[6]), image = plist._images[-1])
 
     def populateProducts (self, productName, plist):
         rows = self.db.getProductsFromNameNIL(productName)
@@ -117,7 +115,6 @@ class Customer:
             auximage.thumbnail((100, 200), Image.ANTIALIAS)
             auximage = ImageTk.PhotoImage (auximage)
             plist._images.append(auximage)
-            # plist.insert ('', 'end', values = (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8]), image = (ImageTk.PhotoImage(Image.open(requests.get(row[2],stream = True).raw).thumbnail((100, 200),Image.ANTIALIAS))))
             plist.insert ('', 'end', values = (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8]), image = plist._images[-1])
 
     def browse (self):
@@ -129,7 +126,7 @@ class Customer:
         prodText = StringVar()
         Entry(browseWin, textvariable=prodText).grid (row = 0, column = 1, sticky = W)
         Button (browseWin, text = 'Switch to Login', command = lambda: self.switchToLogin (browseWin)).grid (row = 20, sticky = W, pady = 4)
-        ############ Product List #############
+
         ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
         plist = ttk.Treeview (browseWin, style='PViewStyle.Treeview')
         scbVDirSel =Scrollbar(browseWin, orient=VERTICAL, command=plist.yview)

@@ -483,10 +483,11 @@ FOR EACH ROW BEGIN
 END//
 DELIMITER ;
 
--- When a product is sold, we need to add an entry to our track table for the same
+-- When a product is sold, reduce the amount of the product avaliable and add an entry to our track table for the same
 DELIMITER //
-CREATE TRIGGER addTrack BEFORE INSERT on product_order
+CREATE TRIGGER stockCheckandaddTrack BEFORE INSERT on product_order
 FOR EACH ROW BEGIN
+  UPDATE product set total_stock = total_stock- NEW.quantity WHERE product_id = NEW.product_id and seller_id = NEW.seller_id;
   INSERT INTO track () Values ();
   SET NEW.ship_index = (SELECT MAX(index_) FROM track);
 END//

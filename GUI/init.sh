@@ -212,11 +212,7 @@ BEGIN
       INSERT INTO product_order(product_id,order_id,seller_id,quantity,selling_price) VALUES (pid,oid,sid,q,price);
       SET i = i + 1;
     END WHILE;
-    SET i = 0;
-    WHILE i < n DO
-      DELETE from showCart where product_id = pid and seller_id = sid;
-      SET i = i + 1;
-    END WHILE;
+    DELETE from showCart;
 END;
 //
 DELIMITER ;
@@ -498,10 +494,11 @@ FOR EACH ROW BEGIN
 END//
 DELIMITER ;
 
--- When a product is sold, we need to add an entry to our track table for the same
+-- When a product is sold, reduce the amount of the product avaliable and add an entry to our track table for the same
 DELIMITER //
-CREATE TRIGGER addTrack BEFORE INSERT on product_order
+CREATE TRIGGER stockCheckandaddTrack BEFORE INSERT on product_order
 FOR EACH ROW BEGIN
+  UPDATE product set total_stock = total_stock- NEW.quantity WHERE product_id = NEW.product_id and seller_id = NEW.seller_id;
   INSERT INTO track () Values ();
   SET NEW.ship_index = (SELECT MAX(index_) FROM track);
 END//
@@ -531,24 +528,6 @@ INSERT INTO shipper Values ("FEDEx","FEDEx","Delhi",1800123343,"111601020@");
 
 INSERT INTO product Values ("1","Rasgulla", 'https://i.ndtvimg.com/i/2017-10/rasgulla-recipe_620x330_51508133855.jpg?downsize=650:400&output-quality=70&output-format=webp', "Sourabh",10,100.0,"RM3xx","Rasgulla from Aggarwal Sweets", NULL);
 INSERT INTO product Values ("2","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("3","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("4","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("5","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("6","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("7","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("8","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("9","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("10","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("11","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("12","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("13","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("14","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("15","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("16","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("17","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("18","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("19","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
-INSERT INTO product Values ("20","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
 
 INSERT INTO payment Values ("1","4362536563578",'2019-01-01',"CompLabFF");
 
