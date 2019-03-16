@@ -54,6 +54,12 @@ class Customer:
         cartwin.title ("Cart")
         cartwin.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (cartwin))
         plist = ttk.Treeview (cartwin)
+        ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
+        plist = ttk.Treeview (cartwin, style='PViewStyle.Treeview')
+        scbVDirSel =Scrollbar(cartwin, orient=VERTICAL, command=plist.yview)
+        scbVDirSel.grid(row=1, column=100, rowspan=50, sticky=NS, in_=cartwin)
+        plist.configure(yscrollcommand=scbVDirSel.set) 
+
         plist['columns'] = ('pid', 'pname', 'sellerid', 'price', 'quantity')
         plist.heading ('#0', text = 'Image')
         plist.heading ('pid', text = 'Product ID')
@@ -129,12 +135,6 @@ class Customer:
         scbVDirSel =Scrollbar(browseWin, orient=VERTICAL, command=plist.yview)
         scbVDirSel.grid(row=1, column=100, rowspan=50, sticky=NS, in_=browseWin)
         plist.configure(yscrollcommand=scbVDirSel.set) 
-
-
-        # vsb = ttk.Scrollbar(browseWin)
-        # vsb.pack(side=RIGHT,fill=Y)
-        # vsb.config( command = plist.yview)
-        # plist.configure(yscrollcommand=vsb.set)
 
         plist['columns'] = ('pid', 'pname', 'sellerid', 'price', 'tstock', 'pickupaddress', 'description', 'rating')
         plist.heading ('#0', text = 'Image')

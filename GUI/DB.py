@@ -59,7 +59,7 @@ class DB:
 
     def addProductToCart (self, cid, pid, sid, quantity):
         self.cur.execute ("call addProductToCart(\"{}\",\"{}\",\"{}\",{});".format(cid,pid,sid,quantity))
-        rows = self.cur.fetchall ()
+        self.conn.commit()
         return True
 
     def getProductsFromNameNIL (self, pname):
