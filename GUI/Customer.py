@@ -14,6 +14,8 @@ class Customer:
     def on_closing(self, _window):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             _window.destroy()
+    def on_closingwithoutwarning(self, _window):
+        _window.destroy()
     def switchToBasic(self,_window):
         # if messagebox.askokcancel("Quit", "Do you want to quit?"):
         #     _window.destroy() 
@@ -61,6 +63,36 @@ class Customer:
         plist.heading ('quantity', text = 'Quantity')
         plist.grid(row = 1, column = 0, rowspan = 18, columnspan = 100)
         self.populateProductsforCart (plist)
+        def purchase ():
+            purchwin = Tk()
+            purchwin.title ("Make Order")
+            purchwin.protocol("WM_DELETE_WINDOW", lambda: ())
+
+            card_number = StringVar(purchwin, value="1234567890")
+            billing_address = StringVar(purchwin, value="RM123")
+            shipping_address = StringVar(purchwin, value="RM123")
+
+            Label(purchwin, text="Card number").grid(row=0, column=0)
+            Entry(purchwin, textvariable=card_number).grid(row=0, column=1)
+
+            Label(purchwin, text="Billing Address").grid(row=1, column=0)
+            Entry(purchwin, textvariable=billing_address).grid(row=1, column=1)
+
+            Label(purchwin, text="Shipping Address").grid(row=2, column=0)
+            Entry(purchwin, textvariable=shipping_address).grid(row=2, column=1)
+            
+            def checkandclose(cnum,badd,sadd):
+                print (cnum)
+                print (badd)
+                if (cnum != "") and (badd != ""):
+                    pid = self.db.payandmakeorder(cnum,badd,self.customer_id,sadd)
+                    # self.db.purchaseEverthingInCart()
+                    purchwin.destroy()
+                    self.switchToBasic (cartwin)
+            Button(purchwin, text= 'Proceed', command= lambda: checkandclose(card_number.get(), billing_address.get(), shipping_address.get())).grid(row=3, column=1, sticky=W)
+            purchwin.mainloop()
+
+        Button (cartwin, text = 'Checkout cart', command = lambda: purchase ()).grid (row = 20, sticky = W, pady = 4)
         cartwin.mainloop ()
 
     def populateProductsforCart (self, plist):
@@ -72,7 +104,6 @@ class Customer:
             self.auximage = ImageTk.PhotoImage (self.auximage)
             # print (row)
             plist.insert ('', 'end', values = (row[0], row[4], row[1], row[6], row[3], row[6]), image = self.auximage)
-        pass
 
     def populateProducts (self, productName, plist):
         rows = self.db.getProductsFromNameNIL(productName)

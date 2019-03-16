@@ -58,7 +58,7 @@ class DB:
         return rows
 
     def addProductToCart (self, cid, pid, sid, quantity):
-        self.cur.execute ("Select addProductToCart(\"{}\",\"{}\",\"{}\",{});".format(cid,pid,sid,quantity))
+        self.cur.execute ("Select addProducsaddtToCart(\"{}\",\"{}\",\"{}\",{});".format(cid,pid,sid,quantity))
         self.conn.commit ()
         return True
 
@@ -66,47 +66,12 @@ class DB:
         self.cur.execute ("call queryProductsRat(\"{}\");".format (pname))
         rows = self.cur.fetchall ()
         return rows
-   
-"""    def updateInfo (self, username, passcode, name, address, phonenumber, email):
-        self.cur.execute("UPDATE customer_add ;".format(username, passcode))
-        self.conn.commit()"""
-    
-    
-"""
-    def updateproduct (self, product_id, supplier_id, price, total_stock) :
-        self.cur.execute("UPDATE product set price={}, total_stock={} where product_id=\"{}\" and supplier_id=\"{}\"".format(price, total_stock, product_id, supplier_id))
+
+    def payandmakeorder (self, cnum, badd, cid, sadd):
+        self.cur.execute ("call makeorder(\"{}\",\"{}\",\"{}\",\"{}\");".format(cnum,badd,cid,sadd))
         self.conn.commit()
         return True
 
-    def addproduct (self, product_id, supplier_id, price, total_stock, description) :
-        self.cur.execute("INSERT INTO product VALUES (\"{}\", \"{}\", {}, {}, \"{}\")".format(product_id, supplier_id, price, total_stock, description))
-        self.conn.commit()
-        return True
-
-    def addUser (self, username, passcode, name, address, phone, email, role) :
-        self.cur.execute("INSERT INTO Users VALUES (\"{}\", \"{}\", \"{}\")".format(username, passcode, role))
-        self.conn.commit()
-        table_name = ""
-        if role == "CUS":
-            table_name = "customer"
-        elif role == "SUP":
-            table_name = "supplier"
-        elif role == "SHI":
-            table_name = "shipper"
-        self.cur.execute("INSERT INTO {} VALUES (\"{}\", \"{}\", \"{}\", {}, \"{}\")".format(table_name, username, name, address, phone, email))
-        self.conn.commit()
-
-    def validate (self, username, passcode, role) :
-        self.cur.execute("SELECT * FROM Users WHERE username=\"{}\" and passcode=\"{}\" and role=\"{}\"".format(username,passcode,role))
-        row = self.cur.fetchall()
-        if len(row) == 1 :
-            return True
-        return False
- 
-    def userExists (self, username) :
-        self.cur.execute("SELECT * FROM Users WHERE username=\"{}\"".format(username))
-        row = self.cur.fetchall()
-        if len(row) == 1 :
-            return True
-        return False 
-"""
+    def purchaseEverthingInCart (self):
+        self.cur.execute ("call purchaseEverthingInCart();")
+        rows = self.cur.fetchall ()

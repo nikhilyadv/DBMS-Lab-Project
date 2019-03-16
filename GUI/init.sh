@@ -16,7 +16,7 @@ create table customer (
 
 /*   Here: payment_id -> R is the only non trivial dependency and hence it is in BCNF  */
 create table payment (
-  payment_id VARCHAR (20) primary key not null,
+  payment_id int AUTO_INCREMENT primary key not null,
   credit_card_number VARCHAR (20) not null,
   date_ timestamp,
   billing_address varchar(60) not null
@@ -25,10 +25,10 @@ create table payment (
 /* Here: order_id -> R is the only non trivial dependency and hence it is in BCNF  */
 /* Initially payment id can be null and then later once the customer does the payment, trigger will add the payment id */
 create table order_ (
-  order_id VARCHAR (20) primary key not null,
+  order_id int AUTO_INCREMENT primary key not null,
   customer_id VARCHAR (20),
   shipping_address varchar(60) not null,
-  payment_id VARCHAR (20),
+  payment_id int,
   foreign key (customer_id) references customer (customer_id) on delete set null,
   foreign key (payment_id) references payment (payment_id) on delete set null
 );
@@ -81,7 +81,7 @@ create table product (
 /*  Here: (product_id, order_id, seller_id) -> R is the only non trivial dependency and hence it is in BCNF  */
 create table product_order (
   product_id varchar(20) not null,
-  order_id varchar (20) not null,
+  order_id int not null,
   seller_id varchar (20),
   product_rating int check (product_rating in (NULL, 1, 2, 3, 4, 5)),
   seller_rating int check (seller_rating in (NULL, 1, 2, 3, 4, 5)),
@@ -188,6 +188,23 @@ BEGIN
 END;
 //
 DELIMITER ;
+
+-- Procedure for customer to makeorder
+DELIMITER //
+CREATE PROCEDURE makeorder(IN cnum varchar(20), IN badd varchar(20), IN cid varchar(20), IN sadd varchar(20))
+BEGIN
+    DECLARE curr_time TIMESTAMP;
+    DECLARE payid INT;
+    DECLARE oid INT;
+    set curr_time = NOW();
+    INSERT INTO payment(credit_card_number,date_,billing_address) values (cnum,curr_time,badd);
+    SELECT payment_id from payment where credit_card_number = cnum and date_ = curr_time and billing_address = badd into payid;
+    INSERT INTO order_ (customer_id,payment_id,shipping_address) VALUES (cid,payid,sadd);
+    SELECT order_id from order_ where customer_id = cid and payment_id = payid and shipping_address = sadd into oid;
+END;
+//
+DELIMITER ;
+
 
 -- Procedure for customer to see his or her cart
 DELIMITER //
