@@ -189,6 +189,34 @@ END;
 //
 DELIMITER ;
 
+-- Procedure for customer to checkout his cart
+DELIMITER //
+CREATE PROCEDURE purchaseEverthingInCart(IN oid varchar(20)) 
+BEGIN
+    DECLARE n int default 0;
+    DECLARE i int default 0;
+    DECLARE pid varchar(20);
+    DECLARE sid varchar(20);
+    DECLARE q int;
+    DECLARE price FLOAT;
+    select count(*) from showCart into n;
+    SET i = 0;
+    WHILE i < n DO 
+      select product_id from showCart limit i,1 into pid; 
+      select seller_id from showCart limit i,1 into sid; 
+      select quantity from showCart limit i,1 into q; 
+      IF (q > all (SELECT quantity from product where product_id = pid and seller_id = sid)) THEN
+          SELECT quantity from product where product_id = pid and seller_id = sid into q;
+      END IF;
+      DELETE from showCart where product_id = pid and seller_id = sid;
+      select price from product where product_id = pid and seller_id = sid into price;
+      INSERT INTO product_order(product_id,order_id,seller_id,quantity,selling_price) VALUES (pid,oid,sid,q,price);
+      SET i = i+1;
+    END WHILE;
+END;
+//
+DELIMITER ;
+
 -- Procedure for customer to makeorder
 DELIMITER //
 CREATE PROCEDURE makeorder(IN cnum varchar(20), IN badd varchar(20), IN cid varchar(20), IN sadd varchar(20))
@@ -201,10 +229,10 @@ BEGIN
     SELECT payment_id from payment where credit_card_number = cnum and date_ = curr_time and billing_address = badd into payid;
     INSERT INTO order_ (customer_id,payment_id,shipping_address) VALUES (cid,payid,sadd);
     SELECT order_id from order_ where customer_id = cid and payment_id = payid and shipping_address = sadd into oid;
+    call purchaseEverthingInCart(oid);
 END;
 //
 DELIMITER ;
-
 
 -- Procedure for customer to see his or her cart
 DELIMITER //
