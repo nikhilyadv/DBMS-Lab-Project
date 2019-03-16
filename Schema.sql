@@ -249,7 +249,7 @@ DELIMITER //
 CREATE PROCEDURE addProductToCart(IN cid varchar(20),IN pid varchar(20),IN sid varchar(20),IN q int)
 BEGIN
     IF ((SELECT count(*) from showCart where product_id = pid and seller_id = sid) = 1) THEN
-      UPDATE showCart set quantity = q and product_id = pid and seller_id = sid; 
+      UPDATE showCart set quantity = q where product_id = pid and seller_id = sid; 
     ELSE
       INSERT INTO showCart VALUES (cid,pid,sid,q);
     END IF;
