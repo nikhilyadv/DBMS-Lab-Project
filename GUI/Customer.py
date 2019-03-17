@@ -117,20 +117,40 @@ class Customer:
             plist._images.append(auximage)
             plist.insert ('', 'end', values = (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8]), image = plist._images[-1])
 
+    def populateProductsByLimit (self, productName, lprice, uprice, plist):
+        rows = self.db.getProductsFromLimit(productName, lprice, uprice)
+        plist.delete (*plist.get_children ())
+        plist._images = []
+        for row in rows:
+            auximage = Image.open (requests.get(row[2], stream = True).raw)
+            auximage.thumbnail((100, 200), Image.ANTIALIAS)
+            auximage = ImageTk.PhotoImage (auximage)
+            plist._images.append(auximage)
+            plist.insert ('', 'end', values = (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8]), image = plist._images[-1])
+
     def browse (self):
         browseWin = Tk ()
         browseWin.title ("Browse Products")
         browseWin.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (browseWin)) 
         Label(browseWin, text = "Enter product name").grid (row = 0, column = 0, sticky = W)
+        Label(browseWin, text = "Lower Price Limit").grid (row = 1, column = 0, sticky = W)
+        Label(browseWin, text = "Uper Price Limit").grid (row = 1, column = 2, sticky = W)
 
         prodText = StringVar()
+        lowprice = DoubleVar()
+        upprice = DoubleVar()
         Entry(browseWin, textvariable=prodText).grid (row = 0, column = 1, sticky = W)
-        Button (browseWin, text = 'Switch to Login', command = lambda: self.switchToLogin (browseWin)).grid (row = 20, sticky = W, pady = 4)
+        Entry(browseWin, textvariable=lowprice).grid (row = 1, column = 1, sticky = W)
+        Entry(browseWin, textvariable=upprice).grid (row = 1, column = 3, sticky = W)
+        upprice.set(1000.0)
+        Button (browseWin, text = 'Switch to Login', command = lambda: self.switchToLogin (browseWin)).grid (row = 21, sticky = W, pady = 4)
+        output = Text (browseWin, height = 1, width = 150, wrap = WORD, bg = "white")
+        output.grid (row = 21, column = 1, columnspan = 1000)
 
         ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
         plist = ttk.Treeview (browseWin, style='PViewStyle.Treeview')
         scbVDirSel =Scrollbar(browseWin, orient=VERTICAL, command=plist.yview)
-        scbVDirSel.grid(row=1, column=100, rowspan=50, sticky=NS, in_=browseWin)
+        scbVDirSel.grid(row=2, column=100, rowspan=50, sticky=NS, in_=browseWin)
         plist.configure(yscrollcommand=scbVDirSel.set) 
 
         plist['columns'] = ('pid', 'pname', 'sellerid', 'price', 'tstock', 'pickupaddress', 'description', 'rating')
@@ -143,8 +163,9 @@ class Customer:
         plist.heading ('pickupaddress', text = 'Pickup Address')
         plist.heading ('description', text = 'Description')
         plist.heading ('rating', text = 'Rating')
-        plist.grid(row = 1, column = 0, rowspan = 18, columnspan = 100)
-        Button(browseWin, text= 'Search', command= lambda: self.populateProducts (prodText.get (), plist)).grid(row=0, column=2, sticky=W)
+        plist.grid(row = 2, column = 0, rowspan = 18, columnspan = 100)
+        Button(browseWin, text= 'Search by name', command= lambda: self.populateProducts (prodText.get (), plist)).grid(row=0, column=2, sticky=W)
+        Button(browseWin, text= 'Search by name & limit', command= lambda: self.populateProductsByLimit (prodText.get (), lowprice.get (), upprice.get (), plist)).grid(row=1, column=5, sticky=W)
         def selectItem(a):
             def check(output, quantity, pid, sid, q):
                 if quantity > 0:
@@ -162,12 +183,10 @@ class Customer:
             curItem = plist.focus()
             selectedrow = plist.item(curItem)
             quantityText = IntVar()
-            Label(browseWin, text = "Enter Quantity").grid (row = 0, column = 3, sticky = W)
-            Entry(browseWin, textvariable=quantityText).grid (row = 0, column = 4, sticky = W)
+            Label(browseWin, text = "Enter Quantity").grid (row = 20, column = 0, sticky = W)
+            Entry(browseWin, textvariable=quantityText).grid (row = 20, column = 1, sticky = W)
             quantityText.set(1)
-            Button(browseWin, text= 'Add to cart', command= lambda: check(output, quantityText.get (), selectedrow['values'][0], selectedrow['values'][2], selectedrow['values'][4])).grid(row=0, column = 5, sticky=W)
-            output = Text (browseWin, height = 1, width = 150, wrap = WORD, bg = "white")
-            output.grid (row = 20, column = 5)
+            Button(browseWin, text= 'Add to cart', command= lambda: check(output, quantityText.get (), selectedrow['values'][0], selectedrow['values'][2], selectedrow['values'][4])).grid(row=20, column = 2, sticky = W)
             # print (plist.item(curItem))
         plist.bind('<ButtonRelease-1>', selectItem)
         browseWin.mainloop()

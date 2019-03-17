@@ -67,6 +67,11 @@ class DB:
         rows = self.cur.fetchall ()
         return rows
 
+    def getProductsFromLimit (self, pname, lprice, uprice):
+        self.cur.execute ("call queryProductsTim(\"{}\",{},{});".format (pname,lprice,uprice))
+        rows = self.cur.fetchall ()
+        return rows
+
     def payandmakeorder (self, cnum, badd, cid, sadd):
         self.cur.execute ("call makeorder(\"{}\",\"{}\",\"{}\",\"{}\");".format(cnum,badd,cid,sadd))
         self.conn.commit()
