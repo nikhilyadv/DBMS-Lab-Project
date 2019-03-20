@@ -333,6 +333,30 @@ END;
 //
 DELIMITER ;
 
+
+-- Procedure to update customer info
+DELIMITER //
+CREATE PROCEDURE custUpdateInfo(IN customer_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone_number DECIMAL(10) UNSIGNED, IN email_id VARCHAR(20))
+BEGIN
+    IF (CHAR_LENGTH(passwordd) > 0) THEN
+      UPDATE Users SET Users.passcode = passwordd WHERE Users.username = customer_id;
+    END IF;
+    IF (CHAR_LENGTH(named) > 0) THEN
+      UPDATE customer SET customer.name = named WHERE customer.customer_id = customer_id;
+    END IF;
+    IF (CHAR_LENGTH(addressd) > 0) THEN
+      UPDATE customer SET customer.address = addressd WHERE customer.customer_id = customer_id;
+    END IF;
+    IF (CHAR_LENGTH(phone_number) > 0) THEN
+      UPDATE customer SET customer.phone_number = phone_number WHERE customer.customer_id = customer_id;
+    END IF;
+    IF (CHAR_LENGTH(email_id) > 0) THEN
+      UPDATE customer SET customer.email_id = email_id WHERE customer.customer_id = customer_id;
+    END IF;
+END;
+//
+DELIMITER ;
+
 -- #########################################
 -- ###########SELLER   PROCEDURES###########
 -- #########################################
@@ -436,6 +460,7 @@ GRANT EXECUTE ON PROCEDURE AmaKart.queryProductsRat TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.makeorder TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.purchaseEverthingInCart TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addProductToCart TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.custUpdateInfo TO customer;
 
 GRANT EXECUTE ON PROCEDURE AmaKart.seeSellingsBetweenDuration TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNSellings TO seller;

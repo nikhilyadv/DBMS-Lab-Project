@@ -189,6 +189,15 @@ END;
 //
 DELIMITER ;
 
+-- Procedure for customer to see his or her cart
+DELIMITER //
+CREATE PROCEDURE getProductsFromCart ()
+BEGIN
+    select * from showCart natural join product;
+END;
+//
+DELIMITER ;
+
 -- Procedure for customer to checkout his cart
 DELIMITER //
 CREATE PROCEDURE purchaseEverthingInCart(IN oid varchar(20)) 
@@ -212,7 +221,11 @@ BEGIN
       INSERT INTO product_order(product_id,order_id,seller_id,quantity,selling_price) VALUES (pid,oid,sid,q,price);
       SET i = i + 1;
     END WHILE;
-    DELETE from showCart;
+    SET i = 0;
+    WHILE i < n DO
+      DELETE from showCart where product_id = pid and seller_id = sid;
+      SET i = i + 1;
+    END WHILE;
 END;
 //
 DELIMITER ;
@@ -243,15 +256,6 @@ BEGIN
     ELSE
       INSERT INTO showCart VALUES (cid,pid,sid,q);
     END IF;
-END;
-//
-DELIMITER ;
-
--- Procedure for customer to see his or her cart
-DELIMITER //
-CREATE PROCEDURE getProductsFromCart ()
-BEGIN
-    select * from showCart natural join product;
 END;
 //
 DELIMITER ;
@@ -327,6 +331,30 @@ CREATE PROCEDURE addRatingSeller(IN pid varchar(20), IN oid varchar(20), IN rati
 BEGIN
     IF (rating IN (1,2,3,4,5)) THEN
       UPDATE product_order SET seller_rating = rating WHERE product_id = pid and order_id = oid;
+    END IF;
+END;
+//
+DELIMITER ;
+
+
+-- Procedure to update customer info
+DELIMITER //
+CREATE PROCEDURE custUpdateInfo(IN customer_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone_number DECIMAL(10) UNSIGNED, IN email_id VARCHAR(20))
+BEGIN
+    IF (CHAR_LENGTH(passwordd) > 0) THEN
+      UPDATE Users SET Users.passcode = passwordd WHERE Users.username = customer_id;
+    END IF;
+    IF (CHAR_LENGTH(named) > 0) THEN
+      UPDATE customer SET customer.name = named WHERE customer.customer_id = customer_id;
+    END IF;
+    IF (CHAR_LENGTH(addressd) > 0) THEN
+      UPDATE customer SET customer.address = addressd WHERE customer.customer_id = customer_id;
+    END IF;
+    IF (CHAR_LENGTH(phone_number) > 0) THEN
+      UPDATE customer SET customer.phone_number = phone_number WHERE customer.customer_id = customer_id;
+    END IF;
+    IF (CHAR_LENGTH(email_id) > 0) THEN
+      UPDATE customer SET customer.email_id = email_id WHERE customer.customer_id = customer_id;
     END IF;
 END;
 //
@@ -410,18 +438,6 @@ END;
 //
 DELIMITER ;
 
-DROP ROLE dbadmin;
-DROP ROLE customer;
-DROP ROLE seller;
-DROP ROLE shipper;
-
-CREATE ROLE dbadmin;
-CREATE ROLE customer;
-CREATE ROLE seller;
-CREATE ROLE shipper;
-
-GRANT ALL PRIVILEGES ON AmaKart.* TO dbadmin;
-
 -- Make sure that any view on which a role gets access on should have the filter "SELECT user()"
 GRANT ALL PRIVILEGES ON AmaKart.customer_add TO customer;
 GRANT ALL PRIVILEGES ON AmaKart.showCart TO customer;
@@ -447,6 +463,7 @@ GRANT EXECUTE ON PROCEDURE AmaKart.queryProductsRat TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.makeorder TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.purchaseEverthingInCart TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addProductToCart TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.custUpdateInfo TO customer;
 
 GRANT EXECUTE ON PROCEDURE AmaKart.seeSellingsBetweenDuration TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNSellings TO seller;

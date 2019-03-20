@@ -4,6 +4,9 @@ class DB:
     def __init__(self):
         self.conn = sql.connect (user = "root", password = "root", db = "AmaKart")
         self.cur = self.conn.cursor ()
+        self.id = "root"
+        self.password = "root"
+        self.role = "root"
 
     def __del__(self):  
         self.conn.close()  
@@ -14,7 +17,12 @@ class DB:
         if row[0][0] == 0:
             return True
         return False
- 
+
+    def switchToRoot (self):
+        self.conn = sql.connect (user = "root", password = "root", db = "AmaKart")
+        self.cur = self.conn.cursor ()
+        self.role = "root"
+
     def createUser (self, username, passcode, role, name, address, phonenumber, email):
         if self.checkWhetherUserExists(username) == False:
             return False
@@ -39,13 +47,23 @@ class DB:
         self.conn.commit ()
         self.cur.execute("use AmaKart;")
         self.conn.commit ()
+        self.id = username
+        self.password = passcode
+        self.role = role
 
     def validate (self, username, passcode):
+        OuserRole = self.role
+        Oid = self.id
+        Opassword = self.password
+        self.switchToRoot()
         self.cur.execute("SELECT * FROM Users WHERE username=\"{}\" and passcode=\"{}\"".format(username,passcode))
         row = self.cur.fetchall()
+        retBool = False
         if len(row) == 1 :
-            return True
-        return False
+            retBool = True
+        if (OuserRole != "root"):
+            self.loginUser(Oid, Opassword, OuserRole)
+        return retBool
 
     def getrole (self, username, passcode):
         self.cur.execute("SELECT * FROM Users WHERE username=\"{}\" and passcode=\"{}\"".format(username,passcode))
@@ -76,3 +94,17 @@ class DB:
         self.cur.execute ("call makeorder(\"{}\",\"{}\",\"{}\",\"{}\");".format(cnum,badd,cid,sadd))
         self.conn.commit()
         return True
+
+    def customerUpdateInfo (self, id, password, name, address, phone_number, email_id):
+        self.cur.execute ("call custUpdateInfo(\"{}\",\"{}\",\"{}\",\"{}\", \"{}\",\"{}\");".format(id, password, name, address, phone_number, email_id))
+        self.conn.commit()
+        self.auxcustomerUpdateInfo(id, password)
+
+    # This function is companion to the previous one for updating password in actual mysql table
+    def auxcustomerUpdateInfo (self, id, password):
+        if (len (password) > 0):
+            userRole = self.role
+            self.switchToRoot()
+            self.cur.execute ("set password for \'{}\' = PASSWORD(\'{}\');".format(id, password))
+            self.conn.commit()
+            self.loginUser (id, password, userRole)

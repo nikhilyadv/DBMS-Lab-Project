@@ -196,5 +196,52 @@ class Customer:
         self.basic ()
 
     def updateInfo (self):
-        # TODO
-        self.basic ()
+        sign = Tk ()
+        sign.title ("Update Info (You must enter your previous password and in case you don't want to change any of the respective info then leave that field empty)")
+        sign.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (sign))  # handle window closing
+        output = Text (sign, height = 1, width = 60, wrap = WORD, bg = "white")
+        output.grid (row = 7, column = 1)
+        Label(sign, text = "Previous Password").grid (row = 0, column = 0, sticky = W)
+        Label(sign, text = "New Password (can be same as old one) - leave this field empty if you don't want to change your password").grid (row = 1, column = 0, sticky = W)
+        Label(sign, text = "Repeat New Password (again, leave this field empty if you don't want wish to change your password").grid (row = 2, column = 0, sticky = W)
+        Label(sign, text = "Name").grid (row = 3, column = 0, sticky = W)
+        Label(sign, text = "Address").grid (row = 4, column = 0, sticky = W)
+        Label(sign, text = "Phone number").grid (row = 5, column = 0, sticky = W)
+        Label(sign, text = "email-id").grid (row = 6, column = 0, sticky = W)
+
+        prevPassText = StringVar()
+        passText = StringVar ()
+        repPassText = StringVar ()
+        name = StringVar ()
+        add = StringVar ()
+        phone = IntVar ()
+        email = StringVar ()
+
+        Entry(sign, textvariable=prevPassText, show = "*").grid (row = 0, column = 1, sticky = W)
+        Entry(sign, textvariable=passText, show = "*").grid (row = 1, column = 1, sticky = W)
+        Entry(sign, textvariable=repPassText, show = "*").grid (row = 2, column = 1, sticky = W)
+        Entry(sign, textvariable=name).grid (row = 3, column = 1, sticky = W)
+        Entry(sign, textvariable=add).grid (row = 4, column = 1, sticky = W)
+        Entry(sign, textvariable=phone).grid (row = 5, column = 1, sticky = W)
+        Entry(sign, textvariable=email).grid (row = 6, column = 1, sticky = W)
+        def fine (x):
+            if (len (x) > 0): 
+                return True
+            else:
+                return False
+        def check (password, npassword, rnpassword, name, add, phone, email):
+            strng = "Update successful"
+            if (fine(password) and self.db.validate (self.customer_id, password)):
+                if ((fine(npassword) and npassword == rnpassword) or not fine(npassword)):
+                    self.db.customerUpdateInfo(self.customer_id, npassword, name, add, phone, email)
+                    strng = "Update successful"
+                else:
+                    strng = "You have issue with new password"
+            else:
+                strng = "Previous password not correctly entered"
+            
+            output.delete (0.0, END)
+            output.insert (END, strng)
+        Button(sign, text= 'Update', command= lambda: check (prevPassText.get (), passText.get (), repPassText.get (), name.get (), add.get (), phone.get (), email.get ())).grid(row=8, sticky=W, pady=4)
+        Button (sign, text = 'Switch to Login', command = lambda: self.switchToLogin (sign)).grid (row = 9, sticky = W, pady = 4)
+        sign.mainloop()
