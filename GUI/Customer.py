@@ -203,7 +203,7 @@ class Customer:
         output.grid (row = 7, column = 1)
         Label(sign, text = "Previous Password").grid (row = 0, column = 0, sticky = W)
         Label(sign, text = "New Password (can be same as old one) - leave this field empty if you don't want to change your password").grid (row = 1, column = 0, sticky = W)
-        Label(sign, text = "Repeat New Password (again, leave this field empty if you don't want wish to change your password").grid (row = 2, column = 0, sticky = W)
+        Label(sign, text = "Repeat New Password - again, leave this field empty if you don't want wish to change your password").grid (row = 2, column = 0, sticky = W)
         Label(sign, text = "Name").grid (row = 3, column = 0, sticky = W)
         Label(sign, text = "Address").grid (row = 4, column = 0, sticky = W)
         Label(sign, text = "Phone number").grid (row = 5, column = 0, sticky = W)
