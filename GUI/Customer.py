@@ -197,7 +197,7 @@ class Customer:
 
     def updateInfo (self):
         sign = Tk ()
-        sign.title ("Update Info (You must enter your previous password and in case you don't want to change any of the respective info then leave that field empty)")
+        sign.title ("Update Info (You must enter your previous password and in case you don't want to change any of the respective info then leave that field empty or as it is)")
         sign.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (sign))  # handle window closing
         output = Text (sign, height = 1, width = 60, wrap = WORD, bg = "white")
         output.grid (row = 7, column = 1)
