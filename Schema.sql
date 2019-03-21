@@ -170,7 +170,7 @@ CREATE VIEW sellerOrders AS (SELECT T1.seller_id, T1.product_id, T1.quantity, T1
 -- #########################################
 
 -- This view will allow shipper details (pickup_address, shipping_address, tracking_id)
-CREATE VIEW shipperTrack AS (SELECT index_, pickup_address AS source, shipping_address AS destination, tracking_id
+CREATE VIEW shipperTrack AS (SELECT index_, pickup_address AS source, shipping_address AS destination, tracking_id, date_
                               FROM (track JOIN product_order ON index_ = ship_index) NATURAL JOIN order_ NATURAL JOIN product 
                               WHERE CONCAT(shipper_id, "@localhost") = (SELECT user()));
 

@@ -512,4 +512,5 @@ class Seller:
         Button(supp, text= 'See Your Similar Products', command= lambda: self.switchToSimilarProducts (supp)).grid(row=6, column=0)
         Button(supp, text= 'See Your Earnings Between Duration', command= lambda: self.switchToEarnings (supp)).grid(row=7, column=0)
         Button(supp, text= 'Know Your Rating', command= lambda: self.switchToRating (supp)).grid(row=8, column=0)
+        Button(supp, text= 'Back To Login', command= lambda: self.switchToLogin (supp)).grid(row=9, column=0)
         supp.mainloop()

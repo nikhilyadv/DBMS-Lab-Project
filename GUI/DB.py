@@ -198,3 +198,9 @@ class DB:
         self.cur.execute ("call seeShipmentsBetweenDuration(\"{}\",\"{}\");".format(startDate, endDate))
         rows = self.cur.fetchall ()
         return rows
+
+
+    def seeDetailedShipments(self):
+        self.cur.execute ("select * from shipperTrack;")
+        rows = self.cur.fetchall ()
+        return rows

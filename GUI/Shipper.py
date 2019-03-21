@@ -42,6 +42,41 @@ class Shipper:
     def switchToLatestNShipments (self, _window):
         _window.destroy ()
         self.latestNShipments()
+    
+    def switchToDetailedShipments (self, _window):
+        _window.destroy ()
+        self.detailedShipments()
+    
+    def detailedShipments(self):
+        win = Tk ()
+        win.title ("See Detailed Shipments")
+        win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win)) 
+
+        Button (win, text = 'Switch to Login', command = lambda: self.switchToLogin (win)).grid (row = 21, sticky = W, pady = 4)
+
+        ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
+        plist = ttk.Treeview (win, style='PViewStyle.Treeview')
+        scbVDirSel =Scrollbar(win, orient=VERTICAL, command=plist.yview)
+        scbVDirSel.grid(row=2, column=100, rowspan=50, sticky=NS, in_=win)
+        plist.configure(yscrollcommand=scbVDirSel.set) 
+
+        def populate ():
+            rows = self.db.seeDetailedShipments()
+            plist.delete (*plist.get_children ())
+            for row in rows:
+                plist.insert ('', 'end', values = row)
+            strng = "Done!"
+
+        plist['columns'] = ('index_', 'source', 'destination', 'tracking_id', 'date_')
+        plist.heading ('index_', text = 'Index')
+        plist.heading ('source', text = 'Source')
+        plist.heading ('destination', text = 'Destination')
+        plist.heading ('tracking_id', text = 'Tracking ID')
+        plist.heading ('date_', text = 'Date')
+        plist['show'] = 'headings'
+        plist.grid(row = 2, column = 0, rowspan = 18, columnspan = 100)
+        Button(win, text= 'Search', command= lambda: populate ()).grid(row=1, column=0, sticky=W)
+        win.mainloop()
 
     def shipmentsDuration(self):
         win = Tk ()
@@ -228,4 +263,6 @@ class Shipper:
         Button(ship, text= 'Update Your Info', command= lambda: self.switchToUpdate (ship)).grid(row=3, column=0)
         Button(ship, text= 'See Your Past Shippments Between Some Duration', command= lambda: self.switchToShipmentsDuration (ship)).grid(row=4, column=0)
         Button(ship, text= 'See Your Latest N Shipments', command= lambda: self.switchToLatestNShipments (ship)).grid(row=5, column=0)
+        Button(ship, text= 'See Your Past Shipments in detail', command= lambda: self.switchToDetailedShipments (ship)).grid(row=6, column=0)
+        Button(ship, text= 'Back to Login', command= lambda: self.switchToLogin (ship)).grid(row=7, column=0)
         ship.mainloop()
