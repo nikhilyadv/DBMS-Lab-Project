@@ -154,6 +154,7 @@ CREATE VIEW packageStatus AS (SELECT T1.order_id, T1.product_id, T1.ship_index, 
 -- ###########SELLER VIEWS##################
 -- #########################################
 
+-- These views are absolete as we have implemented the procedure for it.
 -- This view will allow seller to see his/her various products.
 CREATE VIEW sellerProducts AS (SELECT product_id, product_name, price, total_stock, pickup_address, description 
                                   FROM product
@@ -480,6 +481,31 @@ DELIMITER ;
 -- ###########SHIPPER PROCEDURES############
 -- #########################################
 
+
+
+-- Procedure to update shipper's info
+DELIMITER //
+CREATE PROCEDURE shipperUpdateInfo(IN shipper_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone_number DECIMAL(10) UNSIGNED, IN email_id VARCHAR(20))
+BEGIN
+    IF (CHAR_LENGTH(passwordd) > 0) THEN
+      UPDATE Users SET Users.passcode = passwordd WHERE Users.username = shipper_id;
+    END IF;
+    IF (CHAR_LENGTH(named) > 0) THEN
+      UPDATE shipper SET shipper.name = named WHERE shipper.shipper_id = shipper_id;
+    END IF;
+    IF (CHAR_LENGTH(addressd) > 0) THEN
+      UPDATE shipper SET shipper.head_quarters = addressd WHERE shipper.shipper_id = shipper_id;
+    END IF;
+    IF (phone_number <> 0) THEN
+      UPDATE shipper SET shipper.phone_number = phone_number WHERE shipper.shipper_id = shipper_id;
+    END IF;
+    IF (CHAR_LENGTH(email_id) > 0) THEN
+      UPDATE shipper SET shipper.email_id = email_id WHERE shipper.shipper_id = shipper_id;
+    END IF;
+END;
+//
+DELIMITER ;
+
 -- Procedure for shipper to see his or her past shipments within a specific time duration
 DELIMITER //
 CREATE PROCEDURE seeShipmentsBetweenDuration(IN startTime DATE, IN endTime DATE)
@@ -559,12 +585,16 @@ GRANT EXECUTE ON PROCEDURE AmaKart.seeSellingsBetweenDuration TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNSellings TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.updateProductInfo TO seller;
 
+GRANT EXECUTE ON PROCEDURE AmaKart.shipperUpdateInfo TO shipper;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeShipmentsBetweenDuration TO shipper;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNShipments TO shipper;
 
 
 GRANT EXECUTE ON FUNCTION AmaKart.sellerStatsBetweenDate TO seller;
 
+--#######################################
+--#########TRIGGERS BEGIN################
+--#######################################
 -- When a product is sold, we want to mention its selling_price as later the seller can update the price
 DELIMITER //
 CREATE TRIGGER setPrice BEFORE INSERT on product_order
@@ -603,6 +633,10 @@ FOR EACH ROW BEGIN
   SET NEW.ship_index = (SELECT MAX(index_) FROM track);
 END//
 DELIMITER ;
+
+--#######################################
+--#########TRIGGERS END##################
+--#######################################
 
 -- Inserting data and creating dummy users without password
 DROP USER Nikhil;

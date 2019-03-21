@@ -177,3 +177,24 @@ class DB:
         self.cur.execute ("call getRating(\"{}\");".format(seller_id))
         rows = self.cur.fetchall ()
         return rows
+
+
+
+    ##########################################
+    ##########SHIPPER FUNCTIONS###############
+    ##########################################
+
+
+    def seeLatestNShipments(self, n):
+        self.cur.execute ("call seeLatestNShipments({});".format(n))
+        rows = self.cur.fetchall ()
+        return rows
+
+
+
+    def seeShipmentsBetweenDuration (self, startYear, startMonth, startDay, endYear, endMonth, endDay):
+        startDate = startYear + '-' + startMonth + "-" + startDay
+        endDate = endYear + '-' + endMonth + '-' + endDay
+        self.cur.execute ("call seeShipmentsBetweenDuration(\"{}\",\"{}\");".format(startDate, endDate))
+        rows = self.cur.fetchall ()
+        return rows
