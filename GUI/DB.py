@@ -165,3 +165,10 @@ class DB:
         self.cur.execute ("call selQueryProductsRat(\"{}\");".format(pname))
         rows = self.cur.fetchall ()
         return rows
+
+    def sellerPastEarnings (self, startYear, startMonth, startDay, endYear, endMonth, endDay):
+        startDate = startYear + '-' + startMonth + "-" + startDay
+        endDate = endYear + '-' + endMonth + '-' + endDay
+        self.cur.execute ("select sellerStatsBetweenDate(\'{}\',\'{}\');".format(startDate, endDate))
+        rows = self.cur.fetchall ()
+        return rows

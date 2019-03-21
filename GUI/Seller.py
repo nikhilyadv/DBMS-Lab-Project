@@ -5,6 +5,7 @@ from tkinter import PhotoImage
 from PIL import Image, ImageTk
 import requests
 import datetime
+import LoginWindow
 
 class Seller:
     def __init__ (self, db, username):
@@ -15,6 +16,10 @@ class Seller:
     def on_closing(self, _window):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             _window.destroy()
+
+    def switchToLogin (self, _window):
+        _window.destroy ()
+        LoginWindow.LoginWindow ()
 
     def switchToBasic(self,_window):
         _window.destroy()
@@ -44,6 +49,75 @@ class Seller:
         _window.destroy ()
         self.seeSimilarProducts()
 
+
+    def switchToEarnings (self, _window):
+        _window.destroy ()
+        self.earnings()
+
+    def earnings (self):
+        win = Tk ()
+        win.title ("See Your Earnings Between Some Duration")
+        win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win)) 
+
+        Label(win, text = "Start Year").grid (row = 0, column = 0, sticky = W)
+        Label(win, text = "Start Month").grid (row = 0, column = 2, sticky = W)
+        Label(win, text = "Start Day").grid (row = 0, column = 4, sticky = W)
+        Label(win, text = "End Year").grid (row = 1, column = 0, sticky = W)
+        Label(win, text = "End Month").grid (row = 1, column = 2, sticky = W)
+        Label(win, text = "End Day").grid (row = 1, column = 4, sticky = W)
+
+        month = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+        year = ["2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"]
+        day = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"]  
+
+
+        startYear = StringVar ()
+        startYear.set(year[0])
+        startMonth = StringVar ()
+        startMonth.set(month[0])
+        startDay = StringVar ()
+        startDay.set(day[0])
+        endYear = StringVar ()
+        endYear.set(year[0])
+        endMonth = StringVar ()
+        endMonth.set(month[0])
+        endDay = StringVar ()
+        endDay.set(day[0])
+
+        OptionMenu(win, startYear, *year).grid(row = 0, column = 1, sticky = W)
+        OptionMenu(win, startMonth, *month).grid(row = 0, column = 3, sticky = W)
+        OptionMenu(win, startDay, *day).grid(row = 0, column = 5, sticky = W)
+        OptionMenu(win, endYear, *year).grid(row = 1, column = 1, sticky = W)
+        OptionMenu(win, endMonth, *month).grid(row = 1, column = 3, sticky = W)
+        OptionMenu(win, endDay, *day).grid(row = 1, column = 5, sticky = W)
+
+        
+        def validDate(year, month, day):
+            correctDate = None
+            try:
+                newDate = datetime.datetime(year, month, day)
+                correctDate = True
+            except ValueError:
+                correctDate = False
+            return correctDate 
+        
+        def getEarnings (years, months, days, yeare, monthe, daye):
+            strng = ""
+            if (validDate (int(years), int(months), int(days)) and validDate (int(yeare), int(monthe), int(daye))):
+                rows = self.db.sellerPastEarnings (years, months, days, yeare, monthe, daye)
+                strng = "Your Earnings were: " + str(rows[0][0])
+            else:
+                strng = "Entered Date's aren't valid"
+            output.delete (0.0, END)
+            output.insert (END, strng) 
+        
+        Button(win, text = 'Search', command = lambda: getEarnings (startYear.get (), startMonth.get (), startDay.get (), endYear.get (), endMonth.get (), endDay.get ())).grid(row=0, column=7, sticky=W)
+        Button (win, text = 'Switch to Login', command = lambda: self.switchToLogin (win)).grid (row = 2, sticky = W, pady = 4)
+        output = Text (win, height = 1, width = 150, wrap = WORD, bg = "white")
+        output.grid (row = 2, column = 1, columnspan = 1000)
+        
+
+        win.mainloop()
 
     def seeSimilarProducts (self):
         win = Tk ()
@@ -416,4 +490,5 @@ class Seller:
         Button(supp, text= 'See You Past Sellings Between Some Duration', command= lambda: self.switchToPastSellingsDuration (supp)).grid(row=4, column=0)
         Button(supp, text= 'See You Latest N Sellings', command= lambda: self.switchToLatestNSellings (supp)).grid(row=5, column=0)
         Button(supp, text= 'See Similar Products', command= lambda: self.switchToSimilarProducts (supp)).grid(row=6, column=0)
+        Button(supp, text= 'See Your Earnings Between Duration', command= lambda: self.switchToEarnings (supp)).grid(row=7, column=0)
         supp.mainloop()
