@@ -347,7 +347,7 @@ BEGIN
     IF (CHAR_LENGTH(addressd) > 0) THEN
       UPDATE customer SET customer.address = addressd WHERE customer.customer_id = customer_id;
     END IF;
-    IF (CHAR_LENGTH(phone_number) > 0) THEN
+    IF (phone_number <> 0) THEN
       UPDATE customer SET customer.phone_number = phone_number WHERE customer.customer_id = customer_id;
     END IF;
     IF (CHAR_LENGTH(email_id) > 0) THEN
@@ -384,6 +384,29 @@ END;
 //
 DELIMITER ;
 
+
+-- Procedure to update seller's info
+DELIMITER //
+CREATE PROCEDURE sellerUpdateInfo(IN seller_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone_number DECIMAL(10) UNSIGNED, IN email_id VARCHAR(20))
+BEGIN
+    IF (CHAR_LENGTH(passwordd) > 0) THEN
+      UPDATE Users SET Users.passcode = passwordd WHERE Users.username = seller_id;
+    END IF;
+    IF (CHAR_LENGTH(named) > 0) THEN
+      UPDATE seller SET seller.name = named WHERE seller.seller_id = seller_id;
+    END IF;
+    IF (CHAR_LENGTH(addressd) > 0) THEN
+      UPDATE seller SET seller.address = addressd WHERE seller.seller_id = seller_id;
+    END IF;
+    IF (phone_number <> 0) THEN
+      UPDATE seller SET seller.phone_number = phone_number WHERE seller.seller_id = seller_id;
+    END IF;
+    IF (CHAR_LENGTH(email_id) > 0) THEN
+      UPDATE seller SET seller.email_id = email_id WHERE seller.seller_id = seller_id;
+    END IF;
+END;
+//
+DELIMITER ;
 
 -- Procedure for seller to see his or her past sold products within a specific time duration
 DELIMITER //
@@ -492,6 +515,8 @@ GRANT EXECUTE ON PROCEDURE AmaKart.addRatingProduct TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 
+
+GRANT EXECUTE ON PROCEDURE AmaKart.sellerUpdateInfo TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.selQuerySimProducts TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.selQueryProductsRat TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.seeSellingsBetweenDuration TO seller;

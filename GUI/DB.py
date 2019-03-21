@@ -117,3 +117,17 @@ class DB:
     def updateProductInfo (self, pid, selid, pname, pimage, price, tstock, pickadd, des):
         self.cur.execute ("call updateProductInfo(\"{}\",\"{}\",\"{}\",\"{}\", \"{}\",\"{}\",\"{}\",\"{}\");".format(pid, selid, pname, pimage, price, tstock, pickadd, des))
         self.conn.commit()
+
+    def sellerUpdateInfo (self, id, password, name, address, phone_number, email_id):
+        self.cur.execute ("call sellerUpdateInfo(\"{}\",\"{}\",\"{}\",\"{}\", \"{}\",\"{}\");".format(id, password, name, address, phone_number, email_id))
+        self.conn.commit()
+        self.auxcustomerUpdateInfo(id, password)
+
+    # This function is companion to the previous one for updating password in actual mysql table
+    def auxsellerUpdateInfo (self, id, password):
+        if (len (password) > 0):
+            userRole = self.role
+            self.switchToRoot()
+            self.cur.execute ("set password for \'{}\' = PASSWORD(\'{}\');".format(id, password))
+            self.conn.commit()
+            self.loginUser (id, password, userRole)
