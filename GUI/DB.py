@@ -150,3 +150,8 @@ class DB:
         self.cur.execute ("call seeSellingsBetweenDuration(\"{}\",\"{}\");".format(startDate, endDate))
         rows = self.cur.fetchall ()
         return rows
+
+    def seeLatestNSellings(self, n):
+        self.cur.execute ("call seeLatestNSellings({});".format(n))
+        rows = self.cur.fetchall ()
+        return rows
