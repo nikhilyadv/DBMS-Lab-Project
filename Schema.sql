@@ -361,6 +361,30 @@ DELIMITER ;
 -- ###########SELLER   PROCEDURES###########
 -- #########################################
 
+-- Procedure for seller to update his specific product details.
+DELIMITER //
+CREATE PROCEDURE updateProductInfo(IN product_id varchar(20), IN seller_id varchar(20), IN product_name varchar(20), IN product_image varchar(300), IN price float, IN total_stock int, IN pickup_address varchar(60), IN description varchar(60))
+BEGIN
+  IF (CHAR_LENGTH(product_name) > 0) THEN
+    UPDATE product SET product.product_name = product_name where product.product_id = product_id and product.seller_id = seller_id;
+  END IF;
+  IF (CHAR_LENGTH(product_image) > 0) THEN
+    UPDATE product SET product.product_image = product_image where product.product_id = product_id and product.seller_id = seller_id;
+  END IF;
+  IF (price > 0.1) THEN
+    UPDATE product SET product.price = price where product.product_id = product_id and product.seller_id = seller_id;
+  END IF;
+  IF (CHAR_LENGTH(pickup_address) > 0) THEN
+    UPDATE product SET product.pickup_address = pickup_address where product.product_id = product_id and product.seller_id = seller_id;
+  END IF;
+  IF (CHAR_LENGTH(description) > 0) THEN
+    UPDATE product SET product.description = description where product.product_id = product_id and product.seller_id = seller_id;
+  END IF;
+END;
+//
+DELIMITER ;
+
+
 -- Procedure for seller to see his or her past sold products within a specific time duration
 DELIMITER //
 CREATE PROCEDURE seeSellingsBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
@@ -461,21 +485,22 @@ GRANT EXECUTE ON PROCEDURE AmaKart.makeorder TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.purchaseEverthingInCart TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addProductToCart TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.custUpdateInfo TO customer;
-
-GRANT EXECUTE ON PROCEDURE AmaKart.seeSellingsBetweenDuration TO seller;
-GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNSellings TO seller;
-GRANT EXECUTE ON PROCEDURE AmaKart.selQuerySimProducts TO customer;
-GRANT EXECUTE ON PROCEDURE AmaKart.selQueryProductsRat TO customer;
-
-GRANT EXECUTE ON PROCEDURE AmaKart.seeShipmentsBetweenDuration TO shipper;
-GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNShipments TO shipper;
-
 GRANT EXECUTE ON PROCEDURE AmaKart.recentProductReviewsBetweenDuration TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addReviewProduct TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addReviewSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingProduct TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
+
+GRANT EXECUTE ON PROCEDURE AmaKart.selQuerySimProducts TO seller;
+GRANT EXECUTE ON PROCEDURE AmaKart.selQueryProductsRat TO seller;
+GRANT EXECUTE ON PROCEDURE AmaKart.seeSellingsBetweenDuration TO seller;
+GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNSellings TO seller;
+GRANT EXECUTE ON PROCEDURE AmaKart.updateProductInfo TO seller;
+
+GRANT EXECUTE ON PROCEDURE AmaKart.seeShipmentsBetweenDuration TO shipper;
+GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNShipments TO shipper;
+
 
 GRANT EXECUTE ON FUNCTION AmaKart.sellerStatsBetweenDate TO seller;
 

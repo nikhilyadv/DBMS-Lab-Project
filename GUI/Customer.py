@@ -53,7 +53,7 @@ class Customer:
         plist = ttk.Treeview (cartwin)
         ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
         plist = ttk.Treeview (cartwin, style='PViewStyle.Treeview')
-        scbVDirSel =Scrollbar(cartwin, orient=VERTICAL, command=plist.yview)
+        scbVDirSel = Scrollbar(cartwin, orient=VERTICAL, command=plist.yview)
         scbVDirSel.grid(row=1, column=100, rowspan=50, sticky=NS, in_=cartwin)
         plist.configure(yscrollcommand=scbVDirSel.set) 
 

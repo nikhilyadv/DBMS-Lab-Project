@@ -108,3 +108,12 @@ class DB:
             self.cur.execute ("set password for \'{}\' = PASSWORD(\'{}\');".format(id, password))
             self.conn.commit()
             self.loginUser (id, password, userRole)
+    
+
+    ##########################################
+    ############SELLER FUNCTIONS##############
+    ##########################################
+
+    def updateProductInfo (self, pid, selid, pname, pimage, price, tstock, pickadd, des):
+        self.cur.execute ("call updateProductInfo(\"{}\",\"{}\",\"{}\",\"{}\", \"{}\",\"{}\",\"{}\",\"{}\");".format(pid, selid, pname, pimage, price, tstock, pickadd, des))
+        self.conn.commit()
