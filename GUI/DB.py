@@ -155,3 +155,13 @@ class DB:
         self.cur.execute ("call seeLatestNSellings({});".format(n))
         rows = self.cur.fetchall ()
         return rows
+    
+    def sellerSimilarProductsPrice(self, pname):
+        self.cur.execute ("call selQuerySimProducts(\"{}\");".format(pname))
+        rows = self.cur.fetchall ()
+        return rows
+
+    def sellerSimilarProductsRating(self, pname):
+        self.cur.execute ("call selQueryProductsRat(\"{}\");".format(pname))
+        rows = self.cur.fetchall ()
+        return rows

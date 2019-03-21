@@ -40,6 +40,74 @@ class Seller:
         _window.destroy ()
         self.latestNSellings()
     
+    def switchToSimilarProducts (self, _window):
+        _window.destroy ()
+        self.seeSimilarProducts()
+
+
+    def seeSimilarProducts (self):
+        win = Tk ()
+        win.title ("See Products Similar To Yours")
+        win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win)) 
+
+        Label(win, text = "Product Name").grid (row = 0, column = 0, sticky = W)
+
+        pname = StringVar ()
+        price = IntVar()
+        rating = IntVar ()
+
+        Checkbutton(win, text="Sort by Price?", variable=price).grid(row=1, column = 0, sticky=W)
+        Checkbutton(win, text="Sort by Rating?", variable=rating).grid(row=1, column = 1, sticky=W)
+
+        Entry(win, textvariable=pname).grid (row = 0, column = 1, sticky = W)
+
+        Button (win, text = 'Switch to Login', command = lambda: self.switchToLogin (win)).grid (row = 21, sticky = W, pady = 4)
+        output = Text (win, height = 1, width = 150, wrap = WORD, bg = "white")
+        output.grid (row = 21, column = 1, columnspan = 1000)
+
+        ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
+        plist = ttk.Treeview (win, style='PViewStyle.Treeview')
+        scbVDirSel =Scrollbar(win, orient=VERTICAL, command=plist.yview)
+        scbVDirSel.grid(row=2, column=100, rowspan=50, sticky=NS, in_=win)
+        plist.configure(yscrollcommand=scbVDirSel.set) 
+
+        def populateProducts (pname, price, rating, plist):
+            strng = ""
+            if (price + rating == 1):
+                if (price == 1):
+                    rows = self.db.sellerSimilarProductsPrice(pname)
+                else:
+                    rows = self.db.sellerSimilarProductsRating(pname)
+                plist.delete (*plist.get_children ())
+                plist._images = []
+                for row in rows:
+                    auximage = Image.open (requests.get(row[2], stream = True).raw)
+                    auximage.thumbnail((100, 200), Image.ANTIALIAS)
+                    auximage = ImageTk.PhotoImage (auximage)
+                    plist._images.append(auximage)
+                    plist.insert ('', 'end', values = (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8]), image = plist._images[-1])
+                strng = "Done!"
+            else:
+                strng = "Check exactly one tick box!"
+
+            output.delete (0.0, END)
+            output.insert (END, strng)                    
+
+        plist['columns'] = ('pid', 'pname', 'sellerid', 'price', 'tstock', 'pickupaddress', 'description', 'rating')
+        plist.heading ('#0', text = 'Image')
+        plist.heading ('pid', text = 'Product ID')
+        plist.heading ('pname', text = 'Product Name')
+        plist.heading ('sellerid', text = 'Seller ID')
+        plist.heading ('price', text = 'Price')
+        plist.heading ('tstock', text = 'Total Stock')
+        plist.heading ('pickupaddress', text = 'Pickup Address')
+        plist.heading ('description', text = 'Description')
+        plist.heading ('rating', text = 'Rating')
+        plist.grid(row = 2, column = 0, rowspan = 18, columnspan = 100)
+        Button(win, text= 'Search', command= lambda: populateProducts (pname.get(), price.get(), rating.get(), plist)).grid(row=1, column=7, sticky=W)
+        win.mainloop()
+
+
     def latestNSellings(self):
         win = Tk ()
         win.title ("See latest N Sellings")
@@ -347,4 +415,5 @@ class Seller:
         Button(supp, text= 'Update Your Info', command= lambda: self.switchToUpdate (supp)).grid(row=3, column=0)
         Button(supp, text= 'See You Past Sellings Between Some Duration', command= lambda: self.switchToPastSellingsDuration (supp)).grid(row=4, column=0)
         Button(supp, text= 'See You Latest N Sellings', command= lambda: self.switchToLatestNSellings (supp)).grid(row=5, column=0)
+        Button(supp, text= 'See Similar Products', command= lambda: self.switchToSimilarProducts (supp)).grid(row=6, column=0)
         supp.mainloop()
