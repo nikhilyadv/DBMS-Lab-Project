@@ -23,8 +23,8 @@ class Seller:
         win = Tk ()
         win.title ("Update Info (In case you don't want to change any of the respective info then leave that field empty (or as it is) but clearly you must enter product_id)")
         win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win))  # handle window closing
-        output = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
-        output.grid (row = 7, column = 1)
+        output = Text (win, height = 3, width = 60, wrap = WORD, bg = "white")
+        output.grid (row = 7, column = 1, rowspan = 3)
         Label(win, text = "Product ID").grid (row = 0, column = 0, sticky = W)
         Label(win, text = "Product Name").grid (row = 1, column = 0, sticky = W)
         Label(win, text = "Product Image URL").grid (row = 2, column = 0, sticky = W)
@@ -63,8 +63,8 @@ class Seller:
             
             output.delete (0.0, END)
             output.insert (END, strng)
-        Button(win, text= 'Update', command= lambda: check (pid.get(), pname.get (), pimage.get (), price.get (), tstock.get (), pickadd.get (), des.get ())).grid(row=8, sticky=W, pady=4)
-        Button (win, text = 'Switch to Login', command = lambda: self.switchToLogin (win)).grid (row = 9, sticky = W, pady = 4)
+        Button(win, text= 'Update', command= lambda: check (pid.get(), pname.get (), pimage.get (), price.get (), tstock.get (), pickadd.get (), des.get ())).grid(row=12, sticky=W, pady=4)
+        Button (win, text = 'Switch to Login', command = lambda: self.switchToLogin (win)).grid (row = 13, sticky = W, pady = 4)
         win.mainloop() 
     
     def newprod (self):
