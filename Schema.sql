@@ -363,6 +363,17 @@ DELIMITER ;
 
 
 
+
+-- Procedure for seller to see his rating
+DELIMITER //
+CREATE PROCEDURE getRating(IN seller_id varchar(20))
+BEGIN
+  select COALESCE(rating, 0) from seller where seller.seller_id = seller_id;
+END;
+//
+DELIMITER ;
+
+
 -- Procedure for seller to check whether there is already a product with given seller_id and product_id
 DELIMITER //
 CREATE PROCEDURE sellerCheckExistProd(IN product_id varchar(20), IN seller_id varchar(20))
@@ -538,6 +549,7 @@ GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 
 
 
+GRANT EXECUTE ON PROCEDURE AmaKart.getRating TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.sellerCheckExistProd TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.addProduct TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.sellerUpdateInfo TO seller;

@@ -49,10 +49,29 @@ class Seller:
         _window.destroy ()
         self.seeSimilarProducts()
 
-
     def switchToEarnings (self, _window):
         _window.destroy ()
         self.earnings()
+
+    def switchToRating (self, _window):
+        _window.destroy ()
+        self.rating()
+
+
+    def rating (self):
+        win = Tk ()
+        win.title ("Know Your Rating")
+        win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win)) 
+
+        Label(win, text = "Rating").grid (row = 0, column = 0, sticky = W)
+
+        output = Text (win, height = 1, width = 150, wrap = WORD, bg = "white")
+        output.grid (row = 0, column = 1, columnspan = 1000)
+
+        row = self.db.sellerRating(self.seller_id)
+
+        output.delete (0.0, END)
+        output.insert (END, str(row[0][0])) 
 
     def earnings (self):
         win = Tk ()
@@ -91,7 +110,9 @@ class Seller:
         OptionMenu(win, endMonth, *month).grid(row = 1, column = 3, sticky = W)
         OptionMenu(win, endDay, *day).grid(row = 1, column = 5, sticky = W)
 
-        
+        output = Text (win, height = 1, width = 150, wrap = WORD, bg = "white")
+        output.grid (row = 2, column = 1, columnspan = 1000)
+
         def validDate(year, month, day):
             correctDate = None
             try:
@@ -113,8 +134,7 @@ class Seller:
         
         Button(win, text = 'Search', command = lambda: getEarnings (startYear.get (), startMonth.get (), startDay.get (), endYear.get (), endMonth.get (), endDay.get ())).grid(row=0, column=7, sticky=W)
         Button (win, text = 'Switch to Login', command = lambda: self.switchToLogin (win)).grid (row = 2, sticky = W, pady = 4)
-        output = Text (win, height = 1, width = 150, wrap = WORD, bg = "white")
-        output.grid (row = 2, column = 1, columnspan = 1000)
+        
         
 
         win.mainloop()
@@ -491,4 +511,5 @@ class Seller:
         Button(supp, text= 'See You Latest N Sellings', command= lambda: self.switchToLatestNSellings (supp)).grid(row=5, column=0)
         Button(supp, text= 'See Similar Products', command= lambda: self.switchToSimilarProducts (supp)).grid(row=6, column=0)
         Button(supp, text= 'See Your Earnings Between Duration', command= lambda: self.switchToEarnings (supp)).grid(row=7, column=0)
+        Button(supp, text= 'Know Your Rating', command= lambda: self.switchToRating (supp)).grid(row=8, column=0)
         supp.mainloop()

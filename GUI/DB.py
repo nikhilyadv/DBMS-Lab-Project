@@ -172,3 +172,8 @@ class DB:
         self.cur.execute ("select sellerStatsBetweenDate(\'{}\',\'{}\');".format(startDate, endDate))
         rows = self.cur.fetchall ()
         return rows
+
+    def sellerRating(self, seller_id):
+        self.cur.execute ("call getRating(\"{}\");".format(seller_id))
+        rows = self.cur.fetchall ()
+        return rows
