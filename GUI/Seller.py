@@ -26,13 +26,15 @@ class Seller:
         output = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
         output.grid (row = 7, column = 1)
         Label(win, text = "Product ID").grid (row = 0, column = 0, sticky = W)
-        Label(win, text = "Product Image URL").grid (row = 1, column = 0, sticky = W)
-        Label(win, text = "Price").grid (row = 2, column = 0, sticky = W)
-        Label(win, text = "Total Stock").grid (row = 3, column = 0, sticky = W)
-        Label(win, text = "Pickup Address").grid (row = 4, column = 0, sticky = W)
-        Label(win, text = "Description").grid (row = 5, column = 0, sticky = W)
+        Label(win, text = "Product Name").grid (row = 1, column = 0, sticky = W)
+        Label(win, text = "Product Image URL").grid (row = 2, column = 0, sticky = W)
+        Label(win, text = "Price").grid (row = 3, column = 0, sticky = W)
+        Label(win, text = "Total Stock").grid (row = 4, column = 0, sticky = W)
+        Label(win, text = "Pickup Address").grid (row = 5, column = 0, sticky = W)
+        Label(win, text = "Description").grid (row = 6, column = 0, sticky = W)
 
         pid = StringVar()
+        pname = StringVar()
         pimage = StringVar()
         price = DoubleVar()
         tstock = IntVar()
@@ -40,11 +42,12 @@ class Seller:
         des = StringVar()
 
         Entry(win, textvariable=pid).grid (row = 0, column = 1, sticky = W)
-        Entry(win, textvariable=pimage).grid (row = 1, column = 1, sticky = W)
-        Entry(win, textvariable=price).grid (row = 2, column = 1, sticky = W)
-        Entry(win, textvariable=tstock).grid (row = 3, column = 1, sticky = W)
-        Entry(win, textvariable=pickadd).grid (row = 4, column = 1, sticky = W)
-        Entry(win, textvariable=des).grid (row = 5, column = 1, sticky = W)
+        Entry(win, textvariable=pname).grid (row = 1, column = 1, sticky = W)
+        Entry(win, textvariable=pimage).grid (row = 2, column = 1, sticky = W)
+        Entry(win, textvariable=price).grid (row = 3, column = 1, sticky = W)
+        Entry(win, textvariable=tstock).grid (row = 4, column = 1, sticky = W)
+        Entry(win, textvariable=pickadd).grid (row = 5, column = 1, sticky = W)
+        Entry(win, textvariable=des).grid (row = 6, column = 1, sticky = W)
         def fine (x):
             if (len (x) > 0): 
                 return True
@@ -53,7 +56,7 @@ class Seller:
         def check (pid, pname, pimage, price, tstock, pickadd, des):
             strng = ""
             if (fine(pid)):
-                db.updateProductInfo(pid, self.seller_id, pname, pimage, price, tstock, pickadd, des)
+                self.db.updateProductInfo(pid, self.seller_id, pname, pimage, price, tstock, pickadd, des)
                 strng = "Update successful (provied you did have this product_id corresponding to your seller_id)"
             else:
                 strng = "No Product ID Entered"
