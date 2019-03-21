@@ -143,3 +143,10 @@ class DB:
             self.cur.execute ("set password for \'{}\' = PASSWORD(\'{}\');".format(id, password))
             self.conn.commit()
             self.loginUser (id, password, userRole)
+
+    def seePastSellingsDuration (self, startYear, startMonth, startDay, endYear, endMonth, endDay):
+        startDate = startYear + '-' + startMonth + "-" + startDay
+        endDate = endYear + '-' + endMonth + '-' + endDay
+        self.cur.execute ("call seeSellingsBetweenDuration(\"{}\",\"{}\");".format(startDate, endDate))
+        rows = self.cur.fetchall ()
+        return rows

@@ -1,5 +1,10 @@
 from tkinter import *
 from tkinter import messagebox
+from tkinter import ttk
+from tkinter import PhotoImage
+from PIL import Image, ImageTk
+import requests
+import datetime
 
 class Seller:
     def __init__ (self, db, username):
@@ -26,6 +31,105 @@ class Seller:
     def switchToAddProduct (self, _window):
         _window.destroy ()
         self.addProduct ()
+
+    def switchToPastSellingsDuration (self, _window):
+        _window.destroy ()
+        self.pastSellingsDuration()
+    
+    def pastSellingsDuration(self):
+        win = Tk ()
+        win.title ("See Past Sellings")
+        win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win)) 
+
+        Label(win, text = "Start Year").grid (row = 0, column = 0, sticky = W)
+        Label(win, text = "Start Month").grid (row = 0, column = 2, sticky = W)
+        Label(win, text = "Start Day").grid (row = 0, column = 4, sticky = W)
+        Label(win, text = "End Year").grid (row = 1, column = 0, sticky = W)
+        Label(win, text = "End Month").grid (row = 1, column = 2, sticky = W)
+        Label(win, text = "End Day").grid (row = 1, column = 4, sticky = W)
+
+        month = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+        year = ["2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"]
+        day = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"]  
+
+
+        startYear = StringVar ()
+        startYear.set(year[0])
+        startMonth = StringVar ()
+        startMonth.set(month[0])
+        startDay = StringVar ()
+        startDay.set(day[0])
+        endYear = StringVar ()
+        endYear.set(year[0])
+        endMonth = StringVar ()
+        endMonth.set(month[0])
+        endDay = StringVar ()
+        endDay.set(day[0])
+
+        OptionMenu(win, startYear, *year).grid(row = 0, column = 1, sticky = W)
+        OptionMenu(win, startMonth, *month).grid(row = 0, column = 3, sticky = W)
+        OptionMenu(win, startDay, *day).grid(row = 0, column = 5, sticky = W)
+        OptionMenu(win, endYear, *year).grid(row = 1, column = 1, sticky = W)
+        OptionMenu(win, endMonth, *month).grid(row = 1, column = 3, sticky = W)
+        OptionMenu(win, endDay, *day).grid(row = 1, column = 5, sticky = W)
+        # Entry(win, textvariable=startYear).grid (row = 0, column = 1, sticky = W)
+        # Entry(win, textvariable=startMonth).grid (row = 0, column = 3, sticky = W)
+        # Entry(win, textvariable=startDay).grid (row = 0, column = 5, sticky = W)
+        # Entry(win, textvariable=endYear).grid (row = 1, column = 1, sticky = W)
+        # Entry(win, textvariable=endMonth).grid (row = 1, column = 3, sticky = W)
+        # Entry(win, textvariable=endDay).grid (row = 1, column = 5, sticky = W)
+
+        Button (win, text = 'Switch to Login', command = lambda: self.switchToLogin (win)).grid (row = 21, sticky = W, pady = 4)
+        output = Text (win, height = 1, width = 150, wrap = WORD, bg = "white")
+        output.grid (row = 21, column = 1, columnspan = 1000)
+
+        ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
+        plist = ttk.Treeview (win, style='PViewStyle.Treeview')
+        scbVDirSel =Scrollbar(win, orient=VERTICAL, command=plist.yview)
+        scbVDirSel.grid(row=2, column=100, rowspan=50, sticky=NS, in_=win)
+        plist.configure(yscrollcommand=scbVDirSel.set) 
+
+        def validDate(year, month, day):
+            correctDate = None
+            try:
+                newDate = datetime.datetime(year, month, day)
+                correctDate = True
+            except ValueError:
+                correctDate = False
+            return correctDate
+
+        def populateProducts (years, months, days, yeare, monthe, daye, plist):
+            strng = ""
+            if (validDate (int(years), int(months), int(days)) and validDate (int(yeare), int(monthe), int(daye))):
+                rows = self.db.seePastSellingsDuration(years, months, days, yeare, monthe, daye)
+                plist.delete (*plist.get_children ())
+                plist._images = []
+                for row in rows:
+                    auximage = Image.open (requests.get(row[2], stream = True).raw)
+                    auximage.thumbnail((100, 200), Image.ANTIALIAS)
+                    auximage = ImageTk.PhotoImage (auximage)
+                    plist._images.append(auximage)
+                    plist.insert ('', 'end', values = (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8]), image = plist._images[-1])
+                strng = "Done!"
+            else:
+                strng = "Entered date is not valid!"
+
+            output.delete (0.0, END)
+            output.insert (END, strng)                    
+
+        plist['columns'] = ('pid', 'pname', 'sellerid', 'price', 'tstock', 'pickupaddress', 'description', 'rating')
+        plist.heading ('#0', text = 'Image')
+        plist.heading ('pid', text = 'Product ID')
+        plist.heading ('pname', text = 'Product Name')
+        plist.heading ('sellerid', text = 'Seller ID')
+        plist.heading ('price', text = 'Price')
+        plist.heading ('tstock', text = 'Total Stock')
+        plist.heading ('pickupaddress', text = 'Pickup Address')
+        plist.heading ('description', text = 'Description')
+        plist.heading ('rating', text = 'Rating')
+        plist.grid(row = 2, column = 0, rowspan = 18, columnspan = 100)
+        Button(win, text= 'Search', command= lambda: populateProducts (startYear.get(), startMonth.get(), startDay.get(), endYear.get(), endMonth.get(), endDay.get(), plist)).grid(row=1, column=7, sticky=W)
+        win.mainloop()
 
     def updateprod (self):
         win = Tk ()
@@ -189,4 +293,5 @@ class Seller:
         Button(supp, text= 'Add new products', command= lambda: self.switchToAddProduct (supp)).grid(row=1, column=0)
         Button(supp, text= 'Change existing products information', command= lambda: self.switchToUpdateProd (supp)).grid(row=2, column=0)
         Button(supp, text= 'Update Your Info', command= lambda: self.switchToUpdate (supp)).grid(row=3, column=0)
+        Button(supp, text= 'See You Past Sellings Between Some Duration', command= lambda: self.switchToPastSellingsDuration (supp)).grid(row=4, column=0)
         supp.mainloop()
