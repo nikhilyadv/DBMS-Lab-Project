@@ -114,6 +114,18 @@ class DB:
     ############SELLER FUNCTIONS##############
     ##########################################
 
+    def existProduct (self, pid, selid):
+        self.cur.execute ("call sellerCheckExistProd(\"{}\",\"{}\");".format (pid, selid))
+        rows = self.cur.fetchall ()
+        if (len (rows) == 1):
+            return True
+        else:
+            return False
+
+    def addProduct (self, pid, selid, pname, pimage, price, tstock, pickadd, des):
+        self.cur.execute ("call addProduct(\"{}\",\"{}\",\"{}\",\"{}\", \"{}\",\"{}\",\"{}\",\"{}\");".format(pid, selid, pname, pimage, price, tstock, pickadd, des))
+        self.conn.commit()
+
     def updateProductInfo (self, pid, selid, pname, pimage, price, tstock, pickadd, des):
         self.cur.execute ("call updateProductInfo(\"{}\",\"{}\",\"{}\",\"{}\", \"{}\",\"{}\",\"{}\",\"{}\");".format(pid, selid, pname, pimage, price, tstock, pickadd, des))
         self.conn.commit()

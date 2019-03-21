@@ -358,8 +358,29 @@ END;
 DELIMITER ;
 
 -- #########################################
--- ###########SELLER   PROCEDURES###########
+-- ###########SELLER PROCEDURES#############
 -- #########################################
+
+
+
+-- Procedure for seller to check whether there is already a product with given seller_id and product_id
+DELIMITER //
+CREATE PROCEDURE sellerCheckExistProd(IN product_id varchar(20), IN seller_id varchar(20))
+BEGIN
+  select * from product where product.product_id = product_id and product.seller_id = seller_id;
+END;
+//
+DELIMITER ;
+
+-- Procedure for seller to add new product
+DELIMITER //
+CREATE PROCEDURE addProduct(IN product_id varchar(20), IN seller_id varchar(20), IN product_name varchar(20), IN product_image varchar(300), IN price float, IN total_stock int, IN pickup_address varchar(60), IN description varchar(60))
+BEGIN
+  insert into product(product_id, product_name, product_image, seller_id, price, total_stock, pickup_address, description) values (product_id, product_name, product_image, seller_id, price, total_stock, pickup_address, description);
+END;
+//
+DELIMITER ;
+
 
 -- Procedure for seller to update his specific product details.
 DELIMITER //
@@ -516,6 +537,9 @@ GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 
 
+
+GRANT EXECUTE ON PROCEDURE AmaKart.sellerCheckExistProd TO seller;
+GRANT EXECUTE ON PROCEDURE AmaKart.addProduct TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.sellerUpdateInfo TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.selQuerySimProducts TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.selQueryProductsRat TO seller;
