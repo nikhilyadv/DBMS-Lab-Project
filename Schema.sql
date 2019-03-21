@@ -623,6 +623,6 @@ INSERT INTO order_ Values ("1","Nikhil","RM-119","1");
 
 INSERT INTO track(shipper_id) Values ("FEDEx");
 
-INSERT INTO product_order(product_id, order_id, seller_id, product_rating, seller_rating, ship_index, product_review, seller_review, quantity) Values ("1","1","Sourabh",5,4,1,NULL,NULL,10);
+INSERT INTO product_order(product_id, order_id, seller_id, product_rating, seller_rating, ship_index, product_review, seller_review, quantity, selling_price) Values ("1","1","Sourabh",5,4,1,NULL,NULL,10, 10);
 
 INSERT INTO cart Values ("Nikhil","1","Sourabh","2");
