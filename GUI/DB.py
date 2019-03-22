@@ -109,11 +109,13 @@ class DB:
 
     def addReviewP(self, pid, oid, sid, review):
         self.cur.execute ("call addReviewProduct(\"{}\",\"{}\",\"{}\",\"{}\");".format(pid,oid,sid,review))
+        rows = self.cur.fetchall ()
         self.conn.commit()
         return True 
 
     def addReviewS(self, pid, oid, sid, review):
         self.cur.execute ("call addReviewSeller(\"{}\",\"{}\",\"{}\",\"{}\");".format(pid,oid,sid,review))
+        rows = self.cur.fetchall () 
         self.conn.commit()
         return True 
 

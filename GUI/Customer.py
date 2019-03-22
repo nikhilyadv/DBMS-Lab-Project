@@ -313,48 +313,53 @@ class Customer:
         def selectItem(a):
             curItem = plist.focus()
             selectedrow = plist.item(curItem)
-            if (len(selectedrow['values'])):
+            if (len(selectedrow['values']) > 0):
                 # print (selectedrow)
                 def addReviewP(pid,oid,sid):
                     wint = Tk()
+                    wint.title("Review")
+
+                    Label(wint, text = "Write Review").grid(row = 0, column = 0, sticky = W) 
+                    rev = StringVar (wint)
+                    Entry(wint, textvariable=rev).grid(row = 1, column = 0, rowspan=5, sticky = W)
 
                     def closeandcall (r):
-                        wint.destroy()
+                        # print(rev.get())
                         self.db.addReviewP(pid,oid,sid,r)
+                        wint.destroy()
 
-                    Label(wint, text = "Write Review").grid (row = 0, column = 0, sticky = W) 
-                    
-                    review = StringVar()
-
-                    Entry(wint, textvariable=review).grid (row = 1, column = 0, sticky = W)
-                    Button(wint, text= 'Add', command= lambda: closeandcall(review.get())).grid(row=2, sticky=W, pady=4)
+                    Button(wint, text= 'Add', command= lambda: closeandcall(rev.get())).grid(row=6, sticky=W)
+                    wint.mainloop()
 
                 def addReviewS(pid,oid,sid):
                     wint = Tk()
                     wint.title("Review")
+
+                    Label(wint, text = "Write Review").grid(row = 0, column = 0) 
+                    rev = StringVar (wint)
+                    Entry(wint, textvariable=rev).grid(row = 1, column = 0, rowspan=5)
+
                     def closeandcall (r):
+                        # print(rev.get())
+                        self.db.addReviewS(pid,oid,sid,r)
                         wint.destroy()
-                        self.db.addReviewP(pid,oid,sid,r)
 
-                    Label(wint, text = "Write Review").grid (row = 0, column = 0, sticky = W) 
-                    
-                    review = StringVar()
-
-                    Entry(wint, textvariable=review).grid (row = 1, column = 0, sticky = W)
-                    Button(wint, text= 'Add', command= lambda: closeandcall(review.get())).grid(row=2, sticky=W, pady=4)
-
+                    Button(wint, text= 'Add', command= lambda: closeandcall(rev.get())).grid(row=6)
+                    wint.mainloop()
                 def addRatingP(pid,oid,sid):
                     wint = Tk()
+                    wint.title("Rating")
 
+                    Label(wint, text = "Choose Rating").grid(row=0, column=0)
                     pass
                 def addRatingS(pid,oid,sid):
                     wint = Tk()
 
                     pass
-                Button(win, text= 'Add/Update Rating for Product', command= lambda: (addRatingP(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 0, sticky = W)
-                Button(win, text= 'Add/Update Rating for Seller', command= lambda: (addRatingS(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 1, sticky = W)
-                Button(win, text= 'Add/Update Review for Product', command= lambda: (addReviewP(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 2, sticky = W)
-                Button(win, text= 'Add/Update Review for Seller', command= lambda: (addReviewS(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 3, sticky = W)
+                Button(win, text= 'Add/Update Rating for Product', command= lambda: (addRatingP(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 8, sticky = W)
+                Button(win, text= 'Add/Update Rating for Seller', command= lambda: (addRatingS(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 9, sticky = W)
+                Button(win, text= 'Add/Update Review for Product', command= lambda: (addReviewP(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 10, sticky = W)
+                Button(win, text= 'Add/Update Review for Seller', command= lambda: (addReviewS(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 11, sticky = W)
         plist.bind('<ButtonRelease-1>', selectItem)
         win.mainloop()
 
