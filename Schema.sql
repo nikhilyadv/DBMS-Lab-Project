@@ -373,6 +373,17 @@ END;
 //
 DELIMITER ;
 
+-- Procedure for seller to ship a sold product
+DELIMITER //
+CREATE PROCEDURE shipSoldProduct(IN gproduct_id varchar(20), IN gorder_id varchar(20), IN gseller_id varchar(20), IN gshipper_id varchar(20), IN gdate DATE)
+BEGIN
+  insert into track (shipper_id, tracking_id, date_) values (gshipper_id, NULL, gdate);
+  set @c = (select index_ from track order by index_ DESC LIMIT 1);
+  update product_order set ship_index = @c where seller_id = gseller_id and product_id = gproduct_id and order_id = gorder_id;
+END;
+//
+DELIMITER ;
+
 
 
 -- Procedure for seller to see his rating
@@ -586,6 +597,8 @@ GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 
 
 
+GRANT EXECUTE ON PROCEDURE AmaKart.soldButNotShipped TO seller;
+GRANT EXECUTE ON PROCEDURE AmaKart.shipSoldProduct TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.getRating TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.sellerCheckExistProd TO seller;
 GRANT EXECUTE ON PROCEDURE AmaKart.addProduct TO seller;
@@ -680,6 +693,6 @@ INSERT INTO order_ Values ("1","Nikhil","RM-119","1");
 
 INSERT INTO track(shipper_id) Values ("FEDEx");
 
-INSERT INTO product_order(product_id, order_id, seller_id, product_rating, seller_rating, ship_index, product_review, seller_review, quantity, selling_price) Values ("1","1","Sourabh",5,4,1,NULL,NULL,10, 10);
+INSERT INTO product_order(product_id, order_id, seller_id, product_rating, seller_rating, ship_index, product_review, seller_review, quantity, selling_price) Values ("1","1","Sourabh",5,4,NULL,NULL,NULL,10, 10);
 
 INSERT INTO cart Values ("Nikhil","1","Sourabh","2");

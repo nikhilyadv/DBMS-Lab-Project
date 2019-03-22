@@ -183,6 +183,22 @@ class DB:
         rows = self.cur.fetchall ()
         return rows
 
+    def seeSoldButNotShipped (self, seller_id):
+        self.cur.execute ("call soldButNotShipped(\"{}\");".format(seller_id))
+        rows = self.cur.fetchall ()
+        return rows
+    
+    def shipperExist (self, shipper_id):
+        self.cur.execute ("select * from shipper where shipper_id = \'{}\';".format (shipper_id))
+        rows = self.cur.fetchall ()
+        if (len (rows) == 1):
+            return True
+        return False
+
+    def shipSoldProduct (self, product_id, order_id, seller_id, shipper_id, date):
+        self.cur.execute ("call shipSoldProduct(\"{}\",\"{}\",\"{}\", \"{}\",\"{}\");".format(product_id, order_id, seller_id, shipper_id, date))
+        self.conn.commit()
+
 
     ##########################################
     ##########SHIPPER FUNCTIONS###############
