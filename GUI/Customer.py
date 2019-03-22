@@ -346,16 +346,45 @@ class Customer:
 
                     Button(wint, text= 'Add', command= lambda: closeandcall(rev.get())).grid(row=6)
                     wint.mainloop()
+
                 def addRatingP(pid,oid,sid):
                     wint = Tk()
                     wint.title("Rating")
 
                     Label(wint, text = "Choose Rating").grid(row=0, column=0)
-                    pass
+                    ratlist = [1,2,3,4,5]
+    
+                    rat = IntVar(wint)
+
+                    OptionMenu(wint, rat, *ratlist).grid(row = 1, column = 0)
+
+                    def closeandcall (r):
+                        # print (r)
+                        self.db.addRatingP(pid,oid,sid,r)
+                        wint.destroy()
+
+                    Button(wint, text= 'Add', command= lambda: closeandcall(rat.get())).grid(row=6)
+                    wint.mainloop()
+
                 def addRatingS(pid,oid,sid):
                     wint = Tk()
+                    wint.title("Rating")
 
-                    pass
+                    Label(wint, text = "Choose Rating").grid(row=0, column=0)
+                    ratlist = [1,2,3,4,5]
+    
+                    rat = IntVar(wint)
+
+                    OptionMenu(wint, rat, *ratlist).grid(row = 1, column = 0)
+
+                    def closeandcall (r):
+                        # print (r)
+                        self.db.addRatingS(pid,oid,sid,r)
+                        wint.destroy()
+
+                    Button(wint, text= 'Add', command= lambda: closeandcall(rat.get())).grid(row=6)
+                    wint.mainloop()
+
                 Button(win, text= 'Add/Update Rating for Product', command= lambda: (addRatingP(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 8, sticky = W)
                 Button(win, text= 'Add/Update Rating for Seller', command= lambda: (addRatingS(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 9, sticky = W)
                 Button(win, text= 'Add/Update Review for Product', command= lambda: (addReviewP(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 10, sticky = W)

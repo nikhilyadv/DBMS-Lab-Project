@@ -113,6 +113,18 @@ class DB:
         self.conn.commit()
         return True 
 
+    def addRatingP(self, pid, oid, sid, rating):
+        self.cur.execute ("call addRatingProduct(\"{}\",\"{}\",\"{}\",\"{}\");".format(pid,oid,sid,rating))
+        rows = self.cur.fetchall ()
+        self.conn.commit()
+        return True 
+    
+    def addRatingS(self, pid, oid, sid, rating):
+        self.cur.execute ("call addRatingSeller(\"{}\",\"{}\",\"{}\",\"{}\");".format(pid,oid,sid,rating))
+        rows = self.cur.fetchall ()
+        self.conn.commit()
+        return True 
+
     def addReviewS(self, pid, oid, sid, review):
         self.cur.execute ("call addReviewSeller(\"{}\",\"{}\",\"{}\",\"{}\");".format(pid,oid,sid,review))
         rows = self.cur.fetchall () 
