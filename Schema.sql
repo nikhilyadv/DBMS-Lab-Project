@@ -363,6 +363,16 @@ DELIMITER ;
 -- #########################################
 
 
+-- Procedure for seller to see sold but not shipped products
+
+DELIMITER //
+CREATE PROCEDURE soldButNotShipped(IN seller_id varchar(20))
+BEGIN
+  select * from product_order where product_order.seller_id = seller_id and ship_index is NULL;
+END;
+//
+DELIMITER ;
+
 
 
 -- Procedure for seller to see his rating
@@ -553,6 +563,7 @@ GRANT SELECT ON AmaKart.packageStatus TO customer;
 
 GRANT SELECT ON AmaKart.sellerProducts TO seller;
 GRANT SELECT ON AmaKart.sellerOrders TO seller;
+GRANT SELECT ON AmaKart.shipper to seller;
 
 GRANT SELECT ON AmaKart.shipperTrack TO shipper;
 

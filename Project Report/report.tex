@@ -5,6 +5,7 @@
 \usepackage{float}
 \usepackage{minted}
 \usepackage{hyperref}
+\usepackage[parfill]{parskip}
 
 % End loading packages
 
@@ -45,11 +46,13 @@
 \tableofcontents
 \newpage
 \pagenumbering{arabic}
+
 \section{Contribution}
-Please understand that we are a two member team and we both are involved constantly in each phase of the project, be it GUI, Procedures, Report etc. So, the division of task within ourselves isn't that straight forward to describe, just understand that as of now, we did everything together.
-\begin{enumerate}
-  \item \bfa{Procedures and Functions:}We discussed together about what various procedures and functions we could implement then we decided to divide the task equally among ourselves. So Nikhil wrote some procedures and Sourabh wrote the rest.
-\end{enumerate}
+Since we are a two member team, each of us was involved constantly in each phase of the project, be it GUI, Procedures, Report etc. So, the division of task within ourselves isn't that straight forward to describe, just understand that we did everything together.
+
+For detailed look at the different phases of our project, please refer \href{https://github.com/nikhilyadv/DBMS-Lab-Project/commits/master}{github}.
+
+
 \section{Introduction}
 In this project, our aim was to come up with a reasonably scalable database along with basic GUI for E-Commerce purpose.
 
@@ -60,9 +63,41 @@ So the following report touches on each of these aspects in brief and sequential
 \subsection{Requirements}
 Following is the list of requirements.
 \begin{enumerate}
+  \item Idea of roles. Model should have role for each of Customer, Seller and Shipper. Each user is thus assigned its role.
+
+  \item Company maintains the details of it users like their name, address, phone number and email-id.
+
+  \item Each user has security credentials like their username and password.
+  \item It should be possible for each user to update their information including their password.
+  \item Customer requirements
+  \begin{enumerate}
+    \item Customers should be able to browse all products.
+    \item They should be able to add those products in their cart. Thus each Customer should possess a cart into which they can add products for purchasel.
+    \item Note that each product could be sold by different sellers, show customer should be able to select a product corresponding to the seller he or she wished to buy from. 
+    \item Once all the items are added in cart, Customer should then be able to purchase all those items in cart at once.
+    \item For each of the product the Customer has bought, it should be possible for customer to pass the rating for both the product as well as seller. 
+  \end{enumerate}
+
+  \item Seller requirements
+  \begin{enumerate}
+    \item Each Seller possesses a rating which he or she should be able to see. This rating is given and updated by the users of role Customer who purchased the product from Seller.
+    \item Seller should list down the products he or she is willingly to sell. Each product should have:
+    \begin{enumerate}
+      \item Product Name
+      \item Product Image
+      \item Price 
+      \item Quantity which the seller possess of the product
+      \item Pickup address
+      \item Description
+      \item Rating (Product rating is again updated by the users of role Customer)
+    \end{enumerate}
+    \item It should be possible for seller to add or update his or her products.
+    \item It should be possible for seller to see his or her past sellings and their corresponding earnings.
+    \item It should be possible for seller to see the products which he or she has listed. 
+    \item It should be possible for seller to see their earnings in a specific duration. 
+  \end{enumerate}
   \item Company maintains the details of stock like their id, name, quantity, rating etc.
 
-  \item Company maintains the details of users like their id, name, address, phone number, ewallet.
 
   \item Only users which have purchased the product can leave rating and review to product, they can also give rating to the seller. Thus users should also be able to see their past puchases.
 
@@ -79,11 +114,24 @@ Following is the list of requirements.
 \end{itemize}
 
 \section{Entity Relation Diagram}
+Entity Relation Diagram can be represented in various notations, below shows the notation which we have followed.
+
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{ERD2} 
+    \includegraphics[width=1\textwidth]{ERDNotation} 
+    \caption{Entity Relation Diagram Notation}
+\end{figure}
+
+Following this notation, our ERD is represented below.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{ERDL} 
     \caption{Entity Relationship Diagram for e-commerce}
 \end{figure}
+
+
 \section{Database Schema And Normalization}
 In this section we describe various aspects of our schema and also mention that it is indeed normalized (BCNF).
 

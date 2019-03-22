@@ -25,6 +25,10 @@ class Seller:
         _window.destroy()
         self.basic()
 
+    def switchToSoldButNotShipped (self, _window):
+        _window.destroy()
+        self.soldButNotShipped()
+
     def switchToUpdateProd (self, _window):
         _window.destroy ()
         self.updateprod ()
@@ -36,6 +40,10 @@ class Seller:
     def switchToAddProduct (self, _window):
         _window.destroy ()
         self.addProduct ()
+
+    def switchToBrowseShippers (self, _window):
+        _window.destroy ()
+        self.browseShippers ()
 
     def switchToPastSellingsDuration (self, _window):
         _window.destroy ()
@@ -57,6 +65,106 @@ class Seller:
         _window.destroy ()
         self.rating()
 
+
+    def browseShippers (self):
+        win = Tk ()
+        win.title ("See information about various shippers")
+        win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win)) 
+
+        Label(win, text = "Shipper name").grid (row = 0, column = 0, sticky = W)
+
+        shipper_name = StringVar ()
+
+        Entry(win, textvariable=shipper_name).grid (row = 0, column = 1, sticky = W)
+
+        Button (win, text = 'Switch to Login', command = lambda: self.switchToLogin (win)).grid (row = 21, sticky = W, pady = 4)
+
+        ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
+        plist = ttk.Treeview (win, style='PViewStyle.Treeview')
+        scbVDirSel =Scrollbar(win, orient=VERTICAL, command=plist.yview)
+        scbVDirSel.grid(row=2, column=100, rowspan=50, sticky=NS, in_=win)
+        plist.configure(yscrollcommand=scbVDirSel.set) 
+
+        def populate (shipper_name, plist):
+            rows = self.db.seeShippers (shipper_name)
+            plist.delete (*plist.get_children ())
+            for row in rows:
+                plist.insert ('', 'end', values = row)
+
+
+        plist['columns'] = ('shipper_id', 'name', 'head_quarters', 'phone_number', 'email_id')
+        plist.heading ('shipper_id', text = 'Shipper ID')
+        plist.heading ('name', text = 'Name')
+        plist.heading ('head_quarters', text = 'Head Quarters')
+        plist.heading ('phone_number', text = 'Phone Number')
+        plist.heading ('email_id', text = 'Email ID')
+
+        plist['show'] = 'headings'
+        plist.grid(row = 2, column = 0, rowspan = 18, columnspan = 100)
+        Button(win, text= 'Search', command= lambda: populate (shipper_name.get(), plist)).grid(row=1, column=7, sticky=W)
+        win.mainloop()
+
+    # To finish its implementation
+    def soldButNotShipped (self):
+        # browseWin = Tk ()
+        # browseWin.title ("Sold But Not Shipped Products")
+        # browseWin.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (browseWin)) 
+
+        # prodText = StringVar()
+        # lowprice = DoubleVar()
+        # upprice = DoubleVar()
+        # Entry(browseWin, textvariable=prodText).grid (row = 0, column = 1, sticky = W)
+        # Entry(browseWin, textvariable=lowprice).grid (row = 1, column = 1, sticky = W)
+        # Entry(browseWin, textvariable=upprice).grid (row = 1, column = 3, sticky = W)
+        # upprice.set(1000.0)
+        # Button (browseWin, text = 'Switch to Login', command = lambda: self.switchToLogin (browseWin)).grid (row = 21, sticky = W, pady = 4)
+        # output = Text (browseWin, height = 1, width = 150, wrap = WORD, bg = "white")
+        # output.grid (row = 21, column = 1, columnspan = 1000)
+
+        # ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
+        # plist = ttk.Treeview (browseWin, style='PViewStyle.Treeview')
+        # scbVDirSel =Scrollbar(browseWin, orient=VERTICAL, command=plist.yview)
+        # scbVDirSel.grid(row=2, column=100, rowspan=50, sticky=NS, in_=browseWin)
+        # plist.configure(yscrollcommand=scbVDirSel.set) 
+
+        # plist['columns'] = ('pid', 'oid', 'seller_id', 'product_rating', 'seller_rating', 'ship_index', 'product_review', 'seller_review', 'quantity')
+        # plist.heading ('#0', text = 'Image')
+        # plist.heading ('pid', text = 'Product ID')
+        # plist.heading ('pname', text = 'Product Name')
+        # plist.heading ('sellerid', text = 'Seller ID')
+        # plist.heading ('price', text = 'Price')
+        # plist.heading ('tstock', text = 'Total Stock')
+        # plist.heading ('pickupaddress', text = 'Pickup Address')
+        # plist.heading ('description', text = 'Description')
+        # plist.heading ('rating', text = 'Rating')
+        # plist.grid(row = 2, column = 0, rowspan = 18, columnspan = 100)
+        # Button(browseWin, text= 'Search by name', command= lambda: self.populateProducts (prodText.get (), plist)).grid(row=0, column=2, sticky=W)
+        # Button(browseWin, text= 'Search by name & limit', command= lambda: self.populateProductsByLimit (prodText.get (), lowprice.get (), upprice.get (), plist)).grid(row=1, column=5, sticky=W)
+        # def selectItem(a):
+        #     def check(output, quantity, pid, sid, q):
+        #         if quantity > 0:
+        #             self.db.addProductToCart(self.customer_id, pid, sid, quantity)
+        #             if (q >= quantity):
+        #                 tempstr = "Added successfully"
+        #             else :
+        #                 tempstr = "Please Reduce quantity"
+        #             output.delete (0.0, END)
+        #             output.insert (END, tempstr)                    
+        #         else:
+        #             tempstr = "Wrong quantity entered Please enter a positive interger less then quantity of the product avaliable\n"
+        #             output.delete (0.0, END)
+        #             output.insert (END, tempstr)
+        #     curItem = plist.focus()
+        #     selectedrow = plist.item(curItem)
+        #     quantityText = IntVar()
+        #     Label(browseWin, text = "Enter Quantity").grid (row = 20, column = 0, sticky = W)
+        #     Entry(browseWin, textvariable=quantityText).grid (row = 20, column = 1, sticky = W)
+        #     quantityText.set(1)
+        #     Button(browseWin, text= 'Add to cart', command= lambda: check(output, quantityText.get (), selectedrow['values'][0], selectedrow['values'][2], selectedrow['values'][4])).grid(row=20, column = 2, sticky = W)
+        #     # print (plist.item(curItem))
+        # plist.bind('<ButtonRelease-1>', selectItem)
+        # browseWin.mainloop()
+        self.basic ()
 
     def rating (self):
         win = Tk ()
@@ -512,5 +620,7 @@ class Seller:
         Button(supp, text= 'See Your Similar Products', command= lambda: self.switchToSimilarProducts (supp)).grid(row=6, column=0)
         Button(supp, text= 'See Your Earnings Between Duration', command= lambda: self.switchToEarnings (supp)).grid(row=7, column=0)
         Button(supp, text= 'Know Your Rating', command= lambda: self.switchToRating (supp)).grid(row=8, column=0)
-        Button(supp, text= 'Back To Login', command= lambda: self.switchToLogin (supp)).grid(row=9, column=0)
+        Button(supp, text= 'Browse Shippers', command= lambda: self.switchToBrowseShippers (supp)).grid(row=9, column=0)
+        Button(supp, text= 'See Products which are sold but not shipped', command= lambda: self.switchToSoldButNotShipped (supp)).grid(row=10, column=0)
+        Button(supp, text= 'Back To Login', command= lambda: self.switchToLogin (supp)).grid(row=11, column=0)
         supp.mainloop()

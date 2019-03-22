@@ -178,6 +178,10 @@ class DB:
         rows = self.cur.fetchall ()
         return rows
 
+    def seeShippers (self, name):
+        self.cur.execute ("select * from shipper where name like \'%{}%\';".format (name))
+        rows = self.cur.fetchall ()
+        return rows
 
 
     ##########################################
