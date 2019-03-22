@@ -107,6 +107,16 @@ class DB:
         rows = self.cur.fetchall ()
         return rows
 
+    def addReviewP(self, pid, oid, sid, review):
+        self.cur.execute ("call addReviewProduct(\"{}\",\"{}\",\"{}\",\"{}\");".format(pid,oid,sid,review))
+        self.conn.commit()
+        return True 
+
+    def addReviewS(self, pid, oid, sid, review):
+        self.cur.execute ("call addReviewSeller(\"{}\",\"{}\",\"{}\",\"{}\");".format(pid,oid,sid,review))
+        self.conn.commit()
+        return True 
+
     def customerUpdateInfo (self, id, password, name, address, phone_number, email_id):
         self.cur.execute ("call custUpdateInfo(\"{}\",\"{}\",\"{}\",\"{}\", \"{}\",\"{}\");".format(id, password, name, address, phone_number, email_id))
         self.conn.commit()

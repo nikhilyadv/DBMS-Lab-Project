@@ -263,15 +263,14 @@ class Customer:
                     auximage.thumbnail((100, 200), Image.ANTIALIAS)
                     auximage = ImageTk.PhotoImage (auximage)
                     plist._images.append(auximage)
-                    plist.insert ('', 'end', values = (row[2], row[16], row[1], row[15], row[14], row[24], row[10], row[9], row[13], row[12]), image = plist._images[-1])
+                    plist.insert ('', 'end', values = (row[2], row[0], row[16], row[1], row[15], row[14], row[25], row[10], row[9], row[13], row[12]), image = plist._images[-1])
                 strng = "Done!"
+                # print (rows)
             else:
                 strng = "Entered date is not valid!"
 
-
             output.delete (0.0, END)
             output.insert (END, strng)                    
-            pass
 
         def populatebyN(N,plist):
             strng = ""
@@ -286,15 +285,16 @@ class Customer:
                     auximage.thumbnail((100, 200), Image.ANTIALIAS)
                     auximage = ImageTk.PhotoImage (auximage)
                     plist._images.append(auximage)
-                    plist.insert ('', 'end', values = (row[2], row[16], row[1], row[15], row[14], row[24], row[10], row[9], row[13], row[12]), image = plist._images[-1])
+                    plist.insert ('', 'end', values = (row[2],row[0], row[16], row[1], row[15], row[14], row[25], row[10], row[9], row[13], row[12]), image = plist._images[-1])
                 strng = "Done"
 
             output.delete (0.0, END)
             output.insert (END, strng)                    
-            pass
-        plist['columns'] = ('oid', 'pname', 'sellerid', 'price', 'quantity', 'status', 'srating', 'prating', 'sreview', 'preview')
+
+        plist['columns'] = ('oid', 'pid','pname', 'sellerid', 'price', 'quantity', 'status', 'srating', 'prating', 'sreview', 'preview')
         plist.heading ('#0', text = 'Image')
         plist.heading ('oid', text = 'Order ID')
+        plist.heading ('pid', text = 'Product ID')
         plist.heading ('pname', text = 'Product Name')
         plist.heading ('sellerid', text = 'Seller ID')
         plist.heading ('price', text = 'Price')
@@ -310,6 +310,52 @@ class Customer:
 
         Button(win, text= 'Search by Date', command= lambda: (populatebyDate (startYear.get(), startMonth.get(), startDay.get(), endYear.get(), endMonth.get(), endDay.get(), plist))).grid(row=1, column=6, sticky=W, pady=4)
         Button(win, text= 'Search Last N purchases', command= lambda: (populatebyN(N.get(), plist))).grid(row=2, column=3, sticky=W, pady=4)
+        def selectItem(a):
+            curItem = plist.focus()
+            selectedrow = plist.item(curItem)
+            if (len(selectedrow['values'])):
+                # print (selectedrow)
+                def addReviewP(pid,oid,sid):
+                    wint = Tk()
+
+                    def closeandcall (r):
+                        wint.destroy()
+                        self.db.addReviewP(pid,oid,sid,r)
+
+                    Label(wint, text = "Write Review").grid (row = 0, column = 0, sticky = W) 
+                    
+                    review = StringVar()
+
+                    Entry(wint, textvariable=review).grid (row = 1, column = 0, sticky = W)
+                    Button(wint, text= 'Add', command= lambda: closeandcall(review.get())).grid(row=2, sticky=W, pady=4)
+
+                def addReviewS(pid,oid,sid):
+                    wint = Tk()
+                    wint.title("Review")
+                    def closeandcall (r):
+                        wint.destroy()
+                        self.db.addReviewP(pid,oid,sid,r)
+
+                    Label(wint, text = "Write Review").grid (row = 0, column = 0, sticky = W) 
+                    
+                    review = StringVar()
+
+                    Entry(wint, textvariable=review).grid (row = 1, column = 0, sticky = W)
+                    Button(wint, text= 'Add', command= lambda: closeandcall(review.get())).grid(row=2, sticky=W, pady=4)
+
+                def addRatingP(pid,oid,sid):
+                    wint = Tk()
+
+                    pass
+                def addRatingS(pid,oid,sid):
+                    wint = Tk()
+
+                    pass
+                Button(win, text= 'Add/Update Rating for Product', command= lambda: (addRatingP(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 0, sticky = W)
+                Button(win, text= 'Add/Update Rating for Seller', command= lambda: (addRatingS(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 1, sticky = W)
+                Button(win, text= 'Add/Update Review for Product', command= lambda: (addReviewP(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 2, sticky = W)
+                Button(win, text= 'Add/Update Review for Seller', command= lambda: (addReviewS(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 3, sticky = W)
+        plist.bind('<ButtonRelease-1>', selectItem)
         win.mainloop()
 
     def updateInfo (self):

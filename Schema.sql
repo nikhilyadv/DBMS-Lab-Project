@@ -296,18 +296,18 @@ DELIMITER ;
 
 -- Procedure to add review for a product
 DELIMITER //
-CREATE PROCEDURE addReviewProduct(IN pid varchar(20), IN oid varchar(20), IN rev varchar(60))
+CREATE PROCEDURE addReviewProduct(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rev varchar(60))
 BEGIN
-    UPDATE product_order SET product_review = rev WHERE product_id = pid and order_id = oid;
+    UPDATE product_order SET product_review = rev WHERE product_id = pid and order_id = oid and seller_id = sid;
 END;
 //
 DELIMITER ;
 
 -- Procedure to add review for a seller 
 DELIMITER //
-CREATE PROCEDURE addReviewSeller(IN pid varchar(20), IN oid varchar(20), IN rev varchar(60))
+CREATE PROCEDURE addReviewSeller(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rev varchar(60))
 BEGIN
-    UPDATE product_order SET seller_review = rev WHERE product_id = pid and order_id = oid;
+    UPDATE product_order SET seller_review = rev WHERE product_id = pid and order_id = oid and seller_id = sid;
 END;
 //
 DELIMITER ;
@@ -323,10 +323,10 @@ DELIMITER ;
 
 -- Procedure to add rating for product
 DELIMITER //
-CREATE PROCEDURE addRatingProduct(IN pid varchar(20), IN oid varchar(20), IN rating INT)
+CREATE PROCEDURE addRatingProduct(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rating INT)
 BEGIN
     IF (rating IN (1,2,3,4,5)) THEN
-      UPDATE product_order SET product_rating =  rating WHERE product_id = pid and order_id = oid;
+      UPDATE product_order SET product_rating =  rating WHERE product_id = pid and order_id = oid and seller_id = sid;
     END IF;
 END;
 //
@@ -334,10 +334,10 @@ DELIMITER ;
 
 -- Procedure to add rating for seller
 DELIMITER //
-CREATE PROCEDURE addRatingSeller(IN pid varchar(20), IN oid varchar(20), IN rating INT)
+CREATE PROCEDURE addRatingSeller(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rating INT)
 BEGIN
     IF (rating IN (1,2,3,4,5)) THEN
-      UPDATE product_order SET seller_rating = rating WHERE product_id = pid and order_id = oid;
+      UPDATE product_order SET seller_rating = rating WHERE product_id = pid and order_id = oid and seller_id = sid;
     END IF;
 END;
 //
