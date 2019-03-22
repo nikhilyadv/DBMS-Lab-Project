@@ -285,11 +285,11 @@ END;
 //
 DELIMITER ;
 
--- Procedure to see reviews of a product withing a duration
+-- Procedure to see reviews of a product
 DELIMITER //
-CREATE PROCEDURE recentProductReviewsBetweenDuration(IN pid varchar(20), IN sid varchar(20), IN startTime TIMESTAMP, IN endTime TIMESTAMP)
+CREATE PROCEDURE ProductReviews(IN pid varchar(20), IN sid varchar(20))
 BEGIN
-    SELECT name, product_review FROM (product_order natural join order_ natural join customer natural join payment) WHERE product_id = pid AND seller_id = sid AND (payment.date_ BETWEEN startTime AND endTime);
+    SELECT name, product_rating, product_review, seller_rating, seller_review FROM (product_order natural join order_ natural join customer natural join payment) WHERE product_id = pid AND seller_id = sid;
 END;
 //
 DELIMITER ;
@@ -597,7 +597,7 @@ GRANT EXECUTE ON PROCEDURE AmaKart.makeorder TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.purchaseEverthingInCart TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addProductToCart TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.custUpdateInfo TO customer;
-GRANT EXECUTE ON PROCEDURE AmaKart.recentProductReviewsBetweenDuration TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.ProductReviews TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addReviewProduct TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addReviewSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingProduct TO customer;

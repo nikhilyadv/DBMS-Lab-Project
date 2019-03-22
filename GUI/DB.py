@@ -131,6 +131,11 @@ class DB:
         self.conn.commit()
         return True 
 
+    def getReviews(self, pid, sid):
+        self.cur.execute ("call ProductReviews(\"{}\",\"{}\");".format(pid,sid))
+        rows = self.cur.fetchall () 
+        return rows
+
     def customerUpdateInfo (self, id, password, name, address, phone_number, email_id):
         self.cur.execute ("call custUpdateInfo(\"{}\",\"{}\",\"{}\",\"{}\", \"{}\",\"{}\");".format(id, password, name, address, phone_number, email_id))
         self.conn.commit()
