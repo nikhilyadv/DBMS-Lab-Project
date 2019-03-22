@@ -95,6 +95,18 @@ class DB:
         self.conn.commit()
         return True
 
+    def seeLatestNPurchases (self, N):
+        self.cur.execute ("call seeLatestNPurchases({});".format (N))
+        rows = self.cur.fetchall ()
+        return rows
+
+    def seePurchasesByDate (self, startYear, startMonth, startDay, endYear, endMonth, endDay):
+        startDate = startYear + '-' + startMonth + "-" + startDay
+        endDate = endYear + '-' + endMonth + '-' + endDay
+        self.cur.execute ("call seePurchasesByDate(\'{}\',\'{}\');".format (startDate,endDate))
+        rows = self.cur.fetchall ()
+        return rows
+
     def customerUpdateInfo (self, id, password, name, address, phone_number, email_id):
         self.cur.execute ("call custUpdateInfo(\"{}\",\"{}\",\"{}\",\"{}\", \"{}\",\"{}\");".format(id, password, name, address, phone_number, email_id))
         self.conn.commit()

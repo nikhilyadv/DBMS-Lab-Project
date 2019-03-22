@@ -3,6 +3,7 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter import PhotoImage
 from PIL import Image, ImageTk
+import datetime
 import requests
 import LoginWindow
 
@@ -39,11 +40,11 @@ class Customer:
         win = Tk ()
         win.title ("Welcome Home Page")
         win.protocol("WM_DELETE_WINDOW", lambda: self.on_closing (win))
-        Button(win, text= 'Goto Cart', command= lambda: self.switchToCart (win)).grid(row=1, column=0, sticky=W)
-        Button(win, text= 'Browse Products', command= lambda: self.switchToBrowse (win)).grid(row=2, column=0, sticky=W)
-        Button (win, text = 'Previous Orders', command = lambda : self.switchToPreviousOrders (win)).grid (row=3, column=0, sticky = W)
-        Button(win, text= 'Update your info', command= lambda: self.switchToUpdate (win)).grid(row=4, column=0, sticky=W)
-        Button (win, text = 'Back to Login', command = lambda : self.switchToLogin (win)).grid (row=5, column=0, sticky = W)
+        Button(win, text= 'Goto Cart', command= lambda: self.switchToCart (win)).grid(row=1, column=0)
+        Button(win, text= 'Browse Products', command= lambda: self.switchToBrowse (win)).grid(row=2, column=0)
+        Button (win, text = 'Previous Orders', command = lambda : self.switchToPreviousOrders (win)).grid (row=3, column=0)
+        Button(win, text= 'Update your info', command= lambda: self.switchToUpdate (win)).grid(row=4, column=0)
+        Button (win, text = 'Back to Login', command = lambda : self.switchToLogin (win)).grid (row=5, column=0)
         win.mainloop ()
 
     def Cart (self):
@@ -192,8 +193,124 @@ class Customer:
         browseWin.mainloop()
 
     def previousOrders (self):
-        # TODO
-        self.basic ()
+        win = Tk ()
+        win.title ("Purchased Products")
+        win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win)) 
+
+        Label(win, text = "Start Year").grid (row = 0, column = 0, sticky = W)
+        Label(win, text = "Start Month").grid (row = 0, column = 2, sticky = W)
+        Label(win, text = "Start Day").grid (row = 0, column = 4, sticky = W)
+        Label(win, text = "End Year").grid (row = 1, column = 0, sticky = W)
+        Label(win, text = "End Month").grid (row = 1, column = 2, sticky = W)
+        Label(win, text = "End Day").grid (row = 1, column = 4, sticky = W)
+        Label(win, text = "N").grid(row=2, column=0, sticky=W)
+        month = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+        year = ["2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"]
+        day = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"]  
+
+
+        startYear = StringVar ()
+        startYear.set(year[0])
+        startMonth = StringVar ()
+        startMonth.set(month[0])
+        startDay = StringVar ()
+        startDay.set(day[0])
+        endYear = StringVar ()
+        endYear.set(year[0])
+        endMonth = StringVar ()
+        endMonth.set(month[0])
+        endDay = StringVar ()
+        endDay.set(day[0])
+        N = IntVar()
+        N.set(1)
+
+        OptionMenu(win, startYear, *year).grid(row = 0, column = 1, sticky = W)
+        OptionMenu(win, startMonth, *month).grid(row = 0, column = 3, sticky = W)
+        OptionMenu(win, startDay, *day).grid(row = 0, column = 5, sticky = W)
+        OptionMenu(win, endYear, *year).grid(row = 1, column = 1, sticky = W)
+        OptionMenu(win, endMonth, *month).grid(row = 1, column = 3, sticky = W)
+        OptionMenu(win, endDay, *day).grid(row = 1, column = 5, sticky = W)
+        Entry(win, textvariable=N).grid (row = 2, column = 1, sticky = W)
+
+        output = Text (win, height = 1, width = 150, wrap = WORD, bg = "white")
+        output.grid (row = 23, column = 1, columnspan = 1000)
+
+        ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
+        plist = ttk.Treeview (win, style='PViewStyle.Treeview')
+        scbVDirSel =Scrollbar(win, orient=VERTICAL, command=plist.yview)
+        scbVDirSel.grid(row=3, column=100, rowspan=50, sticky=NS, in_=win)
+        scbHDirSel =Scrollbar(win, orient=HORIZONTAL, command=plist.xview)
+        scbHDirSel.grid(row=22, column=0, columnspan=250, sticky=EW, in_=win)
+        plist.configure(yscrollcommand=scbVDirSel.set,xscrollcommand=scbHDirSel.set)  
+
+        def validDate(year, month, day):
+            correctDate = None
+            try:
+                newDate = datetime.datetime(year, month, day)
+                correctDate = True
+            except ValueError:
+                correctDate = False
+            return correctDate
+
+        def populatebyDate(years, months, days, yeare, monthe, daye, plist):
+            strng = ""
+            if (validDate (int(years), int(months), int(days)) and validDate (int(yeare), int(monthe), int(daye))):
+                rows = self.db.seePurchasesByDate(years, months, days, yeare, monthe, daye)
+                plist.delete (*plist.get_children ())
+                plist._images = []
+                for row in rows:
+                    auximage = Image.open (requests.get(row[17], stream = True).raw)
+                    auximage.thumbnail((100, 200), Image.ANTIALIAS)
+                    auximage = ImageTk.PhotoImage (auximage)
+                    plist._images.append(auximage)
+                    plist.insert ('', 'end', values = (row[2], row[16], row[1], row[15], row[14], row[24], row[10], row[9], row[13], row[12]), image = plist._images[-1])
+                strng = "Done!"
+            else:
+                strng = "Entered date is not valid!"
+
+
+            output.delete (0.0, END)
+            output.insert (END, strng)                    
+            pass
+
+        def populatebyN(N,plist):
+            strng = ""
+            if (N <= 0):
+                strng = "Please enter valid N"
+            else:
+                rows = self.db.seeLatestNPurchases(N)
+                plist.delete (*plist.get_children ())
+                plist._images = []
+                for row in rows:
+                    auximage = Image.open (requests.get(row[17], stream = True).raw)
+                    auximage.thumbnail((100, 200), Image.ANTIALIAS)
+                    auximage = ImageTk.PhotoImage (auximage)
+                    plist._images.append(auximage)
+                    plist.insert ('', 'end', values = (row[2], row[16], row[1], row[15], row[14], row[24], row[10], row[9], row[13], row[12]), image = plist._images[-1])
+                strng = "Done"
+
+            output.delete (0.0, END)
+            output.insert (END, strng)                    
+            pass
+        plist['columns'] = ('oid', 'pname', 'sellerid', 'price', 'quantity', 'status', 'srating', 'prating', 'sreview', 'preview')
+        plist.heading ('#0', text = 'Image')
+        plist.heading ('oid', text = 'Order ID')
+        plist.heading ('pname', text = 'Product Name')
+        plist.heading ('sellerid', text = 'Seller ID')
+        plist.heading ('price', text = 'Price')
+        plist.heading ('quantity', text = 'Quantity')
+        plist.heading ('status', text = 'Tracking ID')
+        # plist.heading ('pickupaddress', text = 'Pickup Address')
+        # plist.heading ('description', text = 'Description')
+        plist.heading ('srating', text = 'Your Seller Rating')        
+        plist.heading ('prating', text = 'Your Product Rating')
+        plist.heading ('sreview', text = 'Your Seller Review')        
+        plist.heading ('preview', text = 'Your Product Review')
+        plist.grid(row = 3, column = 0, rowspan = 18, columnspan = 100)
+
+        Button(win, text= 'Search by Date', command= lambda: (populatebyDate (startYear.get(), startMonth.get(), startDay.get(), endYear.get(), endMonth.get(), endDay.get(), plist))).grid(row=1, column=6, sticky=W, pady=4)
+        Button(win, text= 'Search Last N purchases', command= lambda: (populatebyN(N.get(), plist))).grid(row=2, column=3, sticky=W, pady=4)
+        win.mainloop()
 
     def updateInfo (self):
         sign = Tk ()

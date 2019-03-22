@@ -262,7 +262,16 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE seeLatestNPurchases(IN N INT)
 BEGIN
-    select * from payment natural join order_ natural join product_order where CONCAT(order_.customer_id, "@localhost") IN (SELECT user()) ORDER BY payment.date_ DESC LIMIT N;
+    select * from payment natural join order_ natural join product_order natural join product join track on (product_order.ship_index = track.index_) where CONCAT(order_.customer_id, "@localhost") IN (SELECT user()) ORDER BY payment.date_ DESC LIMIT N;
+END;
+//
+DELIMITER ;
+
+-- Procedure to see Purchases between dates
+DELIMITER //
+CREATE PROCEDURE seePurchasesByDate(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
+BEGIN
+    select * from payment natural join order_ natural join product_order natural join product join track on (product_order.ship_index = track.index_) where CONCAT(order_.customer_id, "@localhost") IN (SELECT user()) and payment.date_ BETWEEN startTime AND endTime;
 END;
 //
 DELIMITER ;
@@ -593,7 +602,7 @@ GRANT EXECUTE ON PROCEDURE AmaKart.addReviewProduct TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addReviewSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingProduct TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
-GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.seePurchasesByDate TO customer;
 
 
 
