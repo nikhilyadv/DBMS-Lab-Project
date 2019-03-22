@@ -640,9 +640,7 @@ DELIMITER ;
 DELIMITER //
 CREATE TRIGGER updateRatingProduct AFTER UPDATE on product_order
 FOR EACH ROW BEGIN
-  IF NEW.product_rating != NULL THEN
-    UPDATE product SET rating = (SELECT AVG(product_rating) FROM product_order WHERE product_id = NEW.product_id) WHERE product_id = NEW.product_id;
-  END IF;
+  UPDATE product SET rating = (SELECT (AVG(product_rating)) FROM product_order WHERE product_id = NEW.product_id) WHERE product_id = NEW.product_id;
 END//
 DELIMITER ;
 
@@ -651,9 +649,7 @@ DELIMITER ;
 DELIMITER //
 CREATE TRIGGER updateRatingSeller AFTER UPDATE on product_order
 FOR EACH ROW BEGIN
-  IF NEW.seller_rating != NULL THEN
-    UPDATE seller SET rating = (SELECT AVG(seller_rating) FROM product_order WHERE seller_id = NEW.seller_id) WHERE seller_id = NEW.seller_id;
-  END IF;
+  UPDATE seller SET rating = (SELECT (AVG(seller_rating)) FROM product_order WHERE seller_id = NEW.seller_id) WHERE seller_id = NEW.seller_id;
 END//
 DELIMITER ;
 

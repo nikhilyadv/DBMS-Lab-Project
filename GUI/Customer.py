@@ -240,7 +240,7 @@ class Customer:
         scbVDirSel =Scrollbar(win, orient=VERTICAL, command=plist.yview)
         scbVDirSel.grid(row=3, column=100, rowspan=50, sticky=NS, in_=win)
         scbHDirSel =Scrollbar(win, orient=HORIZONTAL, command=plist.xview)
-        scbHDirSel.grid(row=22, column=0, columnspan=250, sticky=EW, in_=win)
+        scbHDirSel.grid(row=21, column=0, columnspan=250, sticky=EW)
         plist.configure(yscrollcommand=scbVDirSel.set,xscrollcommand=scbHDirSel.set)  
 
         def validDate(year, month, day):
@@ -292,6 +292,9 @@ class Customer:
             output.insert (END, strng)                    
 
         plist['columns'] = ('oid', 'pid','pname', 'sellerid', 'price', 'quantity', 'status', 'srating', 'prating', 'sreview', 'preview')
+        plist.column('#0',anchor="center",width=130,minwidth=130)
+        for i in plist['columns']:
+            plist.column(i, anchor="center", width=120, minwidth=130)
         plist.heading ('#0', text = 'Image')
         plist.heading ('oid', text = 'Order ID')
         plist.heading ('pid', text = 'Product ID')
@@ -307,6 +310,7 @@ class Customer:
         plist.heading ('sreview', text = 'Your Seller Review')        
         plist.heading ('preview', text = 'Your Product Review')
         plist.grid(row = 3, column = 0, rowspan = 18, columnspan = 100)
+        # plist.pack(expand=Y)
 
         Button(win, text= 'Search by Date', command= lambda: (populatebyDate (startYear.get(), startMonth.get(), startDay.get(), endYear.get(), endMonth.get(), endDay.get(), plist))).grid(row=1, column=6, sticky=W, pady=4)
         Button(win, text= 'Search Last N purchases', command= lambda: (populatebyN(N.get(), plist))).grid(row=2, column=3, sticky=W, pady=4)
@@ -385,10 +389,10 @@ class Customer:
                     Button(wint, text= 'Add', command= lambda: closeandcall(rat.get())).grid(row=6)
                     wint.mainloop()
 
-                Button(win, text= 'Add/Update Rating for Product', command= lambda: (addRatingP(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 8, sticky = W)
-                Button(win, text= 'Add/Update Rating for Seller', command= lambda: (addRatingS(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 9, sticky = W)
-                Button(win, text= 'Add/Update Review for Product', command= lambda: (addReviewP(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 10, sticky = W)
-                Button(win, text= 'Add/Update Review for Seller', command= lambda: (addReviewS(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 11, sticky = W)
+                Button(win, text= 'Add/Update Rating for Product', command= lambda: (addRatingP(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 0, sticky = W)
+                Button(win, text= 'Add/Update Rating for Seller', command= lambda: (addRatingS(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 1, sticky = W)
+                Button(win, text= 'Add/Update Review for Product', command= lambda: (addReviewP(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 2, sticky = W)
+                Button(win, text= 'Add/Update Review for Seller', command= lambda: (addReviewS(selectedrow['values'][1],selectedrow['values'][0],selectedrow['values'][3]))).grid(row=24, column = 3, sticky = W)
         plist.bind('<ButtonRelease-1>', selectItem)
         win.mainloop()
 
