@@ -682,6 +682,25 @@ FOR EACH ROW BEGIN
 END//
 DELIMITER ;
 
+-- To check whether the product added in cart are valid or not
+DELIMITER //
+CREATE TRIGGER validCartinsert BEFORE INSERT on cart
+FOR EACH ROW BEGIN
+    IF (NEW.quantity > all(SELECT total_stock FROM product WHERE product.product_id = NEW.product_id AND product.seller_id = NEW.seller_id)) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Not possible';
+    END IF;
+END//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER validCartupdate BEFORE UPDATE on cart
+FOR EACH ROW BEGIN
+    IF (NEW.quantity > all(SELECT total_stock FROM product WHERE product.product_id = NEW.product_id AND product.seller_id = NEW.seller_id)) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Not possible';
+    END IF;
+END//
+DELIMITER ;
+
 -- -- When a product is shipped update its shipping date_
 -- DELIMITER //
 -- CREATE TRIGGER trackupdateshipdate AFTER INSERT on track 

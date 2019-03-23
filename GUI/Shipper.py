@@ -203,7 +203,7 @@ class Shipper:
                 return False
         def check (password, npassword, rnpassword, name, add, phone, email):
             strng = "Update successful"
-            if (fine(password) and self.db.validate (self.seller_id, password)):
+            if (fine(password) and self.db.validate (self.shipper_id, password)):
                 if ((fine(npassword) and npassword == rnpassword) or not fine(npassword)):
                     self.db.shipperUpdateInfo(self.shipper_id, npassword, name, add, phone, email)
                     strng = "Update successful"
