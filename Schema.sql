@@ -377,7 +377,8 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE soldButNotShipped(IN seller_id varchar(20))
 BEGIN
-  select * from product_order where product_order.seller_id = seller_id and ship_index is NULL;
+  select product_order.* from product_order join track on product_order.ship_index = track.index_ where shipper_id is NULL;
+  -- select * from product_order where product_order.seller_id = seller_id and ship_index is NULL;
 END;
 //
 DELIMITER ;
@@ -386,9 +387,11 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE shipSoldProduct(IN gproduct_id varchar(20), IN gorder_id varchar(20), IN gseller_id varchar(20), IN gshipper_id varchar(20), IN gdate DATE)
 BEGIN
-  insert into track (shipper_id, tracking_id, date_) values (gshipper_id, NULL, gdate);
-  set @c = (select index_ from track order by index_ DESC LIMIT 1);
-  update product_order set ship_index = @c where seller_id = gseller_id and product_id = gproduct_id and order_id = gorder_id;
+  set @c = (select ship_index from product_order where seller_id = gseller_id and product_id = gproduct_id and order_id = gorder_id); 
+  update track set shipper_id = gshipper_id, date_ = gdate where index_ = @c;
+  -- insert into track (shipper_id, tracking_id, date_) values (gshipper_id, NULL, gdate);
+  -- set @c = (select index_ from track order by index_ DESC LIMIT 1);
+  -- update product_order set ship_index = @c where seller_id = gseller_id and product_id = gproduct_id and order_id = gorder_id;
 END;
 //
 DELIMITER ;
@@ -564,7 +567,7 @@ CREATE FUNCTION sellerStatsBetweenDate(startTime TIMESTAMP, endTime TIMESTAMP)
 RETURNS FLOAT DETERMINISTIC  
 BEGIN
     DECLARE temp FLOAT;
-    SELECT quantity*selling_price INTO temp FROM product_order natural join payment WHERE date_ BETWEEN startTime and endTime;
+    SELECT SUM(quantity*selling_price) INTO temp FROM product_order natural join payment WHERE date_ BETWEEN startTime and endTime;
     RETURN temp;
 END;
 //
