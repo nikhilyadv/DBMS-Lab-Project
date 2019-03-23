@@ -15,17 +15,9 @@ class Shipper:
         self.shipper_id = username
         self.basic ()
 
-
-    
     def on_closing(self, _window):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             _window.destroy()
-
-
-    def switchToShipmentsDuration (self, _window):
-        _window.destroy ()
-        self.shipmentsDuration()
-
 
     def switchToLogin (self, _window):
         _window.destroy ()
@@ -39,9 +31,9 @@ class Shipper:
         _window.destroy ()
         self.updateInfo ()
 
-    def switchToLatestNShipments (self, _window):
+    def switchToShipments(self, _window):
         _window.destroy ()
-        self.latestNShipments()
+        self.latestShipments()
     
     def switchToDetailedShipments (self, _window):
         _window.destroy ()
@@ -78,7 +70,7 @@ class Shipper:
         Button(win, text= 'Search', command= lambda: populate ()).grid(row=1, column=0, sticky=W)
         win.mainloop()
 
-    def shipmentsDuration(self):
+    def latestShipments(self):
         win = Tk ()
         win.title ("See Past Shipments")
         win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win)) 
@@ -115,14 +107,18 @@ class Shipper:
         OptionMenu(win, endMonth, *month).grid(row = 1, column = 3, sticky = W)
         OptionMenu(win, endDay, *day).grid(row = 1, column = 5, sticky = W)
 
-        Button (win, text = 'Switch to Login', command = lambda: self.switchToLogin (win)).grid (row = 21, sticky = W, pady = 4)
-        output = Text (win, height = 1, width = 150, wrap = WORD, bg = "white")
-        output.grid (row = 21, column = 1, columnspan = 1000)
+        Button (win, text = 'Switch to Login', command = lambda: self.switchToLogin (win)).grid (row = 22, sticky = W, pady = 4)
+        Label(win, text = "N: ").grid (row = 2, column = 0, sticky = W)
+        n = IntVar ()
+        n.set(1)
+        Entry(win, textvariable=n).grid (row = 2, column = 1, sticky = W)
+        output = Text (win, height = 1, width = 50, wrap = WORD, bg = "white")
+        output.grid (row = 22, column = 1, columnspan = 1000)
 
         ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
         plist = ttk.Treeview (win, style='PViewStyle.Treeview')
         scbVDirSel =Scrollbar(win, orient=VERTICAL, command=plist.yview)
-        scbVDirSel.grid(row=2, column=100, rowspan=50, sticky=NS, in_=win)
+        scbVDirSel.grid(row=3, column=100, rowspan=19, sticky=NS, in_=win)
         plist.configure(yscrollcommand=scbVDirSel.set) 
 
         def validDate(year, month, day):
@@ -147,16 +143,30 @@ class Shipper:
 
             output.delete (0.0, END)
             output.insert (END, strng)                    
+        def populateN (n, plist):
+            strng = ""
+            if (n > 0):
+                rows = self.db.seeLatestNShipments(n)
+                plist.delete (*plist.get_children ())
+                for row in rows:
+                    plist.insert ('', 'end', values = row)
+                strng = "Done!"
+            else:
+                strng = "Entered N is not valid!"
+
+            output.delete (0.0, END)
+            output.insert (END, strng)                    
         plist['columns'] = ('index_', 'shipper_id', 'tracking_id', 'date_')
         plist.heading ('index_', text = 'Index')
         plist.heading ('shipper_id', text = 'Shipper ID')
         plist.heading ('tracking_id', text = 'Tracking ID')
         plist.heading ('date_', text = 'Date')
         plist['show'] = 'headings'
-        plist.grid(row = 2, column = 0, rowspan = 18, columnspan = 100)
-        Button(win, text= 'Search', command= lambda: populate (startYear.get(), startMonth.get(), startDay.get(), endYear.get(), endMonth.get(), endDay.get(), plist)).grid(row=1, column=7, sticky=W)
+        plist.grid(row = 3, column = 0, rowspan = 18, columnspan = 100)
+        Button(win, text= 'Search by Date', command= lambda: populate (startYear.get(), startMonth.get(), startDay.get(), endYear.get(), endMonth.get(), endDay.get(), plist)).grid(row=1, column=7, sticky=W)
+        Button(win, text= 'Search by N', command= lambda: populateN (n.get(), plist)).grid(row=2, column=3, sticky=W)
         win.mainloop()
-    
+
     def updateInfo (self):
         win = Tk ()
         win.title ("Update Info (You must enter your previous password and in case you don't want to change any of the respective info then leave that field empty or as it is)")
@@ -255,15 +265,12 @@ class Shipper:
         Button(win, text= 'Search', command= lambda: populate (n.get(), plist)).grid(row=1, column=7, sticky=W)
         win.mainloop()
 
-
-
     def basic(self):
         ship = Tk()
         ship.title("Welcome Shipper")
         ship.protocol("WM_DELETE_WINDOW", lambda: self.on_closing (ship))
         Button(ship, text= 'Update Your Info', command= lambda: self.switchToUpdate (ship)).grid(row=3, column=0)
-        Button(ship, text= 'See Your Past Shippments Between Some Duration', command= lambda: self.switchToShipmentsDuration (ship)).grid(row=4, column=0)
-        Button(ship, text= 'See Your Latest N Shipments', command= lambda: self.switchToLatestNShipments (ship)).grid(row=5, column=0)
+        Button(ship, text= 'See Your Past Shippments', command= lambda: self.switchToShipments (ship)).grid(row=4, column=0)
         Button(ship, text= 'See Your Past Shipments in detail', command= lambda: self.switchToDetailedShipments (ship)).grid(row=6, column=0)
         Button(ship, text= 'Back to Login', command= lambda: self.switchToLogin (ship)).grid(row=7, column=0)
         ship.mainloop()
