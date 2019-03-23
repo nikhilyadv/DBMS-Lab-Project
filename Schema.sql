@@ -385,13 +385,10 @@ DELIMITER ;
 
 -- Procedure for seller to ship a sold product
 DELIMITER //
-CREATE PROCEDURE shipSoldProduct(IN gproduct_id varchar(20), IN gorder_id varchar(20), IN gseller_id varchar(20), IN gshipper_id varchar(20), IN gdate DATE)
+CREATE PROCEDURE shipSoldProduct(IN gproduct_id varchar(20), IN gorder_id varchar(20), IN gseller_id varchar(20), IN gshipper_id varchar(20), IN gtracking_id varchar(20), IN gdate DATE)
 BEGIN
   set @c = (select ship_index from product_order where seller_id = gseller_id and product_id = gproduct_id and order_id = gorder_id); 
-  update track set shipper_id = gshipper_id, date_ = gdate where index_ = @c;
-  -- insert into track (shipper_id, tracking_id, date_) values (gshipper_id, NULL, gdate);
-  -- set @c = (select index_ from track order by index_ DESC LIMIT 1);
-  -- update product_order set ship_index = @c where seller_id = gseller_id and product_id = gproduct_id and order_id = gorder_id;
+  update track set shipper_id = gshipper_id, tracking_id = gtracking_id, date_ = (select NOW()) where index_ = @c;
 END;
 //
 DELIMITER ;
@@ -660,11 +657,19 @@ DELIMITER ;
 DELIMITER //
 CREATE TRIGGER stockCheckandaddTrack BEFORE INSERT on product_order
 FOR EACH ROW BEGIN
-  UPDATE product set total_stock = total_stock- NEW.quantity WHERE product_id = NEW.product_id and seller_id = NEW.seller_id;
+  UPDATE product set total_stock = total_stock - NEW.quantity WHERE product_id = NEW.product_id and seller_id = NEW.seller_id;
   INSERT INTO track () Values ();
   SET NEW.ship_index = (SELECT MAX(index_) FROM track);
 END//
 DELIMITER ;
+
+-- -- When a product is shipped update its shipping date_
+-- DELIMITER //
+-- CREATE TRIGGER trackupdateshipdate AFTER INSERT on track 
+-- FOR EACH ROW BEGIN
+--   UPDATE track SET date_ = (select NOW()) WHERE index_ = NEW.index_;
+-- END//
+-- DELIMITER ;
 
 --#######################################
 --#########TRIGGERS END##################
@@ -703,6 +708,6 @@ INSERT INTO order_ Values ("1","Nikhil","RM-119","1");
 
 INSERT INTO product_order(product_id, order_id, seller_id, product_rating, seller_rating, ship_index, product_review, seller_review, quantity, selling_price) Values ("1","1","Sourabh",5,4,1,NULL,NULL,10, 10);
 
-UPDATE track set shipper_id = "FEDEx" where index_ = 1;
+UPDATE track set shipper_id = "FEDEx", date_ = (select NOW()) where index_ = 1;
 
 INSERT INTO cart Values ("Nikhil","1","Sourabh","2");

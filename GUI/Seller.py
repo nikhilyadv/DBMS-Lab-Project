@@ -49,14 +49,6 @@ class Seller:
         _window.destroy ()
         self.pastSellings ()
 
-    def switchToPastSellingsDuration (self, _window):
-        _window.destroy ()
-        self.pastSellingsDuration()
-    
-    def switchToLatestNSellings (self, _window):
-        _window.destroy ()
-        self.latestNSellings()
-    
     def switchToSimilarProducts (self, _window):
         _window.destroy ()
         self.seeSimilarProducts()
@@ -144,9 +136,9 @@ class Seller:
                 plist.insert ('', 'end', values = row)
 
         def selectItem(a):
-            def check(shipper_id, product_id, order_id, seller_id, date):
-                if self.db.shipperExist (shipper_id):
-                    self.db.shipSoldProduct(product_id, order_id, seller_id, shipper_id, date)
+            def check(shipper_id, tracking_id, product_id, order_id, seller_id, date):
+                if self.db.shipperExist (shipper_id) and tracking_id != "":
+                    self.db.shipSoldProduct(product_id, order_id, seller_id, shipper_id, tracking_id, date)
                     populate ()
                 else:
                     tempstr = "This shipper_id is invalid!"
@@ -155,9 +147,12 @@ class Seller:
             curItem = plist.focus()
             selectedrow = plist.item(curItem)
             shipper_id = StringVar()
+            tracking_id = StringVar()
             Label(browseWin, text = "Enter Shipper ID").grid (row = 20, column = 0, sticky = W)
             Entry(browseWin, textvariable=shipper_id).grid (row = 20, column = 1, sticky = W)
-            Button(browseWin, text= 'Ship this product with this shipper', command= lambda: check(shipper_id.get (), selectedrow['values'][0], selectedrow['values'][1], self.seller_id, datetime.date.today().strftime("%Y-%m-%d"))).grid(row=20, column = 2, sticky = W)
+            Label(browseWin, text = "Enter Tracking ID").grid (row = 20, column = 2, sticky = W)
+            Entry(browseWin, textvariable=tracking_id).grid (row = 20, column = 3, sticky = W)
+            Button(browseWin, text= 'Ship this product with this shipper', command= lambda: check(shipper_id.get(), tracking_id.get(), selectedrow['values'][0], selectedrow['values'][1], self.seller_id, datetime.date.today().strftime("%Y-%m-%d"))).grid(row=20, column = 4, sticky = W)
 
         plist.bind('<ButtonRelease-1>', selectItem)
         Button(browseWin, text= 'Search', command= populate).grid(row=0, column=0, sticky=W)

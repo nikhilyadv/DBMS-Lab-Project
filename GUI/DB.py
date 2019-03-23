@@ -236,8 +236,8 @@ class DB:
             return True
         return False
 
-    def shipSoldProduct (self, product_id, order_id, seller_id, shipper_id, date):
-        self.cur.execute ("call shipSoldProduct(\"{}\",\"{}\",\"{}\", \"{}\",\"{}\");".format(product_id, order_id, seller_id, shipper_id, date))
+    def shipSoldProduct (self, product_id, order_id, seller_id, shipper_id, tracking_id, date):
+        self.cur.execute ("call shipSoldProduct(\"{}\",\"{}\",\"{}\", \"{}\",\"{}\",\"{}\");".format(product_id, order_id, seller_id, shipper_id, tracking_id, date))
         self.conn.commit()
 
 
