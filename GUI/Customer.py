@@ -92,8 +92,35 @@ class Customer:
                     self.switchToBasic (cartwin)
             Button(purchwin, text= 'Proceed', command= lambda: checkandclose(card_number.get(), billing_address.get(), shipping_address.get())).grid(row=3, column=1, sticky=W)
             purchwin.mainloop()
+            
+        def selectItem(a):
+            curItem = plist.focus()
+            selectedrow = plist.item(curItem)
+            if(len(selectedrow['values']) > 0):
+                pid = selectedrow['values'][0]
+                sid = selectedrow['values'][2]
+                def update():
+                    temp = Tk()
+                    temp.title("Enter new quantity")
+                    Label(temp, text="Enter new quantity").grid(row=0, column=0)
+                    newn = IntVar(temp)
+                    newn.set(1)
+                    Entry(temp, textvariable=newn).grid (row = 0, column = 1)
+                    def check (n):
+                        if (n > 0):
+                            self.db.updateProductCart(pid,sid,n)
+                        temp.destroy()
+                        self.populateProductsforCart (plist)
+
+                    Button(temp, text= 'Update', command= lambda: (check(newn.get()))).grid(row=0, column=2)
+                def remove():
+                    self.db.removeProductCart(pid,sid)
+                    self.populateProductsforCart (plist)
+                Button(cartwin, text= 'Update', command= lambda: (update())).grid(row=20, column=1, sticky=W)
+                Button(cartwin, text= 'Remove Selected', command= lambda: (remove())).grid(row=20, column=2, sticky=W)
 
         Button (cartwin, text = 'Checkout cart', command = lambda: purchase ()).grid (row = 20, sticky = W, pady = 4)
+        plist.bind('<ButtonRelease-1>', selectItem)
         cartwin.mainloop ()
 
     def populateProductsforCart (self, plist):

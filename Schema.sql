@@ -228,6 +228,24 @@ END;
 //
 DELIMITER ;
 
+-- Procedure for customer to remove a product in cart 
+DELIMITER //
+CREATE PROCEDURE removeProductCart(IN pid varchar(20), IN sid varchar(20))
+BEGIN
+    delete from showCart where product_id = pid and seller_id = sid;
+END;
+//
+DELIMITER ;
+
+-- Procedure for customer to update a product in cart 
+DELIMITER //
+CREATE PROCEDURE updateProductCart(IN pid varchar(20), IN sid varchar(20), IN N INT)
+BEGIN
+    UPDATE showCart set quantity = N where product_id = pid and seller_id = sid;
+END;
+//
+DELIMITER ;
+
 -- Procedure for customer to makeorder
 DELIMITER //
 CREATE PROCEDURE makeorder(IN cnum varchar(20), IN badd varchar(20), IN cid varchar(20), IN sadd varchar(20))
@@ -603,7 +621,8 @@ GRANT EXECUTE ON PROCEDURE AmaKart.addReviewSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingProduct TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addRatingSeller TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.seePurchasesByDate TO customer;
-
+GRANT EXECUTE ON PROCEDURE AmaKart.updateProductCart TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.removeProductCart TO customer;
 
 
 GRANT EXECUTE ON PROCEDURE AmaKart.soldButNotShipped TO seller;

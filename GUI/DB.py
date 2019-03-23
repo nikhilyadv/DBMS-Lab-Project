@@ -150,6 +150,15 @@ class DB:
             self.conn.commit()
             self.loginUser (id, password, userRole)
     
+    def removeProductCart (self, pid, sid):
+        self.cur.execute ("call removeProductCart(\"{}\",\"{}\");".format(pid,sid))
+        self.conn.commit()
+        return True
+    
+    def updateProductCart (self, pid, sid, n):
+        self.cur.execute ("call updateProductCart(\"{}\",\"{}\",{});".format(pid,sid,n))
+        self.conn.commit()
+        return True
 
     ##########################################
     ############SELLER FUNCTIONS##############
