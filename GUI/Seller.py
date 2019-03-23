@@ -44,6 +44,10 @@ class Seller:
     def switchToBrowseShippers (self, _window):
         _window.destroy ()
         self.browseShippers ()
+    
+    def switchToPastSellings (self, _window):
+        _window.destroy ()
+        self.pastSellings ()
 
     def switchToPastSellingsDuration (self, _window):
         _window.destroy ()
@@ -166,7 +170,7 @@ class Seller:
 
         Label(win, text = "Rating").grid (row = 0, column = 0, sticky = W)
 
-        output = Text (win, height = 1, width = 150, wrap = WORD, bg = "white")
+        output = Text (win, height = 1, width = 10, wrap = WORD, bg = "white")
         output.grid (row = 0, column = 1, columnspan = 1000)
 
         row = self.db.sellerRating(self.seller_id)
@@ -303,61 +307,7 @@ class Seller:
         win.mainloop()
 
 
-    def latestNSellings(self):
-        win = Tk ()
-        win.title ("See latest N Sellings")
-        win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win)) 
-
-        Label(win, text = "N: (min 1)").grid (row = 0, column = 0, sticky = W)
-
-        n = IntVar ()
-        Entry(win, textvariable=n).grid (row = 0, column = 1, sticky = W)
-
-        Button (win, text = 'Switch to Login', command = lambda: self.switchToLogin (win)).grid (row = 21, sticky = W, pady = 4)
-        output = Text (win, height = 1, width = 150, wrap = WORD, bg = "white")
-        output.grid (row = 21, column = 1, columnspan = 1000)
-
-        ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
-        plist = ttk.Treeview (win, style='PViewStyle.Treeview')
-        scbVDirSel =Scrollbar(win, orient=VERTICAL, command=plist.yview)
-        scbVDirSel.grid(row=2, column=100, rowspan=50, sticky=NS, in_=win)
-        plist.configure(yscrollcommand=scbVDirSel.set) 
-
-        def populateProducts (n, plist):
-            strng = ""
-            if (n > 0):
-                rows = self.db.seeLatestNSellings(n)
-                plist.delete (*plist.get_children ())
-                plist._images = []
-                for row in rows:
-                    auximage = Image.open (requests.get(row[2], stream = True).raw)
-                    auximage.thumbnail((100, 200), Image.ANTIALIAS)
-                    auximage = ImageTk.PhotoImage (auximage)
-                    plist._images.append(auximage)
-                    plist.insert ('', 'end', values = (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8]), image = plist._images[-1])
-                strng = "Done!"
-            else:
-                strng = "Entered N is not valid!"
-
-            output.delete (0.0, END)
-            output.insert (END, strng)                    
-
-        plist['columns'] = ('pid', 'pname', 'sellerid', 'price', 'tstock', 'pickupaddress', 'description', 'rating')
-        plist.heading ('#0', text = 'Image')
-        plist.heading ('pid', text = 'Product ID')
-        plist.heading ('pname', text = 'Product Name')
-        plist.heading ('sellerid', text = 'Seller ID')
-        plist.heading ('price', text = 'Price')
-        plist.heading ('tstock', text = 'Total Stock')
-        plist.heading ('pickupaddress', text = 'Pickup Address')
-        plist.heading ('description', text = 'Description')
-        plist.heading ('rating', text = 'Rating')
-        plist.grid(row = 2, column = 0, rowspan = 18, columnspan = 100)
-        Button(win, text= 'Search', command= lambda: populateProducts (n.get(), plist)).grid(row=1, column=7, sticky=W)
-        win.mainloop()
-
-
-    def pastSellingsDuration(self):
+    def pastSellings (self):
         win = Tk ()
         win.title ("See Past Sellings")
         win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win)) 
@@ -394,14 +344,20 @@ class Seller:
         OptionMenu(win, endMonth, *month).grid(row = 1, column = 3, sticky = W)
         OptionMenu(win, endDay, *day).grid(row = 1, column = 5, sticky = W)
 
-        Button (win, text = 'Switch to Login', command = lambda: self.switchToLogin (win)).grid (row = 21, sticky = W, pady = 4)
+        Label(win, text = "N: ").grid (row = 2, column = 0, sticky = W)
+
+        n = IntVar ()
+        n.set(1)
+        Entry(win, textvariable=n).grid (row = 2, column = 1, sticky = W)
+
+        Button (win, text = 'Switch to Login', command = lambda: self.switchToLogin (win)).grid (row = 22, sticky = W, pady = 4)
         output = Text (win, height = 1, width = 150, wrap = WORD, bg = "white")
-        output.grid (row = 21, column = 1, columnspan = 1000)
+        output.grid (row = 22, column = 1, columnspan = 1000)
 
         ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
         plist = ttk.Treeview (win, style='PViewStyle.Treeview')
         scbVDirSel =Scrollbar(win, orient=VERTICAL, command=plist.yview)
-        scbVDirSel.grid(row=2, column=100, rowspan=50, sticky=NS, in_=win)
+        scbVDirSel.grid(row=3, column=100, rowspan=50, sticky=NS, in_=win)
         plist.configure(yscrollcommand=scbVDirSel.set) 
 
         def validDate(year, month, day):
@@ -432,6 +388,25 @@ class Seller:
             output.delete (0.0, END)
             output.insert (END, strng)                    
 
+        def populateProductsbyN (n, plist):
+            strng = ""
+            if (n > 0):
+                rows = self.db.seeLatestNSellings(n)
+                plist.delete (*plist.get_children ())
+                plist._images = []
+                for row in rows:
+                    auximage = Image.open (requests.get(row[2], stream = True).raw)
+                    auximage.thumbnail((100, 200), Image.ANTIALIAS)
+                    auximage = ImageTk.PhotoImage (auximage)
+                    plist._images.append(auximage)
+                    plist.insert ('', 'end', values = (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8]), image = plist._images[-1])
+                strng = "Done!"
+            else:
+                strng = "Entered N is not valid!"
+
+            output.delete (0.0, END)
+            output.insert (END, strng)                    
+
         plist['columns'] = ('pid', 'pname', 'sellerid', 'price', 'tstock', 'pickupaddress', 'description', 'rating')
         plist.heading ('#0', text = 'Image')
         plist.heading ('pid', text = 'Product ID')
@@ -442,8 +417,9 @@ class Seller:
         plist.heading ('pickupaddress', text = 'Pickup Address')
         plist.heading ('description', text = 'Description')
         plist.heading ('rating', text = 'Rating')
-        plist.grid(row = 2, column = 0, rowspan = 18, columnspan = 100)
-        Button(win, text= 'Search', command= lambda: populateProducts (startYear.get(), startMonth.get(), startDay.get(), endYear.get(), endMonth.get(), endDay.get(), plist)).grid(row=1, column=7, sticky=W)
+        plist.grid(row = 3, column = 0, rowspan = 18, columnspan = 100)
+        Button(win, text= 'Search by Date', command= lambda: populateProducts (startYear.get(), startMonth.get(), startDay.get(), endYear.get(), endMonth.get(), endDay.get(), plist)).grid(row=1, column=7, sticky=W)
+        Button(win, text= 'Search last N Sellings', command= lambda: populateProductsbyN (n.get(),plist)).grid(row=2, column=3, sticky=W)
         win.mainloop()
 
     def updateprod (self):
@@ -598,22 +574,20 @@ class Seller:
         win.mainloop()
 
 
-
-
-
     def basic(self):
         supp = Tk()
         supp.title("Welcome Supplier")
         supp.protocol("WM_DELETE_WINDOW", lambda: self.on_closing (supp))
         Button(supp, text= 'Add new products', command= lambda: self.switchToAddProduct (supp)).grid(row=1, column=0)
         Button(supp, text= 'Change existing products information', command= lambda: self.switchToUpdateProd (supp)).grid(row=2, column=0)
-        Button(supp, text= 'Update Your Info', command= lambda: self.switchToUpdate (supp)).grid(row=3, column=0)
-        Button(supp, text= 'See Your Past Sellings Between Some Duration', command= lambda: self.switchToPastSellingsDuration (supp)).grid(row=4, column=0)
-        Button(supp, text= 'See Your Latest N Sellings', command= lambda: self.switchToLatestNSellings (supp)).grid(row=5, column=0)
-        Button(supp, text= 'See Your Similar Products', command= lambda: self.switchToSimilarProducts (supp)).grid(row=6, column=0)
-        Button(supp, text= 'See Your Earnings Between Duration', command= lambda: self.switchToEarnings (supp)).grid(row=7, column=0)
-        Button(supp, text= 'Know Your Rating', command= lambda: self.switchToRating (supp)).grid(row=8, column=0)
+        Button(supp, text= 'See Your Products', command= lambda: self.switchToSimilarProducts (supp)).grid(row=3, column=0)
+        Button(supp, text= 'See Your Past Sellings', command= lambda: self.switchToPastSellings (supp)).grid(row=4, column=0)
+        # Button(supp, text= 'See Your Past Sellings Between Some Duration', command= lambda: self.switchToPastSellingsDuration (supp)).grid(row=4, column=0)
+        # Button(supp, text= 'See Your Latest N Sellings', command= lambda: self.switchToLatestNSellings (supp)).grid(row=5, column=0)
+        Button(supp, text= 'See Your Earnings Between Duration', command= lambda: self.switchToEarnings (supp)).grid(row=6, column=0)
+        Button(supp, text= 'Know Your Rating', command= lambda: self.switchToRating (supp)).grid(row=7, column=0)
         Button(supp, text= 'Browse Shippers', command= lambda: self.switchToBrowseShippers (supp)).grid(row=9, column=0)
-        Button(supp, text= 'See Products which are sold but not shipped', command= lambda: self.switchToSoldButNotShipped (supp)).grid(row=10, column=0)
+        Button(supp, text= 'See Products which are sold but not shipped', command= lambda: self.switchToSoldButNotShipped (supp)).grid(row=8, column=0)
+        Button(supp, text= 'Update Your Info', command= lambda: self.switchToUpdate (supp)).grid(row=10, column=0)
         Button(supp, text= 'Back To Login', command= lambda: self.switchToLogin (supp)).grid(row=11, column=0)
         supp.mainloop()

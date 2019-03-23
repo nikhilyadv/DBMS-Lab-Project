@@ -567,7 +567,7 @@ CREATE FUNCTION sellerStatsBetweenDate(startTime TIMESTAMP, endTime TIMESTAMP)
 RETURNS FLOAT DETERMINISTIC  
 BEGIN
     DECLARE temp FLOAT;
-    SELECT SUM(quantity*selling_price) INTO temp FROM product_order natural join payment WHERE date_ BETWEEN startTime and endTime;
+    SELECT SUM(quantity*selling_price) INTO temp FROM product_order natural join order_ natural join payment WHERE date_ BETWEEN startTime and endTime;
     RETURN temp;
 END;
 //
