@@ -215,14 +215,15 @@ class Shipper:
         win.title ("See latest N Shipments")
         win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win)) 
 
-        Label(win, text = "N: (min 1)").grid (row = 0, column = 0, sticky = W)
+        Label(win, text = "N: ").grid (row = 0, column = 0, sticky = W)
 
         n = IntVar ()
+        n.set(1)
         Entry(win, textvariable=n).grid (row = 0, column = 1, sticky = W)
 
         Button (win, text = 'Switch to Login', command = lambda: self.switchToLogin (win)).grid (row = 21, sticky = W, pady = 4)
-        output = Text (win, height = 1, width = 150, wrap = WORD, bg = "white")
-        output.grid (row = 21, column = 1, columnspan = 1000)
+        output = Text (win, height = 1, width = 50, wrap = WORD, bg = "white")
+        output.grid (row = 21, column = 3, columnspan = 1000)
 
         ttk.Style().configure('PViewStyle.Treeview', rowheight=60)
         plist = ttk.Treeview (win, style='PViewStyle.Treeview')
