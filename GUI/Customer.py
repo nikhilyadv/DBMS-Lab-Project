@@ -23,6 +23,11 @@ class Customer:
     def switchToCart (self, _window):
         _window.destroy ()
         self.Cart ()
+
+    def switchToProfile (self, _window):
+        _window.destroy()
+        self.profile()
+
     def switchToBrowse (self, _window):
         _window.destroy ()
         self.browse ()
@@ -35,6 +40,34 @@ class Customer:
     def switchToLogin (self, _window):
         _window.destroy ()
         LoginWindow.LoginWindow ()
+
+
+    def profile (self):
+        win = Tk ()
+        win.title ("Your Profile")
+        win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win))  # handle window closing
+        Label(win, text = "Username (ID)").grid (row = 2, column = 0, sticky = W)
+        Label(win, text = "Name").grid (row = 3, column = 0, sticky = W)
+        Label(win, text = "Address").grid (row = 4, column = 0, sticky = W)
+        Label(win, text = "Phone number").grid (row = 5, column = 0, sticky = W)
+        Label(win, text = "email-id").grid (row = 6, column = 0, sticky = W)
+        username = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        username.grid (row = 2, column = 1)
+        name = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        name.grid (row = 3, column = 1)
+        address = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        address.grid (row = 4, column = 1)
+        pnumber = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        pnumber.grid (row = 5, column = 1)
+        email = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        email.grid (row = 6, column = 1)
+        row = self.db.getCustomerProfile()
+        username.insert (END, row[0][0])
+        name.insert (END, row[0][1])
+        address.insert (END, row[0][2])
+        pnumber.insert (END, row[0][3])
+        email.insert (END, row[0][4])
+        win.mainloop()
 
     def basic (self):
         win = Tk ()
@@ -495,5 +528,7 @@ class Customer:
             output.delete (0.0, END)
             output.insert (END, strng)
         Button(sign, text= 'Update', command= lambda: check (prevPassText.get (), passText.get (), repPassText.get (), name.get (), add.get (), phone.get (), email.get ())).grid(row=8, sticky=W, pady=4)
-        Button (sign, text = 'Switch to Login', command = lambda: self.switchToLogin (sign)).grid (row = 9, sticky = W, pady = 4)
+
+        Button(supp, text= 'Your Profile', command= lambda: self.switchToProfile (supp)).grid(row=9, column=0)
+        Button (sign, text = 'Switch to Login', command = lambda: self.switchToLogin (sign)).grid (row = 10, sticky = W, pady = 4)
         sign.mainloop()

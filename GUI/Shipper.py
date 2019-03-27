@@ -27,6 +27,10 @@ class Shipper:
         _window.destroy()
         self.basic()
     
+    def switchToProfile (self, _window):
+        _window.destroy()
+        self.profile()
+
     def switchToUpdate (self, _window):
         _window.destroy ()
         self.updateInfo ()
@@ -39,6 +43,34 @@ class Shipper:
         _window.destroy ()
         self.detailedShipments()
     
+
+    def profile (self):
+        win = Tk ()
+        win.title ("Your Profile")
+        win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win))  # handle window closing
+        Label(win, text = "Username (ID)").grid (row = 2, column = 0, sticky = W)
+        Label(win, text = "Name").grid (row = 3, column = 0, sticky = W)
+        Label(win, text = "Address").grid (row = 4, column = 0, sticky = W)
+        Label(win, text = "Phone number").grid (row = 5, column = 0, sticky = W)
+        Label(win, text = "email-id").grid (row = 6, column = 0, sticky = W)
+        username = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        username.grid (row = 2, column = 1)
+        name = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        name.grid (row = 3, column = 1)
+        address = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        address.grid (row = 4, column = 1)
+        pnumber = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        pnumber.grid (row = 5, column = 1)
+        email = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        email.grid (row = 6, column = 1)
+        row = self.db.getShipperProfile()
+        username.insert (END, row[0][0])
+        name.insert (END, row[0][1])
+        address.insert (END, row[0][2])
+        pnumber.insert (END, row[0][3])
+        email.insert (END, row[0][4])
+        win.mainloop()
+
     def detailedShipments(self):
         win = Tk ()
         win.title ("See Detailed Shipments")
@@ -272,5 +304,6 @@ class Shipper:
         Button(ship, text= 'Update Your Info', command= lambda: self.switchToUpdate (ship)).grid(row=3, column=0)
         Button(ship, text= 'See Your Past Shippments', command= lambda: self.switchToShipments (ship)).grid(row=4, column=0)
         Button(ship, text= 'See Your Past Shipments in detail', command= lambda: self.switchToDetailedShipments (ship)).grid(row=6, column=0)
-        Button(ship, text= 'Back to Login', command= lambda: self.switchToLogin (ship)).grid(row=7, column=0)
+        Button(supp, text= 'Your Profile', command= lambda: self.switchToProfile (supp)).grid(row=7, column=0)
+        Button(ship, text= 'Back to Login', command= lambda: self.switchToLogin (ship)).grid(row=8, column=0)
         ship.mainloop()
