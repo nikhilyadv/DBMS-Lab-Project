@@ -384,82 +384,16 @@ DELIMITER ;
 \section{Functions And Procedures}
 Below you can see details description and implementation of various Procedures and Functions
 
-
+\subsection{Customer Procedures}
 \begin{enumerate}
-  \item 
+  \item Procedure to see purchases between some duration, "seePurchasesByDate(IN startTime TIMESTAMP, IN endTime TIMESTAMP)" -> Will return complete details from order, payment, product and product\_order table.
+  \item Procedure to see items in cart, "getProductsFromCart ()" -> which selects everything from view "showCart".
+  \item Procedure for customer to checkout items present in cart, "purchaseEverythingInCart(IN oid varchar(20))" -> which takes in order id and then for each product present in cart, will add the corresponding entry to product\_order table.
+  \item Procedure for customer to remove product from cart, "removeProductCart(IN pid varchar(20), IN sid varchar(20))" -> which takes in that products product\_id and seller\_id and thus delete such product from cart (deletion is performed using view showCart).
+  \item Procedure for customer to update a product in cart (i.e. change quantity of the chosen product), "CREATE PROCEDURE updateProductCart(IN pid varchar(20), IN sid varchar(20), IN N INT)".
+  \item Procedure for customer to make an order, "makeorder(IN cnum varchar(20), IN badd varchar(20), IN cid varchar(20), IN sadd varchar(20))" which takes a credit card number, "cnum", billing address, "badd", customer ID, "cid" and a shipping address, "sadd" and first adds an entry into payment table by selecting date using "NOW()" function and then since payment table had payment\_id which was set to automatic increment 
 \end{enumerate}
 \begin{minted}{SQL}
-  -- #########################################
-  -- ###########CUSTOMER PROCEDURES###########
-  -- #########################################
-  
-  -- Procedure for customer to see his or her past purchases within a specific time duration
-  DELIMITER //
-  CREATE PROCEDURE seePurchasesBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
-  BEGIN
-      select * from payment natural join order_ natural join product_order where CONCAT(order_.customer_id, "@localhost") IN (SELECT user()) AND payment.date_ BETWEEN startTime AND endTime;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure for customer to see his or her cart
-  DELIMITER //
-  CREATE PROCEDURE getProductsFromCart ()
-  BEGIN
-      select * from showCart natural join product;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure for customer to checkout his cart
-  DELIMITER //
-  CREATE PROCEDURE purchaseEverthingInCart(IN oid varchar(20)) 
-  BEGIN
-      DECLARE n int default 0;
-      DECLARE i int default 0;
-      DECLARE pid varchar(20);
-      DECLARE sid varchar(20);
-      DECLARE q int;
-      DECLARE price FLOAT;
-      select count(*) from showCart into n;
-      SET i = 0;
-      WHILE i < n DO 
-        select product_id from showCart limit i,1 into pid; 
-        select seller_id from showCart limit i,1 into sid; 
-        select quantity from showCart limit i,1 into q; 
-        IF (q > all (SELECT total_stock from product where product_id = pid and seller_id = sid)) THEN
-            SELECT total_stock from product where product_id = pid and seller_id = sid into q;
-        END IF;
-        select price from product where product_id = pid and seller_id = sid into price;
-        INSERT INTO product_order(product_id,order_id,seller_id,quantity,selling_price) VALUES (pid,oid,sid,q,price);
-        SET i = i + 1;
-      END WHILE;
-      SET i = 0;
-      WHILE i < n DO
-        DELETE from showCart where product_id = pid and seller_id = sid;
-        SET i = i + 1;
-      END WHILE;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure for customer to remove a product in cart 
-  DELIMITER //
-  CREATE PROCEDURE removeProductCart(IN pid varchar(20), IN sid varchar(20))
-  BEGIN
-      delete from showCart where product_id = pid and seller_id = sid;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure for customer to update a product in cart 
-  DELIMITER //
-  CREATE PROCEDURE updateProductCart(IN pid varchar(20), IN sid varchar(20), IN N INT)
-  BEGIN
-      UPDATE showCart set quantity = N where product_id = pid and seller_id = sid;
-  END;
-  //
-  DELIMITER ;
   
   -- Procedure for customer to makeorder
   DELIMITER //
