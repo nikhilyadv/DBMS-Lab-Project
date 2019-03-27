@@ -134,16 +134,24 @@ class Seller:
             plist.delete (*plist.get_children ())
             for row in rows:
                 plist.insert ('', 'end', values = row)
+        def fine (x):
+            if (len (x) > 0):
+                return True
+            return False
 
         def selectItem(a):
             def check(shipper_id, tracking_id, product_id, order_id, seller_id, date):
-                if self.db.shipperExist (shipper_id) and tracking_id != "":
-                    self.db.shipSoldProduct(product_id, order_id, seller_id, shipper_id, tracking_id, date)
-                    populate ()
+                tempstr = "previous update successfully done!"
+                if (fine(tracking_id) and fine (shipper_id)):
+                    if self.db.shipperExist (shipper_id):
+                        self.db.shipSoldProduct(product_id, order_id, seller_id, shipper_id, tracking_id, date)
+                        populate ()
+                    else:
+                        tempstr = "This shipper_id is invalid!"
                 else:
-                    tempstr = "This shipper_id is invalid!"
-                    output.delete (0.0, END)
-                    output.insert (END, tempstr)
+                    tempstr = "You haven't entered both fields!"
+                output.delete (0.0, END)
+                output.insert (END, tempstr)
             curItem = plist.focus()
             selectedrow = plist.item(curItem)
             shipper_id = StringVar()
@@ -241,7 +249,7 @@ class Seller:
 
     def seeSimilarProducts (self):
         win = Tk ()
-        win.title ("See Products Similar To Yours")
+        win.title ("Browse your product listings")
         win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win)) 
 
         Label(win, text = "Product Name").grid (row = 0, column = 0, sticky = W)
