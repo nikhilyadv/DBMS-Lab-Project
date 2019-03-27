@@ -268,7 +268,7 @@ END;
 //
 DELIMITER ;
 
--- Procedure to return the total earning of a seller between supplied dates
+-- Procedure to add product to cart.
 DELIMITER //
 CREATE PROCEDURE addProductToCart(IN cid varchar(20),IN pid varchar(20),IN sid varchar(20),IN q int)
 BEGIN

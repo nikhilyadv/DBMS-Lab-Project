@@ -386,154 +386,25 @@ Below you can see details description and implementation of various Procedures a
 
 \subsection{Customer Procedures}
 \begin{enumerate}
-  \item Procedure to see purchases between some duration, "seePurchasesByDate(IN startTime TIMESTAMP, IN endTime TIMESTAMP)" -> Will return complete details from order, payment, product and product\_order table.
-  \item Procedure to see items in cart, "getProductsFromCart ()" -> which selects everything from view "showCart".
-  \item Procedure for customer to checkout items present in cart, "purchaseEverythingInCart(IN oid varchar(20))" -> which takes in order id and then for each product present in cart, will add the corresponding entry to product\_order table.
-  \item Procedure for customer to remove product from cart, "removeProductCart(IN pid varchar(20), IN sid varchar(20))" -> which takes in that products product\_id and seller\_id and thus delete such product from cart (deletion is performed using view showCart).
+  \item Procedure to see purchases between some duration, "seePurchasesByDate(IN startTime TIMESTAMP, IN endTime TIMESTAMP)" -$>$ Will return complete details from order, payment, product and product\_order table.
+  \item Procedure to see items in cart, "getProductsFromCart ()" -$>$ which selects everything from view "showCart".
+  \item Procedure for customer to checkout items present in cart, "purchaseEverythingInCart(IN oid varchar(20))" -$>$ which takes in order id and then for each product present in cart, will add the corresponding entry to product\_order table.
+  \item Procedure for customer to remove product from cart, "removeProductCart(IN pid varchar(20), IN sid varchar(20))" -$>$ which takes in that products product\_id and seller\_id and thus delete such product from cart (deletion is performed using view showCart).
   \item Procedure for customer to update a product in cart (i.e. change quantity of the chosen product), "CREATE PROCEDURE updateProductCart(IN pid varchar(20), IN sid varchar(20), IN N INT)".
-  \item Procedure for customer to make an order, "makeorder(IN cnum varchar(20), IN badd varchar(20), IN cid varchar(20), IN sadd varchar(20))" which takes a credit card number, "cnum", billing address, "badd", customer ID, "cid" and a shipping address, "sadd" and first adds an entry into payment table by selecting date using "NOW()" function and then since payment table had payment\_id which was set to automatic increment 
+  \item Procedure for customer to make an order, "makeorder(IN cnum varchar(20), IN badd varchar(20), IN cid varchar(20), IN sadd varchar(20))" which takes a credit card number, "cnum", billing address, "badd", customer ID, "cid" and a shipping address, "sadd" and first adds an entry into payment table by selecting date using "NOW()" function and then since payment table had payment\_id which was set to automatic increment so we after fetching it insert the corresponding entries into order\_ table and then again by fetching order\_id as it was auto increment, we call already discussed procedure, "purchaseEverthingInCart".
+  \item Procedure to add product to cart, "addProductToCart(IN cid varchar(20), IN pid varchar(20), IN sid varchar(20), IN q int)" which will decide whether to update the quantity if the product is already there in cart, or to add this new record into our cart.
+  \item Procedure to see latest N purchases, "seeLatestNPurchases(IN N INT)" which takes in N and then gives rows corresponding to payment, order\_, product\_order, product, table and track (by taking join) ordered decreasingly by payment date.
+  \item Procedure to see Purchases between dates, "seePurchasesByDate(IN startTime TIMESTAMP, IN endTime TIMESTAMP)" -$>$ works same as before just that it gives entries between the given time.
+  \item Procedure to see products within price range, "queryProductsTim(IN productName varchar(20), IN lowRange FLOAT, IN highRange FLOAT)" -$>$ which after receiving suitable parameters, return entries from product sorted by price between the given range.
+  \item Procedure to see reviews of a given product, "ProductReviews(IN pid varchar(20), IN sid varchar(20))" -$>$ will fetch ratings and reviews of the given product from product\_order, etc.
+  \item Procedure to add review for a product, "addReviewProduct(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rev varchar(60))" -$>$ as only those who have purchased successfully the product can add reviews, we need order ID for verification.
+  \item Procedure to add review for a seller, "addReviewSeller(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rev varchar(60))" -$>$ again we need order ID for verification. 
+  \item Procedure to add rating for product, "addRatingProduct(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rating INT)".
+  \item Procedure to add rating for seller, "addRatingSeller(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rating INT)".
+  \item Procedure to see products sorted by rating, "queryProductsRat(IN productName varchar(20))".
+  \item Procedure to update customer info, custUpdateInfo(IN customer\_id varchar(20), IN password VARCHAR(20), IN name varchar(20), IN address VARCHAR(60), IN phone\_number DECIMAL(10) UNSIGNED, IN email\_id VARCHAR(20)).
 \end{enumerate}
 \begin{minted}{SQL}
-  
-  -- Procedure for customer to makeorder
-  DELIMITER //
-  CREATE PROCEDURE makeorder(IN cnum varchar(20), IN badd varchar(20), IN cid varchar(20), IN sadd varchar(20))
-  BEGIN
-      DECLARE curr_time TIMESTAMP;
-      DECLARE payid INT;
-      DECLARE oid INT;
-      set curr_time = NOW();
-      INSERT INTO payment(credit_card_number,date_,billing_address) values (cnum,curr_time,badd);
-      SELECT payment_id from payment where credit_card_number = cnum and date_ = curr_time and billing_address = badd order by payment_id desc into payid;
-      INSERT INTO order_ (customer_id,payment_id,shipping_address) VALUES (cid,payid,sadd);
-      SELECT order_id from order_ where customer_id = cid and payment_id = payid and shipping_address = sadd order by order_id desc into oid;
-      call purchaseEverthingInCart(oid);
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to return the total earning of a seller between supplied dates
-  DELIMITER //
-  CREATE PROCEDURE addProductToCart(IN cid varchar(20),IN pid varchar(20),IN sid varchar(20),IN q int)
-  BEGIN
-      IF ((SELECT count(*) from showCart where product_id = pid and seller_id = sid) = 1) THEN
-        UPDATE showCart set quantity = q where product_id = pid and seller_id = sid; 
-      ELSE
-        INSERT INTO showCart VALUES (cid,pid,sid,q);
-      END IF;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to see latest N Purchases
-  DELIMITER //
-  CREATE PROCEDURE seeLatestNPurchases(IN N INT)
-  BEGIN
-      select * from payment natural join order_ natural join product_order natural join product join track on (product_order.ship_index = track.index_) where CONCAT(order_.customer_id, "@localhost") IN (SELECT user()) ORDER BY payment.date_ DESC LIMIT N;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to see Purchases between dates
-  DELIMITER //
-  CREATE PROCEDURE seePurchasesByDate(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
-  BEGIN
-      select * from payment natural join order_ natural join product_order natural join product join track on (product_order.ship_index = track.index_) where CONCAT(order_.customer_id, "@localhost") IN (SELECT user()) and payment.date_ BETWEEN startTime AND endTime;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to see products within price range
-  DELIMITER //
-  CREATE PROCEDURE queryProductsTim(IN productName varchar(20), IN lowRange FLOAT, IN highRange FLOAT)
-  BEGIN
-      select * from product where product_name like CONCAT('%', productName, '%') AND price BETWEEN lowRange AND highRange ORDER BY price ASC;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to see reviews of a product
-  DELIMITER //
-  CREATE PROCEDURE ProductReviews(IN pid varchar(20), IN sid varchar(20))
-  BEGIN
-      SELECT name, product_rating, product_review, seller_rating, seller_review FROM (product_order natural join order_ natural join customer natural join payment) WHERE product_id = pid AND seller_id = sid;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to add review for a product
-  DELIMITER //
-  CREATE PROCEDURE addReviewProduct(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rev varchar(60))
-  BEGIN
-      UPDATE product_order SET product_review = rev WHERE product_id = pid and order_id = oid and seller_id = sid;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to add review for a seller 
-  DELIMITER //
-  CREATE PROCEDURE addReviewSeller(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rev varchar(60))
-  BEGIN
-      UPDATE product_order SET seller_review = rev WHERE product_id = pid and order_id = oid and seller_id = sid;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to see products sorted by rating
-  DELIMITER //
-  CREATE PROCEDURE queryProductsRat(IN productName varchar(20))
-  BEGIN
-      select * from product where product_name like CONCAT('%', productName, '%') ORDER BY rating DESC;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to add rating for product
-  DELIMITER //
-  CREATE PROCEDURE addRatingProduct(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rating INT)
-  BEGIN
-      IF (rating IN (1,2,3,4,5)) THEN
-        UPDATE product_order SET product_rating =  rating WHERE product_id = pid and order_id = oid and seller_id = sid;
-      END IF;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to add rating for seller
-  DELIMITER //
-  CREATE PROCEDURE addRatingSeller(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rating INT)
-  BEGIN
-      IF (rating IN (1,2,3,4,5)) THEN
-        UPDATE product_order SET seller_rating = rating WHERE product_id = pid and order_id = oid and seller_id = sid;
-      END IF;
-  END;
-  //
-  DELIMITER ;
-  
-  
-  -- Procedure to update customer info
-  DELIMITER //
-  CREATE PROCEDURE custUpdateInfo(IN customer_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone_number DECIMAL(10) UNSIGNED, IN email_id VARCHAR(20))
-  BEGIN
-      IF (CHAR_LENGTH(passwordd) > 0) THEN
-        UPDATE Users SET Users.passcode = passwordd WHERE Users.username = customer_id;
-      END IF;
-      IF (CHAR_LENGTH(named) > 0) THEN
-        UPDATE customer SET customer.name = named WHERE customer.customer_id = customer_id;
-      END IF;
-      IF (CHAR_LENGTH(addressd) > 0) THEN
-        UPDATE customer SET customer.address = addressd WHERE customer.customer_id = customer_id;
-      END IF;
-      IF (phone_number <> 0) THEN
-        UPDATE customer SET customer.phone_number = phone_number WHERE customer.customer_id = customer_id;
-      END IF;
-      IF (CHAR_LENGTH(email_id) > 0) THEN
-        UPDATE customer SET customer.email_id = email_id WHERE customer.customer_id = customer_id;
-      END IF;
-  END;
-  //
-  DELIMITER ;
-  
   -- #########################################
   -- ###########SELLER PROCEDURES#############
   -- #########################################
