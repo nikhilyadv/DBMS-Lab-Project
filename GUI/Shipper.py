@@ -304,6 +304,6 @@ class Shipper:
         Button(ship, text= 'Update Your Info', command= lambda: self.switchToUpdate (ship)).grid(row=3, column=0)
         Button(ship, text= 'See Your Past Shippments', command= lambda: self.switchToShipments (ship)).grid(row=4, column=0)
         Button(ship, text= 'See Your Past Shipments in detail', command= lambda: self.switchToDetailedShipments (ship)).grid(row=6, column=0)
-        Button(supp, text= 'Your Profile', command= lambda: self.switchToProfile (supp)).grid(row=7, column=0)
+        Button(ship, text= 'Your Profile', command= lambda: self.switchToProfile (ship)).grid(row=7, column=0)
         Button(ship, text= 'Back to Login', command= lambda: self.switchToLogin (ship)).grid(row=8, column=0)
         ship.mainloop()

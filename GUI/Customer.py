@@ -77,7 +77,8 @@ class Customer:
         Button(win, text= 'Browse Products', command= lambda: self.switchToBrowse (win)).grid(row=2, column=0)
         Button (win, text = 'Previous Orders', command = lambda : self.switchToPreviousOrders (win)).grid (row=3, column=0)
         Button(win, text= 'Update your info', command= lambda: self.switchToUpdate (win)).grid(row=4, column=0)
-        Button (win, text = 'Back to Login', command = lambda : self.switchToLogin (win)).grid (row=5, column=0)
+        Button(win, text= 'Your Profile', command= lambda: self.switchToProfile (win)).grid(row=5, column=0)
+        Button (win, text = 'Back to Login', command = lambda : self.switchToLogin (win)).grid (row=6, column=0)
         win.mainloop ()
 
     def Cart (self):
@@ -529,6 +530,5 @@ class Customer:
             output.insert (END, strng)
         Button(sign, text= 'Update', command= lambda: check (prevPassText.get (), passText.get (), repPassText.get (), name.get (), add.get (), phone.get (), email.get ())).grid(row=8, sticky=W, pady=4)
 
-        Button(supp, text= 'Your Profile', command= lambda: self.switchToProfile (supp)).grid(row=9, column=0)
         Button (sign, text = 'Switch to Login', command = lambda: self.switchToLogin (sign)).grid (row = 10, sticky = W, pady = 4)
         sign.mainloop()
