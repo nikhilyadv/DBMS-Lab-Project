@@ -56,11 +56,11 @@ For detailed look at the different phases of our project, please refer \href{htt
 \section{Introduction}
 In this project, our aim was to come up with a reasonably scalable database along with basic GUI for E-Commerce purpose.
 
-We started by listing down various requirements presented in the next section. After that we proceeed on builing an ER Diagram to fullfil the same. After that it was time to implement all this in SQL. In due time, we managed to put various important features provided by almost all E-Commerce site in our project. 
+We started by listing down various requirements presented in the next section. After that we proceed on building an ER Diagram to fullfil the same. After that it was time to implement all this in SQL. In due time, we managed to put various important features provided by almost all E-Commerce site in our project. 
 
 So the following report touches on each of these aspects in brief and sequential manner. 
 
-\subsection{Requirements}
+\section{Requirements}
 Following is the list of requirements.
 \begin{enumerate}
   \item Idea of roles. Model should have role for each of Customer, Seller and Shipper. Each user is thus assigned its role.
@@ -105,12 +105,13 @@ Following is the list of requirements.
 \end{enumerate}
 
 \section{Entity Relation Diagram}
-Entity Relation Diagram can be represented in various notations, below shows the notation which we have followed.
+\subsection{Enhanced ERD}
+Enhanced Entity Relation Diagram can be represented in various notations, below shows the notation which we have followed.
 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{ERDNotation} 
+    \iph{0.5}{ERDNotation}
     \caption{Entity Relation Diagram Notation}
 \end{figure}
 
@@ -122,7 +123,8 @@ Following this notation, our ERD is represented below.
     \caption{Entity Relationship Diagram for e-commerce}
 \end{figure}
 
-
+\subsection{Simple ERD}
+TODO
 \section{Database Schema And Normalization}
 In this section we describe various aspects of our schema and also mention that it is indeed normalized (BCNF).
 
@@ -248,76 +250,31 @@ create table Users (
 \end{itemize}
 \newpage
 \section{Roles, Triggers, Views}
-\subsection{Views}
-\begin{minted}{SQL}
-  -- #########################################
--- ###########CUSTOMER VIEWS################
--- #########################################
-
--- This view will allow customer to view its details.
-CREATE VIEW customer_add AS (SELECT * 
-                             FROM customer 
-                             WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
-
--- This view will allow customer to see the total cost of his/her various orders
-CREATE VIEW orderPrice AS (SELECT order_id, sum(selling_price * quantity) as total_price
-                           FROM (product_order)
-                           GROUP BY order_id); 
-
--- This view will tell the customer details corresponding to his/her all order_id mentioning complete order details (order_id, shipping_address, date_, total_price) except the products in that order. 
-CREATE VIEW previousOrders AS (SELECT T1.order_id, T1.shipping_address, T2.date_, T3.total_price
-                               FROM (order_ as T1) NATURAL JOIN (payment as T2) NATURAL JOIN (orderPrice as T3)
-                               WHERE CONCAT(T1.customer_id, "@localhost") IN (SELECT user()));
-
--- This view will allow customer to just see his various order_id. 
-CREATE VIEW listOrders AS (SELECT order_id
-                            FROM order_ 
-                            WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
-
--- This view will give entry to the track table for each (product_id, order_id) pair
-CREATE VIEW trackID AS (SELECT order_id, product_id, ship_index
-                        FROM product_order
-                        WHERE order_id IN (SELECT * FROM listOrders));
-
--- This view will augment the previous view with tracking_id as well.
-CREATE VIEW packageStatus AS (SELECT T1.order_id, T1.product_id, T1.ship_index, T2.tracking_id
-                              FROM (trackID as T1) JOIN (track as T2) ON (T1.ship_index = T2.index_));
-
-
--- #########################################
--- ###########SELLER VIEWS##################
--- #########################################
-
--- This view will allow seller to see his/her various products.
-CREATE VIEW sellerProducts AS (SELECT product_id, product_name, price, total_stock, pickup_address, description 
-                                  FROM product
-                                  WHERE CONCAT(seller_id, "@localhost") in (SELECT user()));
-
--- This view allow seller to see various orders which he or she have sold (seller_id, product_id, quantity, selling_price, date_) 
-CREATE VIEW sellerOrders AS (SELECT T1.seller_id, T1.product_id, T1.quantity, T1.selling_price, T2.date_
-                                FROM (product_order as T1) natural join (payment as T2)
-                                WHERE CONCAT(T1.seller_id, "@localhost") in (SELECT user()));
-
--- #########################################
--- ###########SHIPPER VIEWS#################
--- #########################################
-
--- This view will allow shipper details (pickup_address, shipping_address, tracking_id)
-CREATE VIEW shipperTrack AS (SELECT index_, pickup_address AS source, shipping_address AS destination, tracking_id
-                              FROM (track JOIN product_order ON index_ = ship_index) NATURAL JOIN order_ NATURAL JOIN product 
-                              WHERE CONCAT(shipper_id, "@localhost") = (SELECT user()));
-\end{minted}
-
 \subsection{Roles}
-Basically we have three roles.
-
-\begin{itemize}
-    \item A role for database administrator.
-    \item A role for customer.
-    \item A role for supplier.
-    \item A role for shipper.
-\end{itemize}
-
+As mentioned before, we have three roles, viz., Customer, Seller and Shipper. And of course above them all we have database administrator, "root", viz. "dbadmin". Each role will be able to access views, functions, procedures written for it and granted to it.
+\subsection{Views}
+Almost all what we wanted to achieve was possible with the help of procedures, views, thus have little to offer but still we are listing here all the views that we wrote irrespective of whether they are actually part of our GUI.
+\subsubsection{Customer Views}
+\begin{enumerate}
+  \item View that will allow customer to view its profile, "customerProfile".
+  \item View that will allow customer to see the total cost of his/her various orders, i.e. total money spent on the platform till date, "orderPrice". 
+  \item View that will allow customer to see and add products to his cart, "showCart".
+  \item View that will tell the customer details corresponding to his/her all order\_id mentioning complete order details (order\_id, shipping\_address, date\_, total\_price) except the products in that order, "previousOrders". 
+  \item View that will allow customer to just see his various order\_id, "listOrders". 
+  \item View that will give us shipment index (ship\_index), order ID, product ID from product\_order relation corresponding to our orders, "trackID".
+  \item View that will augment the above view with tracking ID as well, "packageStatus".
+\end{enumerate}
+\subsubsection{Seller Views}
+\begin{enumerate}
+  \item View that will allow seller to view its details, "sellerProfile".
+  \item View that will allow seller to see his/her various products, "sellerProducts".
+  \item View that will allow seller to see various orders which he or she have sold (seller\_id, product\_id, quantity, selling\_price, date\_), "sellerOrders".
+\end{enumerate}
+\subsubsection{Shipper Views}
+\begin{enumerate}
+  \item View that will allow shipper to view its details, "shipperProfile".
+  \item View that will allow shipping details (pickup\_address, shipping\_address, tracking\_id), "shipperTrack".
+\end{enumerate}
 And their details is best understood with the help of the following code:
 \begin{minted}{SQL}
   CREATE ROLE dbadmin;

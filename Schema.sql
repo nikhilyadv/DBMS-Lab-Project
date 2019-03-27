@@ -144,7 +144,8 @@ CREATE VIEW listOrders AS (SELECT order_id
                             FROM order_ 
                             WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
 
--- This view will give entry to the track table for each (product_id, order_id) pair
+
+-- View that will give us shipment index (ship\_index), order ID, product ID from product\_order relation corresponding to our orders.
 CREATE VIEW trackID AS (SELECT order_id, product_id, ship_index
                         FROM product_order
                         WHERE order_id IN (SELECT * FROM listOrders));
