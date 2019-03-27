@@ -382,7 +382,7 @@ DELIMITER ;
 
 \newpage
 \section{Functions And Procedures}
-Below you can see details description and implementation of various Procedures and Functions
+Below you can see details description and implementation of various Procedures and Functions, due to the nature of operations mentioned in our requirements we have preferred procedures in most cases over functions, thus if we have used function, we explicitly mention it.
 
 \subsection{Customer Procedures}
 \begin{enumerate}
@@ -406,6 +406,7 @@ Below you can see details description and implementation of various Procedures a
 \end{enumerate}
 \subsection{Seller Procedures}
 \begin{enumerate}
+  \item \textbf{Seller Function: }Function to return the total earning of a seller between supplied dates, "sellerStatsBetweenDate(startTime TIMESTAMP, endTime TIMESTAMP)".
   \item Procedure for seller to see sold but not shipped products, soldButNotShipped(IN seller\_id varchar(20)) -$>$ fetches entries from product\_order table which have corresponding shipper\_id NULL.
   \item Procedure for seller to ship a sold product, "shipSoldProduct(IN gproduct\_id varchar(20), IN gorder\_id varchar(20), IN gseller\_id varchar(20), IN gshipper\_id varchar(20), IN gtracking\_id varchar(20), IN gdate DATE)" -$>$ will ship the product (update shipper\_id and tracking\_id in track table) by taking relevant input.
   \item Procedure for seller to see his rating, "getRating(IN seller\_id varchar(20))".
@@ -418,70 +419,12 @@ Below you can see details description and implementation of various Procedures a
   \item Procedure to see seller's already listed similar products with increasing price, "selQuerySimProducts(IN productName varchar(20))".
   \item Procedure to see seller's similar products sorted by rating, "selQueryProductsRat(IN productName varchar(20))".
 \end{enumerate}
-\begin{minted}{SQL}
-  -- #########################################
-  -- ###########SHIPPER PROCEDURES############
-  -- #########################################
-  
-  
-  
-  -- Procedure to update shipper's info
-  DELIMITER //
-  CREATE PROCEDURE shipperUpdateInfo(IN shipper_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone_number DECIMAL(10) UNSIGNED, IN email_id VARCHAR(20))
-  BEGIN
-      IF (CHAR_LENGTH(passwordd) > 0) THEN
-        UPDATE Users SET Users.passcode = passwordd WHERE Users.username = shipper_id;
-      END IF;
-      IF (CHAR_LENGTH(named) > 0) THEN
-        UPDATE shipper SET shipper.name = named WHERE shipper.shipper_id = shipper_id;
-      END IF;
-      IF (CHAR_LENGTH(addressd) > 0) THEN
-        UPDATE shipper SET shipper.head_quarters = addressd WHERE shipper.shipper_id = shipper_id;
-      END IF;
-      IF (phone_number <> 0) THEN
-        UPDATE shipper SET shipper.phone_number = phone_number WHERE shipper.shipper_id = shipper_id;
-      END IF;
-      IF (CHAR_LENGTH(email_id) > 0) THEN
-        UPDATE shipper SET shipper.email_id = email_id WHERE shipper.shipper_id = shipper_id;
-      END IF;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure for shipper to see his or her past shipments within a specific time duration
-  DELIMITER //
-  CREATE PROCEDURE seeShipmentsBetweenDuration(IN startTime DATE, IN endTime DATE)
-  BEGIN
-      select * from track where CONCAT(shipper_id, "@localhost") IN (SELECT user()) AND date_ BETWEEN startTime AND endTime;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to see latest N Shipments
-  DELIMITER //
-  CREATE PROCEDURE seeLatestNShipments(IN N INT)
-  BEGIN
-      select * from track where CONCAT(shipper_id, "@localhost") IN (SELECT user()) ORDER BY date_ DESC LIMIT N;
-  END;
-  //
-  DELIMITER ;
-  
-  -- #########################################
-  -- ################FUNCTIONS################
-  -- #########################################
-  
-  -- Function to return the total earning of a seller between supplied dates
-  DELIMITER //
-  CREATE FUNCTION sellerStatsBetweenDate(startTime TIMESTAMP, endTime TIMESTAMP)
-  RETURNS FLOAT DETERMINISTIC  
-  BEGIN
-      DECLARE temp FLOAT;
-      SELECT SUM(quantity*selling_price) INTO temp FROM product_order natural join order_ natural join payment WHERE date_ BETWEEN startTime and endTime;
-      RETURN temp;
-  END;
-  //
-  DELIMITER ;  
-\end{minted}
+\subsection{Shipper Procedures}
+\begin{enumerate}
+  \item Procedure to update shipper's info, "shipperUpdateInfo(IN shipper\_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone\_number DECIMAL(10) UNSIGNED, IN email\_id VARCHAR(20))" -$>$ works in the same way as other user's update info.
+  \item Procedure for shipper to see his or her past shipments within a specific time duration, "seeShipmentsBetweenDuration(IN startTime DATE, IN endTime DATE)" -$>$ fetches targeted entries from track table.
+  \item Procedure to see latest N Shipments, "seeLatestNShipments(IN N INT)" -$>$ fetched targeted entries from track table.
+\end{enumerate}
 \section{Use Cases}
 Lets for this case assume that we a supplier. We first want to register and then add products to sell.
 \begin{figure}[H]
