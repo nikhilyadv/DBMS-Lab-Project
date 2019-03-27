@@ -383,6 +383,11 @@ DELIMITER ;
 \newpage
 \section{Functions And Procedures}
 Below you can see details description and implementation of various Procedures and Functions
+
+
+\begin{enumerate}
+  \item 
+\end{enumerate}
 \begin{minted}{SQL}
   -- #########################################
   -- ###########CUSTOMER PROCEDURES###########
@@ -397,11 +402,109 @@ Below you can see details description and implementation of various Procedures a
   //
   DELIMITER ;
   
+  -- Procedure for customer to see his or her cart
+  DELIMITER //
+  CREATE PROCEDURE getProductsFromCart ()
+  BEGIN
+      select * from showCart natural join product;
+  END;
+  //
+  DELIMITER ;
+  
+  -- Procedure for customer to checkout his cart
+  DELIMITER //
+  CREATE PROCEDURE purchaseEverthingInCart(IN oid varchar(20)) 
+  BEGIN
+      DECLARE n int default 0;
+      DECLARE i int default 0;
+      DECLARE pid varchar(20);
+      DECLARE sid varchar(20);
+      DECLARE q int;
+      DECLARE price FLOAT;
+      select count(*) from showCart into n;
+      SET i = 0;
+      WHILE i < n DO 
+        select product_id from showCart limit i,1 into pid; 
+        select seller_id from showCart limit i,1 into sid; 
+        select quantity from showCart limit i,1 into q; 
+        IF (q > all (SELECT total_stock from product where product_id = pid and seller_id = sid)) THEN
+            SELECT total_stock from product where product_id = pid and seller_id = sid into q;
+        END IF;
+        select price from product where product_id = pid and seller_id = sid into price;
+        INSERT INTO product_order(product_id,order_id,seller_id,quantity,selling_price) VALUES (pid,oid,sid,q,price);
+        SET i = i + 1;
+      END WHILE;
+      SET i = 0;
+      WHILE i < n DO
+        DELETE from showCart where product_id = pid and seller_id = sid;
+        SET i = i + 1;
+      END WHILE;
+  END;
+  //
+  DELIMITER ;
+  
+  -- Procedure for customer to remove a product in cart 
+  DELIMITER //
+  CREATE PROCEDURE removeProductCart(IN pid varchar(20), IN sid varchar(20))
+  BEGIN
+      delete from showCart where product_id = pid and seller_id = sid;
+  END;
+  //
+  DELIMITER ;
+  
+  -- Procedure for customer to update a product in cart 
+  DELIMITER //
+  CREATE PROCEDURE updateProductCart(IN pid varchar(20), IN sid varchar(20), IN N INT)
+  BEGIN
+      UPDATE showCart set quantity = N where product_id = pid and seller_id = sid;
+  END;
+  //
+  DELIMITER ;
+  
+  -- Procedure for customer to makeorder
+  DELIMITER //
+  CREATE PROCEDURE makeorder(IN cnum varchar(20), IN badd varchar(20), IN cid varchar(20), IN sadd varchar(20))
+  BEGIN
+      DECLARE curr_time TIMESTAMP;
+      DECLARE payid INT;
+      DECLARE oid INT;
+      set curr_time = NOW();
+      INSERT INTO payment(credit_card_number,date_,billing_address) values (cnum,curr_time,badd);
+      SELECT payment_id from payment where credit_card_number = cnum and date_ = curr_time and billing_address = badd order by payment_id desc into payid;
+      INSERT INTO order_ (customer_id,payment_id,shipping_address) VALUES (cid,payid,sadd);
+      SELECT order_id from order_ where customer_id = cid and payment_id = payid and shipping_address = sadd order by order_id desc into oid;
+      call purchaseEverthingInCart(oid);
+  END;
+  //
+  DELIMITER ;
+  
+  -- Procedure to return the total earning of a seller between supplied dates
+  DELIMITER //
+  CREATE PROCEDURE addProductToCart(IN cid varchar(20),IN pid varchar(20),IN sid varchar(20),IN q int)
+  BEGIN
+      IF ((SELECT count(*) from showCart where product_id = pid and seller_id = sid) = 1) THEN
+        UPDATE showCart set quantity = q where product_id = pid and seller_id = sid; 
+      ELSE
+        INSERT INTO showCart VALUES (cid,pid,sid,q);
+      END IF;
+  END;
+  //
+  DELIMITER ;
+  
   -- Procedure to see latest N Purchases
   DELIMITER //
   CREATE PROCEDURE seeLatestNPurchases(IN N INT)
   BEGIN
-      select * from payment natural join order_ natural join product_order where CONCAT(order_.customer_id, "@localhost") IN (SELECT user()) ORDER BY payment.date_ DESC LIMIT N;
+      select * from payment natural join order_ natural join product_order natural join product join track on (product_order.ship_index = track.index_) where CONCAT(order_.customer_id, "@localhost") IN (SELECT user()) ORDER BY payment.date_ DESC LIMIT N;
+  END;
+  //
+  DELIMITER ;
+  
+  -- Procedure to see Purchases between dates
+  DELIMITER //
+  CREATE PROCEDURE seePurchasesByDate(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
+  BEGIN
+      select * from payment natural join order_ natural join product_order natural join product join track on (product_order.ship_index = track.index_) where CONCAT(order_.customer_id, "@localhost") IN (SELECT user()) and payment.date_ BETWEEN startTime AND endTime;
   END;
   //
   DELIMITER ;
@@ -415,29 +518,29 @@ Below you can see details description and implementation of various Procedures a
   //
   DELIMITER ;
   
-  -- Procedure to see reviews of a product withing a duration
+  -- Procedure to see reviews of a product
   DELIMITER //
-  CREATE PROCEDURE recentProductReviewsBetweenDuration(IN pid varchar(20), IN sid varchar(20), IN startTime TIMESTAMP, IN endTime TIMESTAMP)
+  CREATE PROCEDURE ProductReviews(IN pid varchar(20), IN sid varchar(20))
   BEGIN
-      SELECT name, product_review FROM (product_order natural join order_ natural join customer natural join payment) WHERE product_id = pid AND seller_id = sid AND (payment.date_ BETWEEN startTime AND endTime);
+      SELECT name, product_rating, product_review, seller_rating, seller_review FROM (product_order natural join order_ natural join customer natural join payment) WHERE product_id = pid AND seller_id = sid;
   END;
   //
   DELIMITER ;
   
   -- Procedure to add review for a product
   DELIMITER //
-  CREATE PROCEDURE addReviewProduct(IN pid varchar(20), IN oid varchar(20), IN rev varchar(60))
+  CREATE PROCEDURE addReviewProduct(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rev varchar(60))
   BEGIN
-      UPDATE product_order SET product_review = rev WHERE product_id = pid and order_id = oid;
+      UPDATE product_order SET product_review = rev WHERE product_id = pid and order_id = oid and seller_id = sid;
   END;
   //
   DELIMITER ;
   
   -- Procedure to add review for a seller 
   DELIMITER //
-  CREATE PROCEDURE addReviewSeller(IN pid varchar(20), IN oid varchar(20), IN rev varchar(60))
+  CREATE PROCEDURE addReviewSeller(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rev varchar(60))
   BEGIN
-      UPDATE product_order SET seller_review = rev WHERE product_id = pid and order_id = oid;
+      UPDATE product_order SET seller_review = rev WHERE product_id = pid and order_id = oid and seller_id = sid;
   END;
   //
   DELIMITER ;
@@ -451,39 +554,12 @@ Below you can see details description and implementation of various Procedures a
   //
   DELIMITER ;
   
-  -- Procedure to see reviews of a product withing a duration
-  DELIMITER //
-  CREATE PROCEDURE recentProductReviewsBetweenDuration(IN pid varchar(20), IN sid varchar(20), IN startTime TIMESTAMP, IN endTime TIMESTAMP)
-  BEGIN
-      SELECT name, product_review FROM (product_order natural join order_ natural join customer natural join payment) WHERE product_id = pid AND seller_id = sid AND (payment.date_ BETWEEN startTime AND endTime);
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to add review for a product
-  DELIMITER //
-  CREATE PROCEDURE addReviewProduct(IN pid varchar(20), IN oid varchar(20), IN rev varchar(60))
-  BEGIN
-      UPDATE product_order SET product_review = rev WHERE product_id = pid and order_id = oid;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to add review for a seller 
-  DELIMITER //
-  CREATE PROCEDURE addReviewSeller(IN pid varchar(20), IN oid varchar(20), IN rev varchar(60))
-  BEGIN
-      UPDATE product_order SET seller_review = rev WHERE product_id = pid and order_id = oid;
-  END;
-  //
-  DELIMITER ;
-  
   -- Procedure to add rating for product
   DELIMITER //
-  CREATE PROCEDURE addRatingProduct(IN pid varchar(20), IN oid varchar(20), IN rating INT)
+  CREATE PROCEDURE addRatingProduct(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rating INT)
   BEGIN
       IF (rating IN (1,2,3,4,5)) THEN
-        UPDATE product_order SET product_rating =  rating WHERE product_id = pid and order_id = oid;
+        UPDATE product_order SET product_rating =  rating WHERE product_id = pid and order_id = oid and seller_id = sid;
       END IF;
   END;
   //
@@ -491,24 +567,148 @@ Below you can see details description and implementation of various Procedures a
   
   -- Procedure to add rating for seller
   DELIMITER //
-  CREATE PROCEDURE addRatingSeller(IN pid varchar(20), IN oid varchar(20), IN rating INT)
+  CREATE PROCEDURE addRatingSeller(IN pid varchar(20), IN oid varchar(20), IN sid varchar(20), IN rating INT)
   BEGIN
       IF (rating IN (1,2,3,4,5)) THEN
-        UPDATE product_order SET seller_rating = rating WHERE product_id = pid and order_id = oid;
+        UPDATE product_order SET seller_rating = rating WHERE product_id = pid and order_id = oid and seller_id = sid;
+      END IF;
+  END;
+  //
+  DELIMITER ;
+  
+  
+  -- Procedure to update customer info
+  DELIMITER //
+  CREATE PROCEDURE custUpdateInfo(IN customer_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone_number DECIMAL(10) UNSIGNED, IN email_id VARCHAR(20))
+  BEGIN
+      IF (CHAR_LENGTH(passwordd) > 0) THEN
+        UPDATE Users SET Users.passcode = passwordd WHERE Users.username = customer_id;
+      END IF;
+      IF (CHAR_LENGTH(named) > 0) THEN
+        UPDATE customer SET customer.name = named WHERE customer.customer_id = customer_id;
+      END IF;
+      IF (CHAR_LENGTH(addressd) > 0) THEN
+        UPDATE customer SET customer.address = addressd WHERE customer.customer_id = customer_id;
+      END IF;
+      IF (phone_number <> 0) THEN
+        UPDATE customer SET customer.phone_number = phone_number WHERE customer.customer_id = customer_id;
+      END IF;
+      IF (CHAR_LENGTH(email_id) > 0) THEN
+        UPDATE customer SET customer.email_id = email_id WHERE customer.customer_id = customer_id;
       END IF;
   END;
   //
   DELIMITER ;
   
   -- #########################################
-  -- ###########SELLER   PROCEDURES###########
+  -- ###########SELLER PROCEDURES#############
   -- #########################################
+  
+  
+  -- Procedure for seller to see sold but not shipped products
+  
+  DELIMITER //
+  CREATE PROCEDURE soldButNotShipped(IN seller_id varchar(20))
+  BEGIN
+    select product_order.* from product_order join track on product_order.ship_index = track.index_ where shipper_id is NULL;
+    -- select * from product_order where product_order.seller_id = seller_id and ship_index is NULL;
+  END;
+  //
+  DELIMITER ;
+  
+  -- Procedure for seller to ship a sold product
+  DELIMITER //
+  CREATE PROCEDURE shipSoldProduct(IN gproduct_id varchar(20), IN gorder_id varchar(20), IN gseller_id varchar(20), IN gshipper_id varchar(20), IN gtracking_id varchar(20), IN gdate DATE)
+  BEGIN
+    set @c = (select ship_index from product_order where seller_id = gseller_id and product_id = gproduct_id and order_id = gorder_id); 
+    update track set shipper_id = gshipper_id, tracking_id = gtracking_id, date_ = (select NOW()) where index_ = @c;
+  END;
+  //
+  DELIMITER ;
+  
+  
+  
+  -- Procedure for seller to see his rating
+  DELIMITER //
+  CREATE PROCEDURE getRating(IN seller_id varchar(20))
+  BEGIN
+    select COALESCE(rating, 0) from seller where seller.seller_id = seller_id;
+  END;
+  //
+  DELIMITER ;
+  
+  
+  -- Procedure for seller to check whether there is already a product with given seller_id and product_id
+  DELIMITER //
+  CREATE PROCEDURE sellerCheckExistProd(IN product_id varchar(20), IN seller_id varchar(20))
+  BEGIN
+    select * from product where product.product_id = product_id and product.seller_id = seller_id;
+  END;
+  //
+  DELIMITER ;
+  
+  -- Procedure for seller to add new product
+  DELIMITER //
+  CREATE PROCEDURE addProduct(IN product_id varchar(20), IN seller_id varchar(20), IN product_name varchar(20), IN product_image varchar(300), IN price float, IN total_stock int, IN pickup_address varchar(60), IN description varchar(60))
+  BEGIN
+    insert into product(product_id, product_name, product_image, seller_id, price, total_stock, pickup_address, description) values (product_id, product_name, product_image, seller_id, price, total_stock, pickup_address, description);
+  END;
+  //
+  DELIMITER ;
+  
+  
+  -- Procedure for seller to update his specific product details.
+  DELIMITER //
+  CREATE PROCEDURE updateProductInfo(IN product_id varchar(20), IN seller_id varchar(20), IN product_name varchar(20), IN product_image varchar(300), IN price float, IN total_stock int, IN pickup_address varchar(60), IN description varchar(60))
+  BEGIN
+    IF (CHAR_LENGTH(product_name) > 0) THEN
+      UPDATE product SET product.product_name = product_name where product.product_id = product_id and product.seller_id = seller_id;
+    END IF;
+    IF (CHAR_LENGTH(product_image) > 0) THEN
+      UPDATE product SET product.product_image = product_image where product.product_id = product_id and product.seller_id = seller_id;
+    END IF;
+    IF (price > 0.1) THEN
+      UPDATE product SET product.price = price where product.product_id = product_id and product.seller_id = seller_id;
+    END IF;
+    IF (CHAR_LENGTH(pickup_address) > 0) THEN
+      UPDATE product SET product.pickup_address = pickup_address where product.product_id = product_id and product.seller_id = seller_id;
+    END IF;
+    IF (CHAR_LENGTH(description) > 0) THEN
+      UPDATE product SET product.description = description where product.product_id = product_id and product.seller_id = seller_id;
+    END IF;
+  END;
+  //
+  DELIMITER ;
+  
+  
+  -- Procedure to update seller's info
+  DELIMITER //
+  CREATE PROCEDURE sellerUpdateInfo(IN seller_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone_number DECIMAL(10) UNSIGNED, IN email_id VARCHAR(20))
+  BEGIN
+      IF (CHAR_LENGTH(passwordd) > 0) THEN
+        UPDATE Users SET Users.passcode = passwordd WHERE Users.username = seller_id;
+      END IF;
+      IF (CHAR_LENGTH(named) > 0) THEN
+        UPDATE seller SET seller.name = named WHERE seller.seller_id = seller_id;
+      END IF;
+      IF (CHAR_LENGTH(addressd) > 0) THEN
+        UPDATE seller SET seller.address = addressd WHERE seller.seller_id = seller_id;
+      END IF;
+      IF (phone_number <> 0) THEN
+        UPDATE seller SET seller.phone_number = phone_number WHERE seller.seller_id = seller_id;
+      END IF;
+      IF (CHAR_LENGTH(email_id) > 0) THEN
+        UPDATE seller SET seller.email_id = email_id WHERE seller.seller_id = seller_id;
+      END IF;
+  END;
+  //
+  DELIMITER ;
   
   -- Procedure for seller to see his or her past sold products within a specific time duration
   DELIMITER //
   CREATE PROCEDURE seeSellingsBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
   BEGIN
-      select * from product where (product_id, seller_id) in (select product_order.product_id, product_order.seller_id from payment natural join order_ natural join product_order where CONCAT(product_order.seller_id, "@localhost") IN (SELECT user()) AND payment.date_ BETWEEN startTime AND endTime);
+      select product_order.* from payment natural join order_ natural join product_order where CONCAT(product_order.seller_id, "@localhost") IN (SELECT user()) AND payment.date_ BETWEEN startTime AND endTime;
   END;
   //
   DELIMITER ;
@@ -517,7 +717,7 @@ Below you can see details description and implementation of various Procedures a
   DELIMITER //
   CREATE PROCEDURE seeLatestNSellings(IN N INT)
   BEGIN
-      select * from product where (product_id, seller_id) in (select product_id, seller_id from payment natural join order_ natural join product_order where CONCAT(product_order.seller_id, "@localhost") IN (SELECT user()) ORDER BY payment.date_ DESC) LIMIT N;
+      select product_order.* from payment natural join order_ natural join product_order where CONCAT(product_order.seller_id, "@localhost") IN (SELECT user()) ORDER BY payment.date_ DESC LIMIT N;
   END;
   //
   DELIMITER ;
@@ -543,6 +743,31 @@ Below you can see details description and implementation of various Procedures a
   -- #########################################
   -- ###########SHIPPER PROCEDURES############
   -- #########################################
+  
+  
+  
+  -- Procedure to update shipper's info
+  DELIMITER //
+  CREATE PROCEDURE shipperUpdateInfo(IN shipper_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone_number DECIMAL(10) UNSIGNED, IN email_id VARCHAR(20))
+  BEGIN
+      IF (CHAR_LENGTH(passwordd) > 0) THEN
+        UPDATE Users SET Users.passcode = passwordd WHERE Users.username = shipper_id;
+      END IF;
+      IF (CHAR_LENGTH(named) > 0) THEN
+        UPDATE shipper SET shipper.name = named WHERE shipper.shipper_id = shipper_id;
+      END IF;
+      IF (CHAR_LENGTH(addressd) > 0) THEN
+        UPDATE shipper SET shipper.head_quarters = addressd WHERE shipper.shipper_id = shipper_id;
+      END IF;
+      IF (phone_number <> 0) THEN
+        UPDATE shipper SET shipper.phone_number = phone_number WHERE shipper.shipper_id = shipper_id;
+      END IF;
+      IF (CHAR_LENGTH(email_id) > 0) THEN
+        UPDATE shipper SET shipper.email_id = email_id WHERE shipper.shipper_id = shipper_id;
+      END IF;
+  END;
+  //
+  DELIMITER ;
   
   -- Procedure for shipper to see his or her past shipments within a specific time duration
   DELIMITER //
@@ -572,12 +797,11 @@ Below you can see details description and implementation of various Procedures a
   RETURNS FLOAT DETERMINISTIC  
   BEGIN
       DECLARE temp FLOAT;
-      SELECT count(quantity*selling_price) INTO temp FROM product_order natural join payment WHERE date_ BETWEEN startTime and endTime;
+      SELECT SUM(quantity*selling_price) INTO temp FROM product_order natural join order_ natural join payment WHERE date_ BETWEEN startTime and endTime;
       RETURN temp;
   END;
   //
-  DELIMITER ;
-  
+  DELIMITER ;  
 \end{minted}
 \section{Use Cases}
 Lets for this case assume that we a supplier. We first want to register and then add products to sell.

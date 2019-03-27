@@ -1,8 +1,10 @@
+-------------Marked "absolete" are those procedures, etc. which are not used----------
+
 DROP DATABASE AmaKart;
 CREATE DATABASE AmaKart;
 USE AmaKart;
 
-/*  Here: customer_id -> R is the only non trivial dependency and hence it is in BCNF */
+/*  Here: customer_id -> R is the only relevant dependency and hence it is in BCNF */
 create table customer (
   customer_id VARCHAR (20) primary key not null,
   name VARCHAR (20) not null,
@@ -11,7 +13,7 @@ create table customer (
   email_id VARCHAR (20) not null
 );
 
-/*   Here: payment_id -> R is the only non trivial dependency and hence it is in BCNF  */
+/*   Here: payment_id -> R is the only relevant dependency and hence it is in BCNF  */
 create table payment (
   payment_id int AUTO_INCREMENT primary key not null,
   credit_card_number VARCHAR (20) not null,
@@ -19,7 +21,7 @@ create table payment (
   billing_address varchar(60) not null
 );
 
-/* Here: order_id -> R is the only non trivial dependency and hence it is in BCNF  */
+/* Here: order_id -> R is the only relevant dependency and hence it is in BCNF  */
 /* Initially payment id can be null and then later once the customer does the payment, trigger will add the payment id */
 create table order_ (
   order_id int AUTO_INCREMENT primary key not null,
@@ -30,7 +32,7 @@ create table order_ (
   foreign key (payment_id) references payment (payment_id) on delete set null
 );
 
-/* Here: seller_id -> R is the only non trivial dependency and hence it is in BCNF */
+/* Here: seller_id -> R is the only relevant dependency and hence it is in BCNF */
 /* Rating will be updated with the help of triggers. */
 create table seller (
   seller_id varchar (20) primary key not null,
@@ -41,7 +43,7 @@ create table seller (
   rating float
 );
 
-/*  Here: shipper_id -> R is the only non trivial dependency and hence it is in BCNF  */
+/*  Here: shipper_id -> R is the only relevant dependency and hence it is in BCNF  */
 create table shipper (
   shipper_id varchar (20) primary key not null,
   name varchar (20) not null,
@@ -50,7 +52,7 @@ create table shipper (
   email_id VARCHAR (20) not null
 );
 
-/*  Here: index_ -> R is the only non trivial dependency and hence it is in BCNF  */
+/*  Here: index_ -> R is the only relevant dependency and hence it is in BCNF  */
 create table track (
   index_ INT AUTO_INCREMENT primary key not null,
   shipper_id varchar (20),
@@ -59,7 +61,7 @@ create table track (
   foreign key (shipper_id) references shipper (shipper_id) on delete set null
 );
 
-/*  Here: (product_id, seller_id) -> R is the only non trivial dependency and hence it is in BCNF  */
+/*  Here: (product_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
 /* Rating will be updated with the help of triggers. */
 create table product (
   product_id varchar (20) not null,
@@ -75,7 +77,7 @@ create table product (
   primary key (product_id, seller_id)
 );
 
-/*  Here: (product_id, order_id, seller_id) -> R is the only non trivial dependency and hence it is in BCNF  */
+/*  Here: (product_id, order_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
 create table product_order (
   product_id varchar(20) not null,
   order_id int not null,
@@ -94,6 +96,8 @@ create table product_order (
   foreign key (ship_index) references track (index_) on delete set null
 );
 
+
+/*  Here: (customer_id, product_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
 create table cart (
   customer_id varchar(20),
   product_id varchar(20),
@@ -178,6 +182,7 @@ CREATE VIEW shipperTrack AS (SELECT index_, pickup_address AS source, shipping_a
 -- ###########CUSTOMER PROCEDURES###########
 -- #########################################
 
+-- Absolete
 -- Procedure for customer to see his or her past purchases within a specific time duration
 DELIMITER //
 CREATE PROCEDURE seePurchasesBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
@@ -198,7 +203,7 @@ DELIMITER ;
 
 -- Procedure for customer to checkout his cart
 DELIMITER //
-CREATE PROCEDURE purchaseEverthingInCart(IN oid varchar(20)) 
+CREATE PROCEDURE purchaseEverythingInCart(IN oid varchar(20)) 
 BEGIN
     DECLARE n int default 0;
     DECLARE i int default 0;
@@ -258,7 +263,7 @@ BEGIN
     SELECT payment_id from payment where credit_card_number = cnum and date_ = curr_time and billing_address = badd order by payment_id desc into payid;
     INSERT INTO order_ (customer_id,payment_id,shipping_address) VALUES (cid,payid,sadd);
     SELECT order_id from order_ where customer_id = cid and payment_id = payid and shipping_address = sadd order by order_id desc into oid;
-    call purchaseEverthingInCart(oid);
+    call purchaseEverythingInCart(oid);
 END;
 //
 DELIMITER ;
@@ -612,7 +617,7 @@ GRANT EXECUTE ON PROCEDURE AmaKart.seeLatestNPurchases TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.queryProductsTim TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.queryProductsRat TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.makeorder TO customer;
-GRANT EXECUTE ON PROCEDURE AmaKart.purchaseEverthingInCart TO customer;
+GRANT EXECUTE ON PROCEDURE AmaKart.purchaseEverythingInCart TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.addProductToCart TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.custUpdateInfo TO customer;
 GRANT EXECUTE ON PROCEDURE AmaKart.ProductReviews TO customer;
