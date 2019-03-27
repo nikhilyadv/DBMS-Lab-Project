@@ -493,7 +493,7 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE seeSellingsBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
 BEGIN
-    select * from product where (product_id, seller_id) in (select product_order.product_id, product_order.seller_id from payment natural join order_ natural join product_order where CONCAT(product_order.seller_id, "@localhost") IN (SELECT user()) AND payment.date_ BETWEEN startTime AND endTime);
+    select product_order.* from payment natural join order_ natural join product_order where CONCAT(product_order.seller_id, "@localhost") IN (SELECT user()) AND payment.date_ BETWEEN startTime AND endTime;
 END;
 //
 DELIMITER ;
@@ -502,7 +502,7 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE seeLatestNSellings(IN N INT)
 BEGIN
-    select * from product where (product_id, seller_id) in (select product_id, seller_id from payment natural join order_ natural join product_order where CONCAT(product_order.seller_id, "@localhost") IN (SELECT user()) ORDER BY payment.date_ DESC) LIMIT N;
+    select product_order.* from payment natural join order_ natural join product_order where CONCAT(product_order.seller_id, "@localhost") IN (SELECT user()) ORDER BY payment.date_ DESC LIMIT N;
 END;
 //
 DELIMITER ;
@@ -746,6 +746,6 @@ INSERT INTO order_ Values ("1","Nikhil","RM-119","1");
 
 INSERT INTO product_order(product_id, order_id, seller_id, product_rating, seller_rating, ship_index, product_review, seller_review, quantity, selling_price) Values ("1","1","Sourabh",5,4,1,NULL,NULL,10, 10);
 
-UPDATE track set shipper_id = "FEDEx", date_ = (select NOW()) where index_ = 1;
+UPDATE track set shipper_id = "FEDEx", date_ = (select NOW()), tracking_id = "EPIN290348AD7" where index_ = 1;
 
 INSERT INTO cart Values ("Nikhil","1","Sourabh","2");

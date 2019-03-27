@@ -100,7 +100,6 @@ class Seller:
         Button(win, text= 'Search', command= lambda: populate (shipper_name.get(), plist)).grid(row=1, column=7, sticky=W)
         win.mainloop()
 
-    # To finish its implementation
     def soldButNotShipped (self):
         browseWin = Tk ()
         browseWin.title ("Sold But Not Shipped Products")
@@ -377,13 +376,8 @@ class Seller:
             if (validDate (int(years), int(months), int(days)) and validDate (int(yeare), int(monthe), int(daye))):
                 rows = self.db.seePastSellingsDuration(years, months, days, yeare, monthe, daye)
                 plist.delete (*plist.get_children ())
-                plist._images = []
                 for row in rows:
-                    auximage = Image.open (requests.get(row[2], stream = True).raw)
-                    auximage.thumbnail((100, 200), Image.ANTIALIAS)
-                    auximage = ImageTk.PhotoImage (auximage)
-                    plist._images.append(auximage)
-                    plist.insert ('', 'end', values = (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8]), image = plist._images[-1])
+                    plist.insert ('', 'end', values = row)
                 strng = "Done!"
             else:
                 strng = "Entered date is not valid!"
@@ -396,13 +390,8 @@ class Seller:
             if (n > 0):
                 rows = self.db.seeLatestNSellings(n)
                 plist.delete (*plist.get_children ())
-                plist._images = []
                 for row in rows:
-                    auximage = Image.open (requests.get(row[2], stream = True).raw)
-                    auximage.thumbnail((100, 200), Image.ANTIALIAS)
-                    auximage = ImageTk.PhotoImage (auximage)
-                    plist._images.append(auximage)
-                    plist.insert ('', 'end', values = (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8]), image = plist._images[-1])
+                    plist.insert ('', 'end', values = row)
                 strng = "Done!"
             else:
                 strng = "Entered N is not valid!"
@@ -410,16 +399,17 @@ class Seller:
             output.delete (0.0, END)
             output.insert (END, strng)                    
 
-        plist['columns'] = ('pid', 'pname', 'sellerid', 'price', 'tstock', 'pickupaddress', 'description', 'rating')
-        plist.heading ('#0', text = 'Image')
+        plist['columns'] = ('pid', 'oid', 'seller_id', 'product_rating', 'seller_rating', 'ship_index', 'product_review', 'seller_review', 'quantity')
         plist.heading ('pid', text = 'Product ID')
-        plist.heading ('pname', text = 'Product Name')
-        plist.heading ('sellerid', text = 'Seller ID')
-        plist.heading ('price', text = 'Price')
-        plist.heading ('tstock', text = 'Total Stock')
-        plist.heading ('pickupaddress', text = 'Pickup Address')
-        plist.heading ('description', text = 'Description')
-        plist.heading ('rating', text = 'Rating')
+        plist.heading ('oid', text = 'Order ID')
+        plist.heading ('seller_id', text = 'Seller ID')
+        plist.heading ('product_rating', text = 'Product Rating')
+        plist.heading ('seller_rating', text = 'Seller Rating')
+        plist.heading ('ship_index', text = 'Ship Index')
+        plist.heading ('product_review', text = 'Product Review')
+        plist.heading ('seller_review', text = 'Seller Review')
+        plist.heading ('quantity', text = 'Quantity')
+        plist['show'] = 'headings'
         plist.grid(row = 3, column = 0, rowspan = 18, columnspan = 100)
         Button(win, text= 'Search by Date', command= lambda: populateProducts (startYear.get(), startMonth.get(), startDay.get(), endYear.get(), endMonth.get(), endDay.get(), plist)).grid(row=1, column=7, sticky=W)
         Button(win, text= 'Search last N Sellings', command= lambda: populateProductsbyN (n.get(),plist)).grid(row=2, column=3, sticky=W)
