@@ -281,7 +281,9 @@ And their details is best understood with the help of the following code:
   \item When a product is sold, we want to mention its selling\_price as later the seller can update the price, "setPrice". (sets NEW.selling\_price entry in product\_order).
   \item When a customer passes a rating for product we have to update it in our product table, "updateRatingProduct" (update is done by averaging over all ratings).
   \item When a customer passes a rating for seller we have to update it in our seller table, "updateRatingSeller" (update is naturally done in "seller" relation by averaging over all ratings passed to our seller).
-  \item When a product is sold, we need to add an entry to our track table for the same, "addTrack" (naturally it will have shipper\_id, tracking\_id field NULL as of now and this info will be used to determine whether the product has been shipped or not)
+  \item When a product is sold, we need to add an entry to our track table for the same and also we have to reduct the total\_stock of that product offered by that seller. Both of these are done together by our trigger, "stockCheckandaddTrack" (naturally it will have shipper\_id, tracking\_id field NULL as of now and this info will be used to determine whether the product has been shipped or not)
+  \item To check whether the products added in cart are valid or not. In case it is valid we proceed else we raise an exception. Trigger name "validCartinsert".
+  \item Same as above but for update operation on cart, "validCartupdate".
 \end{enumerate}
 \newpage
 \section{Functions And Procedures}

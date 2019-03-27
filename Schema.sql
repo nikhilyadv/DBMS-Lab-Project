@@ -713,6 +713,7 @@ FOR EACH ROW BEGIN
 END//
 DELIMITER ;
 
+-- Same as above but for update on cart operation.
 DELIMITER //
 CREATE TRIGGER validCartupdate BEFORE UPDATE on cart
 FOR EACH ROW BEGIN
