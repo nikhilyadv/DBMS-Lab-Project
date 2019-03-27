@@ -404,147 +404,21 @@ Below you can see details description and implementation of various Procedures a
   \item Procedure to see products sorted by rating, "queryProductsRat(IN productName varchar(20))".
   \item Procedure to update customer info, custUpdateInfo(IN customer\_id varchar(20), IN password VARCHAR(20), IN name varchar(20), IN address VARCHAR(60), IN phone\_number DECIMAL(10) UNSIGNED, IN email\_id VARCHAR(20)).
 \end{enumerate}
+\subsection{Seller Procedures}
+\begin{enumerate}
+  \item Procedure for seller to see sold but not shipped products, soldButNotShipped(IN seller\_id varchar(20)) -$>$ fetches entries from product\_order table which have corresponding shipper\_id NULL.
+  \item Procedure for seller to ship a sold product, "shipSoldProduct(IN gproduct\_id varchar(20), IN gorder\_id varchar(20), IN gseller\_id varchar(20), IN gshipper\_id varchar(20), IN gtracking\_id varchar(20), IN gdate DATE)" -$>$ will ship the product (update shipper\_id and tracking\_id in track table) by taking relevant input.
+  \item Procedure for seller to see his rating, "getRating(IN seller\_id varchar(20))".
+  \item Procedure for seller to check whether there is already a product with given seller\_id and product\_id (this is useful when seller is adding a new product), "sellerCheckExistProd(IN product\_id varchar(20), IN seller\_id varchar(20))" -$>$ will return a row if there is a corresponding product.
+  \item Procedure for seller to add new product, "addProduct(IN product\_id varchar(20), IN seller\_id varchar(20), IN product\_name varchar(20), IN product\_image varchar(300), IN price float, IN total\_stock int, IN pickup\_address varchar(60), IN description varchar(60))" -$>$ adds an entry in product table by taking suitable input details.
+  \item Procedure for seller to update his specific product details, "updateProductInfo(IN product\_id varchar(20), IN seller\_id varchar(20), IN product\_name varchar(20), IN product\_image varchar(300), IN price float, IN total\_stock int, IN pickup\_address varchar(60), IN description varchar(60))" -$>$ Note that it is possible to call this procedure by giving empty string for entries whose update is not deemed fit.
+  \item Procedure to update seller's info, "sellerUpdateInfo(IN seller\_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone\_number DECIMAL(10) UNSIGNED, IN email\_id VARCHAR(20))" -$>$ Note that it is possible to call this procedure by giving empty string for entries whose update is not deemed fit.
+  \item Procedure for seller to see his or her past sold products within a specific time duration, "seeSellingsBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)" -$>$ fetches the relevant entries from product\_order table.
+  \item Procedure to see latest N sellings, "seeLatestNSellings(IN N INT)" -$>$ fetches the relevant entries from product\_order table.
+  \item Procedure to see seller's already listed similar products with increasing price, "selQuerySimProducts(IN productName varchar(20))".
+  \item Procedure to see seller's similar products sorted by rating, "selQueryProductsRat(IN productName varchar(20))".
+\end{enumerate}
 \begin{minted}{SQL}
-  -- #########################################
-  -- ###########SELLER PROCEDURES#############
-  -- #########################################
-  
-  
-  -- Procedure for seller to see sold but not shipped products
-  
-  DELIMITER //
-  CREATE PROCEDURE soldButNotShipped(IN seller_id varchar(20))
-  BEGIN
-    select product_order.* from product_order join track on product_order.ship_index = track.index_ where shipper_id is NULL;
-    -- select * from product_order where product_order.seller_id = seller_id and ship_index is NULL;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure for seller to ship a sold product
-  DELIMITER //
-  CREATE PROCEDURE shipSoldProduct(IN gproduct_id varchar(20), IN gorder_id varchar(20), IN gseller_id varchar(20), IN gshipper_id varchar(20), IN gtracking_id varchar(20), IN gdate DATE)
-  BEGIN
-    set @c = (select ship_index from product_order where seller_id = gseller_id and product_id = gproduct_id and order_id = gorder_id); 
-    update track set shipper_id = gshipper_id, tracking_id = gtracking_id, date_ = (select NOW()) where index_ = @c;
-  END;
-  //
-  DELIMITER ;
-  
-  
-  
-  -- Procedure for seller to see his rating
-  DELIMITER //
-  CREATE PROCEDURE getRating(IN seller_id varchar(20))
-  BEGIN
-    select COALESCE(rating, 0) from seller where seller.seller_id = seller_id;
-  END;
-  //
-  DELIMITER ;
-  
-  
-  -- Procedure for seller to check whether there is already a product with given seller_id and product_id
-  DELIMITER //
-  CREATE PROCEDURE sellerCheckExistProd(IN product_id varchar(20), IN seller_id varchar(20))
-  BEGIN
-    select * from product where product.product_id = product_id and product.seller_id = seller_id;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure for seller to add new product
-  DELIMITER //
-  CREATE PROCEDURE addProduct(IN product_id varchar(20), IN seller_id varchar(20), IN product_name varchar(20), IN product_image varchar(300), IN price float, IN total_stock int, IN pickup_address varchar(60), IN description varchar(60))
-  BEGIN
-    insert into product(product_id, product_name, product_image, seller_id, price, total_stock, pickup_address, description) values (product_id, product_name, product_image, seller_id, price, total_stock, pickup_address, description);
-  END;
-  //
-  DELIMITER ;
-  
-  
-  -- Procedure for seller to update his specific product details.
-  DELIMITER //
-  CREATE PROCEDURE updateProductInfo(IN product_id varchar(20), IN seller_id varchar(20), IN product_name varchar(20), IN product_image varchar(300), IN price float, IN total_stock int, IN pickup_address varchar(60), IN description varchar(60))
-  BEGIN
-    IF (CHAR_LENGTH(product_name) > 0) THEN
-      UPDATE product SET product.product_name = product_name where product.product_id = product_id and product.seller_id = seller_id;
-    END IF;
-    IF (CHAR_LENGTH(product_image) > 0) THEN
-      UPDATE product SET product.product_image = product_image where product.product_id = product_id and product.seller_id = seller_id;
-    END IF;
-    IF (price > 0.1) THEN
-      UPDATE product SET product.price = price where product.product_id = product_id and product.seller_id = seller_id;
-    END IF;
-    IF (CHAR_LENGTH(pickup_address) > 0) THEN
-      UPDATE product SET product.pickup_address = pickup_address where product.product_id = product_id and product.seller_id = seller_id;
-    END IF;
-    IF (CHAR_LENGTH(description) > 0) THEN
-      UPDATE product SET product.description = description where product.product_id = product_id and product.seller_id = seller_id;
-    END IF;
-  END;
-  //
-  DELIMITER ;
-  
-  
-  -- Procedure to update seller's info
-  DELIMITER //
-  CREATE PROCEDURE sellerUpdateInfo(IN seller_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone_number DECIMAL(10) UNSIGNED, IN email_id VARCHAR(20))
-  BEGIN
-      IF (CHAR_LENGTH(passwordd) > 0) THEN
-        UPDATE Users SET Users.passcode = passwordd WHERE Users.username = seller_id;
-      END IF;
-      IF (CHAR_LENGTH(named) > 0) THEN
-        UPDATE seller SET seller.name = named WHERE seller.seller_id = seller_id;
-      END IF;
-      IF (CHAR_LENGTH(addressd) > 0) THEN
-        UPDATE seller SET seller.address = addressd WHERE seller.seller_id = seller_id;
-      END IF;
-      IF (phone_number <> 0) THEN
-        UPDATE seller SET seller.phone_number = phone_number WHERE seller.seller_id = seller_id;
-      END IF;
-      IF (CHAR_LENGTH(email_id) > 0) THEN
-        UPDATE seller SET seller.email_id = email_id WHERE seller.seller_id = seller_id;
-      END IF;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure for seller to see his or her past sold products within a specific time duration
-  DELIMITER //
-  CREATE PROCEDURE seeSellingsBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)
-  BEGIN
-      select product_order.* from payment natural join order_ natural join product_order where CONCAT(product_order.seller_id, "@localhost") IN (SELECT user()) AND payment.date_ BETWEEN startTime AND endTime;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to see latest N Sellings
-  DELIMITER //
-  CREATE PROCEDURE seeLatestNSellings(IN N INT)
-  BEGIN
-      select product_order.* from payment natural join order_ natural join product_order where CONCAT(product_order.seller_id, "@localhost") IN (SELECT user()) ORDER BY payment.date_ DESC LIMIT N;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to see similary products with increasing price
-  DELIMITER //
-  CREATE PROCEDURE selQuerySimProducts(IN productName varchar(20))
-  BEGIN
-      select * from product where product_name like CONCAT('%', productName, '%') AND CONCAT(seller_id, "@localhost") IN (SELECT user()) ORDER BY price ASC;
-  END;
-  //
-  DELIMITER ;
-  
-  -- Procedure to see similar products sorted by rating
-  DELIMITER //
-  CREATE PROCEDURE selQueryProductsRat(IN productName varchar(20))
-  BEGIN
-      select * from product where product_name like CONCAT('%', productName, '%') AND CONCAT(seller_id, "@localhost") IN (SELECT user()) ORDER BY rating DESC;
-  END;
-  //
-  DELIMITER ;
-  
   -- #########################################
   -- ###########SHIPPER PROCEDURES############
   -- #########################################
