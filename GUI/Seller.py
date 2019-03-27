@@ -25,6 +25,10 @@ class Seller:
         _window.destroy()
         self.basic()
 
+    def switchToProfile (self, _window):
+        _window.destroy()
+        self.profile()
+
     def switchToSoldButNotShipped (self, _window):
         _window.destroy()
         self.soldButNotShipped()
@@ -60,6 +64,33 @@ class Seller:
     def switchToRating (self, _window):
         _window.destroy ()
         self.rating()
+
+    def profile (self):
+        win = Tk ()
+        win.title ("Your Profile")
+        win.protocol("WM_DELETE_WINDOW", lambda: self.switchToBasic (win))  # handle window closing
+        Label(win, text = "Username (ID)").grid (row = 2, column = 0, sticky = W)
+        Label(win, text = "Name").grid (row = 3, column = 0, sticky = W)
+        Label(win, text = "Address").grid (row = 4, column = 0, sticky = W)
+        Label(win, text = "Phone number").grid (row = 5, column = 0, sticky = W)
+        Label(win, text = "email-id").grid (row = 6, column = 0, sticky = W)
+        username = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        username.grid (row = 2, column = 1)
+        name = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        name.grid (row = 3, column = 1)
+        address = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        address.grid (row = 4, column = 1)
+        pnumber = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        pnumber.grid (row = 5, column = 1)
+        email = Text (win, height = 1, width = 60, wrap = WORD, bg = "white")
+        email.grid (row = 6, column = 1)
+        row = self.db.getSellerProfile()
+        username.insert (END, row[0][0])
+        name.insert (END, row[0][1])
+        address.insert (END, row[0][2])
+        pnumber.insert (END, row[0][3])
+        email.insert (END, row[0][4])
+        win.mainloop()
 
 
     def browseShippers (self):
@@ -582,5 +613,7 @@ class Seller:
         Button(supp, text= 'Browse Shippers', command= lambda: self.switchToBrowseShippers (supp)).grid(row=9, column=0)
         Button(supp, text= 'See Products which are sold but not shipped', command= lambda: self.switchToSoldButNotShipped (supp)).grid(row=8, column=0)
         Button(supp, text= 'Update Your Info', command= lambda: self.switchToUpdate (supp)).grid(row=10, column=0)
-        Button(supp, text= 'Back To Login', command= lambda: self.switchToLogin (supp)).grid(row=11, column=0)
+        Button(supp, text= 'Your Profile', command= lambda: self.switchToProfile (supp)).grid(row=11, column=0)
+        Button(supp, text= 'Back To Login', command= lambda: self.switchToLogin (supp)).grid(row=12, column=0)
+
         supp.mainloop()

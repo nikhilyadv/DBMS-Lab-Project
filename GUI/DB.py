@@ -160,9 +160,19 @@ class DB:
         self.conn.commit()
         return True
 
+    def getCustomerProfile (self):
+        self.cur.execute ("select * from customerProfile;")
+        rows = self.cur.fetchall ()
+        return rows
+
     ##########################################
     ############SELLER FUNCTIONS##############
     ##########################################
+
+    def getSellerProfile (self):
+        self.cur.execute ("select * from sellerProfile;")
+        rows = self.cur.fetchall ()
+        return rows
 
     def existProduct (self, pid, selid):
         self.cur.execute ("call sellerCheckExistProd(\"{}\",\"{}\");".format (pid, selid))
@@ -254,6 +264,10 @@ class DB:
     ##########SHIPPER FUNCTIONS###############
     ##########################################
 
+    def getShipperProfile (self):
+        self.cur.execute ("select * from shipperProfile;")
+        rows = self.cur.fetchall ()
+        return rows
 
     def seeLatestNShipments(self, n):
         self.cur.execute ("call seeLatestNShipments({});".format(n))

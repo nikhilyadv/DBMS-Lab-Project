@@ -121,7 +121,7 @@ create table Users (
 -- #########################################
 
 -- This view will allow customer to view its details.
-CREATE VIEW customer_add AS (SELECT * 
+CREATE VIEW customerProfile AS (SELECT * 
                              FROM customer 
                              WHERE CONCAT(customer_id, "@localhost") IN (SELECT user()));
 
@@ -158,7 +158,14 @@ CREATE VIEW packageStatus AS (SELECT T1.order_id, T1.product_id, T1.ship_index, 
 -- ###########SELLER VIEWS##################
 -- #########################################
 
--- These views are absolete as we have implemented the procedure for it.
+
+-- This view will allow seller to view its details.
+CREATE VIEW sellerProfile AS (SELECT * 
+                             FROM seller 
+                             WHERE CONCAT(seller_id, "@localhost") IN (SELECT user()));
+
+
+-- Following views are absolete as we have implemented the procedure for it.
 -- This view will allow seller to see his/her various products.
 CREATE VIEW sellerProducts AS (SELECT product_id, product_name, price, total_stock, pickup_address, description 
                                   FROM product
@@ -172,6 +179,12 @@ CREATE VIEW sellerOrders AS (SELECT T1.seller_id, T1.product_id, T1.quantity, T1
 -- #########################################
 -- ###########SHIPPER VIEWS#################
 -- #########################################
+
+
+-- This view will allow shipper to view its details.
+CREATE VIEW shipperProfile AS (SELECT * 
+                             FROM shipper 
+                             WHERE CONCAT(shipper_id, "@localhost") IN (SELECT user()));
 
 -- This view will allow shipper details (pickup_address, shipping_address, tracking_id)
 CREATE VIEW shipperTrack AS (SELECT index_, pickup_address AS source, shipping_address AS destination, tracking_id, date_
@@ -594,7 +607,7 @@ END;
 DELIMITER ;
 
 -- Make sure that any view on which a role gets access on should have the filter "SELECT user()"
-GRANT ALL PRIVILEGES ON AmaKart.customer_add TO customer;
+GRANT ALL PRIVILEGES ON AmaKart.customerProfile TO customer;
 GRANT ALL PRIVILEGES ON AmaKart.showCart TO customer;
 GRANT SELECT ON AmaKart.previousOrders TO customer;
 GRANT SELECT ON AmaKart.listOrders TO customer;
@@ -604,10 +617,12 @@ GRANT SELECT ON AmaKart.packageStatus TO customer;
 -- GRANT INSERT ON AmaKart.order_ TO customer;
 -- GRANT INSERT ON AmaKart.payment TO customer;
 
+GRANT SELECT ON AmaKart.sellerProfile TO seller;
 GRANT SELECT ON AmaKart.sellerProducts TO seller;
 GRANT SELECT ON AmaKart.sellerOrders TO seller;
 GRANT SELECT ON AmaKart.shipper to seller;
 
+GRANT SELECT ON AmaKart.shipperProfile TO shipper;
 GRANT SELECT ON AmaKart.shipperTrack TO shipper;
 
 -- Procedures/Functions Grant
