@@ -126,13 +126,13 @@ Following this notation, our ERD is represented below.
 \subsection{Simple ERD}
 TODO
 \section{Database Schema And Normalization}
-In this section we describe various aspects of our schema and also mention that it is indeed normalized (BCNF).
+In this section we describe various aspects of our schema and also mention that it is indeed normalized (BCNF). All sections except this don't have code but we feel it is necessary to include code in this section for better understanding of various relations. 
 
 \ita{Notation: }A dependency $A \rightarrow B$ is called relevant if all other dependencies from $A$ are of the form $A \rightarrow C$ where $C \subseteq B$.
 
 \begin{itemize}
   \item A table for basic details of customer.
-  \begin{minted}{SQL}
+\begin{minted}{SQL}
 /*  Here: customer_id -> R is the only relevant dependency and hence it is in BCNF */
 create table customer (
   customer_id VARCHAR (20) primary key not null,
@@ -141,23 +141,23 @@ create table customer (
   phone_number DECIMAL (10) UNSIGNED not null,
   email_id VARCHAR (20) not null
 );
-  \end{minted}
+\end{minted}
   \item A table for basic details of seller.
   \begin{minted}{SQL}
-    /* Here: seller_id -> R is the only relevant dependency and hence it is in BCNF */
-    /* Rating will be updated with the help of triggers. */
-    create table seller (
-      seller_id varchar (20) primary key not null,
-      name varchar (20) not null,
-      address varchar (60) not null,
-      phone_number decimal (10) UNSIGNED NOT NULL,
-      email_id VARCHAR (20) not null,
-      rating float
-    );
+/* Here: seller_id -> R is the only relevant dependency and hence it is in BCNF */
+/* Rating will be updated with the help of triggers. */
+create table seller (
+  seller_id varchar (20) primary key not null,
+  name varchar (20) not null,
+  address varchar (60) not null,
+  phone_number decimal (10) UNSIGNED NOT NULL,
+  email_id VARCHAR (20) not null,
+  rating float
+);
   \end{minted}
   \item A table for basic details of shipper.
   \begin{minted}{SQL}
-    /*  Here: shipper_id -> R is the only relevant dependency and hence it is in BCNF  */
+/*  Here: shipper_id -> R is the only relevant dependency and hence it is in BCNF  */
 create table shipper (
   shipper_id varchar (20) primary key not null,
   name varchar (20) not null,
@@ -169,78 +169,97 @@ create table shipper (
   \end{minted}
   \item Having described these basic tables, we can now describe table for products. Note that each product can be sold by different sellers in different price and quantity, thus, primary key is formed by both product\_id and seller\_id. 
   \begin{minted}{SQL}
-    /*  Here: (product_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
-    /* Rating will be updated with the help of triggers. */
-    create table product (
-      product_id varchar (20) not null,
-      product_name varchar (20) not null,
-      seller_id varchar (20) not null,
-      price float not NULL,
-      total_stock int,
-      pickup_address varchar (60) not null,
-      description varchar (60),
-      rating float,
-      foreign key (seller_id) references seller (seller_id) on delete cascade,
-      primary key (product_id, seller_id)
-    );
+/*  Here: (product_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
+/* Rating will be updated with the help of triggers. */
+create table product (
+  product_id varchar (20) not null,
+  product_name varchar (20) not null,
+  product_image varchar(300),
+  seller_id varchar (20) not null,
+  price float not NULL,
+  total_stock int,
+  pickup_address varchar (60) not null,
+  description varchar (60),
+  rating float,
+  foreign key (seller_id) references seller (seller_id) on delete cascade,
+  primary key (product_id, seller_id)
+);
+
   \end{minted}
   \item When user makes a payment, we want to store payment details for which we have the following table.
   \begin{minted}{SQL}
 /*   Here: payment_id -> R is the only relevant dependency and hence it is in BCNF  */
 create table payment (
-  payment_id VARCHAR (20) primary key not null,
+  payment_id int AUTO_INCREMENT primary key not null,
   credit_card_number VARCHAR (20) not null,
   date_ timestamp,
   billing_address varchar(60) not null
 );
+    
   \end{minted}
   \item User will have a front end feature to add items in cart. When the user is ready to buy, it will generate an \ita{order\_id} for all those products which he or she chose. Note that \ita{order\_id} will be generated \ita{only} when user successfully does the payment.
   \begin{minted}{SQL}
-    /* Here: order_id -> R is the only relevant dependency and hence it is in BCNF  */
-    create table order_ (
-      order_id VARCHAR (20) primary key not null,
-      customer_id VARCHAR (20),
-      shipping_address varchar(60) not null,
-      payment_id VARCHAR (20),
-      foreign key (customer_id) references customer (customer_id) on delete set null,
-      foreign key (payment_id) references payment (payment_id) on delete set null
-    );
+/* Here: order_id -> R is the only relevant dependency and hence it is in BCNF  */
+/* Initially payment id can be null and then later once the customer does the payment, trigger will add the payment id */
+create table order_ (
+  order_id int AUTO_INCREMENT primary key not null,
+  customer_id VARCHAR (20),
+  shipping_address varchar(60) not null,
+  payment_id int,
+  foreign key (customer_id) references customer (customer_id) on delete set null,
+  foreign key (payment_id) references payment (payment_id) on delete set null
+);
   \end{minted}
-  \item After generating the payment, we have to put the details of the bought items along with their order\_id.
+  \item After generating the \ita{order\_id} (by successful completion of payment), we have to put the details of the bought items along with their \ita{order\_id}.
   \begin{minted}{SQL}
-    /*  Here: (product_id, order_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
-    create table product_order (
-      product_id varchar(20) not null,
-      order_id varchar (20) not null,
-      seller_id varchar (20),
-      product_rating int check (product_rating in (NULL, 1, 2, 3, 4, 5)),
-      seller_rating int check (seller_rating in (NULL, 1, 2, 3, 4, 5)),
-      ship_index int,
-      product_review varchar (60),
-      seller_review varchar (60),
-      quantity int,
-      selling_price float,
-      primary key (product_id, order_id, seller_id),
-      foreign key (product_id) references product (product_id) on delete cascade,
-      foreign key (order_id) references order_ (order_id) on delete cascade,
-      foreign key (seller_id) references seller (seller_id) on delete cascade,
-      foreign key (ship_index) references track (index_) on delete set null
-    );
+/*  Here: (product_id, order_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
+create table product_order (
+  product_id varchar(20) not null,
+  order_id int not null,
+  seller_id varchar (20),
+  product_rating int check (product_rating in (NULL, 1, 2, 3, 4, 5)),
+  seller_rating int check (seller_rating in (NULL, 1, 2, 3, 4, 5)),
+  ship_index int,
+  product_review varchar (60),
+  seller_review varchar (60),
+  quantity int,
+  selling_price float,
+  primary key (product_id, order_id, seller_id),
+  foreign key (product_id) references product (product_id) on delete cascade,
+  foreign key (order_id) references order_ (order_id) on delete cascade,
+  foreign key (seller_id) references seller (seller_id) on delete cascade,
+  foreign key (ship_index) references track (index_) on delete set null
+);
   \end{minted}
   \item Note that we used a foreign key in the above table which we haven't defined yet, which is \ita{ship\_index}. It is basically a unique identifier for each ordered product serving as an index of track table which we will use to track our items.
   \begin{minted}{SQL}
-    /*  Here: index_ -> R is the only relevant dependency and hence it is in BCNF  */
-    create table track (
-      index_ INT AUTO_INCREMENT primary key not null,
-      shipper_id varchar (20),
-      tracking_id varchar (20),
-      foreign key (shipper_id) references shipper (shipper_id) on delete set null
-    );
+    
+/*  Here: index_ -> R is the only relevant dependency and hence it is in BCNF  */
+create table track (
+  index_ INT AUTO_INCREMENT primary key not null,
+  shipper_id varchar (20),
+  tracking_id varchar (20),
+  date_ DATE,
+  foreign key (shipper_id) references shipper (shipper_id) on delete set null
+);
+  \end{minted}
+  \item A relation for \ita{cart}.
+  \begin{minted}{SQL}
+/*  Here: (customer_id, product_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
+create table cart (
+  customer_id varchar(20),
+  product_id varchar(20),
+  seller_id varchar(20),
+  quantity int,
+  primary key (customer_id,product_id,seller_id),
+  foreign key (customer_id) references customer(customer_id) on delete cascade,
+  foreign key (product_id,seller_id) references product(product_id,seller_id) on delete cascade
+);
   \end{minted}
   \item We also have an auxiliary table for keeping track of users with their old passwords as mysql.user encrypts the passwords and there is no way to get it back also this table is required for validation when the user tries to log in the system.
   \begin{minted}{SQL}
 
--- Clearly this table is in BCNF.
+-/*  Here: username -> R is the only relevant dependency and hence it is in BCNF  */
 create table Users (
   username VARCHAR (20) primary key not null,
   passcode VARCHAR (20) not null,
@@ -330,6 +349,10 @@ Below you can see details description and implementation of various Procedures a
   \item Procedure for shipper to see his or her past shipments within a specific time duration, "seeShipmentsBetweenDuration(IN startTime DATE, IN endTime DATE)" -$>$ fetches targeted entries from track table.
   \item Procedure to see latest N Shipments, "seeLatestNShipments(IN N INT)" -$>$ fetched targeted entries from track table.
 \end{enumerate}
+\section{Further Reading}
+\begin{itemize}
+  \item Complete implementation of schema, views, procedures, triggers, etc. can be found \href{https://github.com/nikhilyadv/DBMS-Lab-Project/blob/master/Schema.sql}{here}.
+\end{itemize}
 \section{Use Cases}
 Lets for this case assume that we a supplier. We first want to register and then add products to sell.
 \begin{figure}[H]
@@ -380,6 +403,7 @@ So lets add a new product. You will be taken to a page which will ask to fill th
 Now the product has been added successfully.
 
 \newpage
+
 \section{Progress And TODOS}
 \subsection{GUI}
 \begin{itemize}
