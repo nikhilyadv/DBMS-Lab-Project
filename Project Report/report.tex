@@ -249,7 +249,7 @@ create table Users (
   \end{minted}
 \end{itemize}
 \newpage
-\section{Roles, Triggers, Views}
+\section{Roles, Views and Triggers}
 \subsection{Roles}
 As mentioned before, we have three roles, viz., Customer, Seller and Shipper. And of course above them all we have database administrator, "root", viz. "dbadmin". Each role will be able to access views, functions, procedures written for it and granted to it.
 \subsection{Views}
@@ -276,67 +276,13 @@ Almost all what we wanted to achieve was possible with the help of procedures, v
   \item View that will allow shipping details (pickup\_address, shipping\_address, tracking\_id), "shipperTrack".
 \end{enumerate}
 And their details is best understood with the help of the following code:
-\begin{minted}{SQL}
-  CREATE ROLE dbadmin;
-CREATE ROLE customer;
-CREATE ROLE seller;
-CREATE ROLE shipper;
-
-GRANT ALL PRIVILEGES ON AmaKart.* TO dbadmin;
-
--- Make sure that any view on which a role gets access on should have the filter "SELECT user()"
-GRANT ALL PRIVILEGES ON AmaKart.customer_add TO customer;
-GRANT SELECT ON AmaKart.previousOrders TO customer;
-GRANT SELECT ON AmaKart.listOrders TO customer;
-GRANT SELECT ON AmaKart.packageStatus TO customer;
-
-GRANT SELECT ON AmaKart.sellerProducts TO seller;
-GRANT SELECT ON AmaKart.sellerOrders TO seller;
-
-GRANT SELECT ON AmaKart.shipperTrack TO shipper;
-\end{minted}
-
 \subsection{Triggers}
-\begin{minted}{SQL}
--- When a product is sold, we want to mention its selling_price as later the seller can update the price
-DELIMITER //
-CREATE TRIGGER setPrice BEFORE INSERT on product_order
-FOR EACH ROW BEGIN
-  SET NEW.selling_price = (SELECT price FROM product WHERE product_id = NEW.product_id and seller_id = NEW.seller_id);
-END//
-DELIMITER ;
-
--- When a customer passes a rating for product we have to update it in our product table
-DELIMITER //
-CREATE TRIGGER updateRatingProduct AFTER UPDATE on product_order
-FOR EACH ROW BEGIN
-  IF NEW.product_rating != NULL THEN
-    UPDATE product SET rating = (SELECT AVG(product_rating) FROM product_order WHERE product_id = NEW.product_id) WHERE product_id = NEW.product_id;
-  END IF;
-END//
-DELIMITER ;
-
-
--- When a customer passes a rating for seller we have to update it in our seller table
-DELIMITER //
-CREATE TRIGGER updateRatingSeller AFTER UPDATE on product_order
-FOR EACH ROW BEGIN
-  IF NEW.seller_rating != NULL THEN
-    UPDATE seller SET rating = (SELECT AVG(seller_rating) FROM product_order WHERE seller_id = NEW.seller_id) WHERE seller_id = NEW.seller_id;
-  END IF;
-END//
-DELIMITER ;
-
--- When a product is sold, we need to add an entry to our track table for the same
-DELIMITER //
-CREATE TRIGGER addTrack BEFORE INSERT on product_order
-FOR EACH ROW BEGIN
-  INSERT INTO track () Values ();
-  SET NEW.ship_index = (SELECT MAX (index_) FROM track);
-END//
-DELIMITER ;
-\end{minted}
-
+\begin{enumerate}
+  \item When a product is sold, we want to mention its selling\_price as later the seller can update the price, "setPrice". (sets NEW.selling\_price entry in product\_order).
+  \item When a customer passes a rating for product we have to update it in our product table, "updateRatingProduct" (update is done by averaging over all ratings).
+  \item When a customer passes a rating for seller we have to update it in our seller table, "updateRatingSeller" (update is naturally done in "seller" relation by averaging over all ratings passed to our seller).
+  \item When a product is sold, we need to add an entry to our track table for the same, "addTrack" (naturally it will have shipper\_id, tracking\_id field NULL as of now and this info will be used to determine whether the product has been shipped or not)
+\end{enumerate}
 \newpage
 \section{Functions And Procedures}
 Below you can see details description and implementation of various Procedures and Functions, due to the nature of operations mentioned in our requirements we have preferred procedures in most cases over functions, thus if we have used function, we explicitly mention it.
