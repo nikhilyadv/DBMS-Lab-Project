@@ -72,10 +72,10 @@ Following is the list of requirements.
   \item Customer requirements
   \begin{enumerate}
     \item Customers should be able to browse all products.
-    \item They should be able to add those products in their cart. Thus each Customer should possess a cart into which they can add products for purchasel.
+    \item They should be able to add those products in their cart. Thus each Customer should possess a cart into which they can add products for purchasal.
     \item Note that each product could be sold by different sellers, show customer should be able to select a product corresponding to the seller he or she wished to buy from. 
     \item Once all the items are added in cart, Customer should then be able to purchase all those items in cart at once.
-    \item For each of the product the Customer has bought, it should be possible for customer to pass the rating for both the product as well as seller. 
+    \item For each of the product the Customer has bought, it should be possible for customer to pass the rating and review for both the product as well as seller. 
   \end{enumerate}
 
   \item Seller requirements
@@ -92,26 +92,17 @@ Following is the list of requirements.
       \item Rating (Product rating is again updated by the users of role Customer)
     \end{enumerate}
     \item It should be possible for seller to add or update his or her products.
-    \item It should be possible for seller to see his or her past sellings and their corresponding earnings.
+    \item It should be possible for seller to see his or her past sellings.
     \item It should be possible for seller to see the products which he or she has listed. 
     \item It should be possible for seller to see their earnings in a specific duration. 
+    \item Seller should be able to browse Shippers so that he or she can decide and contact various Shippers.
+    \item It should be possible for seller to see the latest purchasal's of his or her products which are pending to be shipped, thus seller should also have an interface to update customer with the sold product's shipment Tracking ID.
   \end{enumerate}
-  \item Company maintains the details of stock like their id, name, quantity, rating etc.
-
-
-  \item Only users which have purchased the product can leave rating and review to product, they can also give rating to the seller. Thus users should also be able to see their past puchases.
-
-  \item Users can add balance to their ewallet.
-
-  \item Company maintains the details of its suppliers like their id, name, address, phone number and rating. Each supplier has at least some stock for some item. (Suppliers can add new product (stock) and mention its quantity which he/she has.)
-
-  \item When users browses for a product, suppliers will be listed based on the quantity user wants.
+  \item Shipper requirements
+    \begin{enumerate}
+      \item It should be possible for shipper to see his or her past shipments (using our interface) including source and destination of the product.
+    \end{enumerate}
 \end{enumerate}
-\subsubsection{Seller Requirements}
-
-\begin{itemize}
-  \item TODO
-\end{itemize}
 
 \section{Entity Relation Diagram}
 Entity Relation Diagram can be represented in various notations, below shows the notation which we have followed.
