@@ -2,11 +2,15 @@
 \usepackage{enumitem}
 \usepackage{color}
 \usepackage{graphicx}
+\usepackage{txfonts}
 \usepackage{float}
 \usepackage{minted}
 \usepackage{hyperref}
 \usepackage[parfill]{parskip}
 % End loading packages
+
+% Heart!
+\newcommand{\heart}{\ensuremath\varheartsuit}
 
 \newcommand{\bck}{
     \textbackslash
@@ -105,7 +109,7 @@ Following is the list of requirements.
     \end{enumerate}
     \item It should be possible for seller to add or update their products.
     \item It should be possible for seller to see their past sellings.
-    \item It should be possible for seller to see the products which they has listed. 
+    \item It should be possible for seller to see the products which they have listed. 
     \item It should be possible for seller to see their earnings in a specific duration. 
     \item Seller should be able to browse Shippers so that they can decide and contact various Shippers.
     \item It should be possible for seller to see the latest purchasal's of their products which are pending to be shipped, thus seller should also have an interface to update customer with the sold product's shipment Tracking ID.
@@ -225,7 +229,7 @@ create table order_ (
   foreign key (payment_id) references payment (payment_id) on delete set null
 );
   \end{minted}
-  \item After generating the \ita{order\_id} (by successful completion of payment), we have to put the details of the bought items along with their \ita{order\_id}.
+  \item After generating the \ita{order\_id} (by successful completion of payment), we have to put the details of the bought items along with their \ita{order\_id} (this relation will also contain ratings and reviews for both seller and product which the user gave).
   \begin{minted}{SQL}
 /*  Here: (product_id, order_id, seller_id) -> R is the only relevant dependency and hence it is in BCNF  */
 create table product_order (
@@ -287,41 +291,41 @@ create table Users (
 \subsection{Roles}
 As mentioned before, we have three roles, viz., Customer, Seller and Shipper. And of course above them all we have database administrator, "root", viz. "dbadmin". Each role will be able to access views, functions, procedures written for it and granted to it.
 \subsection{Views}
-Almost all what we wanted to achieve was possible with the help of procedures, views, thus have little to offer but still we are listing here all the views that we wrote irrespective of whether they are actually part of our GUI.
+Almost all what we wanted to achieve was possible with the help of procedures, Views, thus have little to offer but still we are listing here all the views that we wrote irrespective of whether they are actually part of our GUI.
 \subsubsection{Customer Views}
 \begin{enumerate}
   \item View that will allow customer to view its profile, "customerProfile".
-  \item View that will allow customer to see the total cost of his/her various orders, i.e. total money spent on the platform till date, "orderPrice". 
-  \item View that will allow customer to see and add products to his cart, "showCart".
-  \item View that will tell the customer details corresponding to his/her all order\_id mentioning complete order details (order\_id, shipping\_address, date\_, total\_price) except the products in that order, "previousOrders". 
-  \item View that will allow customer to just see his various order\_id, "listOrders". 
+  \item View that will allow customer to see the total cost of their various orders, i.e. total money spent on the platform till date, "orderPrice". 
+  \item View that will allow customer to see and add products to their cart, "showCart".
+  \item View that will tell the customer, details corresponding to their all order\_id mentioning complete order details (order\_id, shipping\_address, date\_, total\_price) except the products in that order, "previousOrders". 
+  \item View that will allow customer to just see their various order\_id, "listOrders". 
   \item View that will give us shipment index (ship\_index), order ID, product ID from product\_order relation corresponding to our orders, "trackID".
   \item View that will augment the above view with tracking ID as well, "packageStatus".
 \end{enumerate}
 \subsubsection{Seller Views}
 \begin{enumerate}
-  \item View that will allow seller to view its details, "sellerProfile".
-  \item View that will allow seller to see his/her various products, "sellerProducts".
+  \item View that will allow seller to view their details, "sellerProfile".
+  \item View that will allow seller to see their various products, "sellerProducts".
   \item View that will allow seller to see various orders which they have sold (seller\_id, product\_id, quantity, selling\_price, date\_), "sellerOrders".
 \end{enumerate}
 \subsubsection{Shipper Views}
 \begin{enumerate}
-  \item View that will allow shipper to view its details, "shipperProfile".
+  \item View that will allow shipper to view their details, "shipperProfile".
   \item View that will allow shipping details (pickup\_address, shipping\_address, tracking\_id), "shipperTrack".
 \end{enumerate}
-And their details is best understood with the help of the following code:
+
 \subsection{Triggers}
 \begin{enumerate}
   \item When a product is sold, we want to mention its selling\_price as later the seller can update the price, "setPrice". (sets NEW.selling\_price entry in product\_order).
   \item When a customer passes a rating for product we have to update it in our product table, "updateRatingProduct" (update is done by averaging over all ratings).
   \item When a customer passes a rating for seller we have to update it in our seller table, "updateRatingSeller" (update is naturally done in "seller" relation by averaging over all ratings passed to our seller).
-  \item When a product is sold, we need to add an entry to our track table for the same and also we have to reduct the total\_stock of that product offered by that seller. Both of these are done together by our trigger, "stockCheckandaddTrack" (naturally it will have shipper\_id, tracking\_id field NULL as of now and this info will be used to determine whether the product has been shipped or not)
+  \item When a product is sold, we need to add an entry to our track table for the same and also we have to reduce the total\_stock of that product offered by that seller. Both of these are done together by our trigger, "stockCheckandaddTrack" (naturally it will have shipper\_id, tracking\_id field NULL as of now and this info will be used to determine whether the product has been shipped or not)
   \item To check whether the products added in cart are valid or not. In case it is valid we proceed else we raise an exception. Trigger name "validCartinsert".
   \item Same as above but for update operation on cart, "validCartupdate".
 \end{enumerate}
 \newpage
 \section{Functions And Procedures}
-Below you can see details description and implementation of various Procedures and Functions, due to the nature of operations mentioned in our requirements we have preferred procedures in most cases over functions, thus if we have used function, we explicitly mention it.
+Below we mention detailed description of various Procedures and Functions, due to the nature of operations mentioned in our requirements we have preferred procedures in most cases over functions, thus whenever we have used function, we explicitly mention it.
 
 \subsection{Customer Procedures}
 \begin{enumerate}
@@ -330,7 +334,7 @@ Below you can see details description and implementation of various Procedures a
   \item Procedure for customer to checkout items present in cart, "purchaseEverythingInCart(IN oid varchar(20))" -$>$ which takes in order id and then for each product present in cart, will add the corresponding entry to product\_order table.
   \item Procedure for customer to remove product from cart, "removeProductCart(IN pid varchar(20), IN sid varchar(20))" -$>$ which takes in that products product\_id and seller\_id and thus delete such product from cart (deletion is performed using view showCart).
   \item Procedure for customer to update a product in cart (i.e. change quantity of the chosen product), "CREATE PROCEDURE updateProductCart(IN pid varchar(20), IN sid varchar(20), IN N INT)".
-  \item Procedure for customer to make an order, "makeorder(IN cnum varchar(20), IN badd varchar(20), IN cid varchar(20), IN sadd varchar(20))" which takes a credit card number, "cnum", billing address, "badd", customer ID, "cid" and a shipping address, "sadd" and first adds an entry into payment table by selecting date using "NOW()" function and then since payment table had payment\_id which was set to automatic increment so we after fetching it insert the corresponding entries into order\_ table and then again by fetching order\_id as it was auto increment, we call already discussed procedure, "purchaseEverthingInCart".
+  \item Procedure for customer to make an order, "makeorder(IN cnum varchar(20), IN badd varchar(20), IN cid varchar(20), IN sadd varchar(20))" which takes a credit card number, "cnum", billing address, "badd", customer ID, "cid" and a shipping address, "sadd" and first adds an entry into payment table by selecting date using "NOW()" function and then since payment table had payment\_id which was set to automatic increment so we after fetching it insert the corresponding entries into order\_ table and then again by fetching order\_id as it was also auto increment, we call already discussed procedure, "purchaseEverthingInCart".
   \item Procedure to add product to cart, "addProductToCart(IN cid varchar(20), IN pid varchar(20), IN sid varchar(20), IN q int)" which will decide whether to update the quantity if the product is already there in cart, or to add this new record into our cart.
   \item Procedure to see latest N purchases, "seeLatestNPurchases(IN N INT)" which takes in N and then gives rows corresponding to payment, order\_, product\_order, product, table and track (by taking join) ordered decreasingly by payment date.
   \item Procedure to see Purchases between dates, "seePurchasesByDate(IN startTime TIMESTAMP, IN endTime TIMESTAMP)" -$>$ works same as before just that it gives entries between the given time.
@@ -348,10 +352,10 @@ Below you can see details description and implementation of various Procedures a
   \item \textbf{Seller Function: }Function to return the total earning of a seller between supplied dates, "sellerStatsBetweenDate(startTime TIMESTAMP, endTime TIMESTAMP)".
   \item Procedure for seller to see sold but not shipped products, soldButNotShipped(IN seller\_id varchar(20)) -$>$ fetches entries from product\_order table which have corresponding shipper\_id NULL.
   \item Procedure for seller to ship a sold product, "shipSoldProduct(IN gproduct\_id varchar(20), IN gorder\_id varchar(20), IN gseller\_id varchar(20), IN gshipper\_id varchar(20), IN gtracking\_id varchar(20), IN gdate DATE)" -$>$ will ship the product (update shipper\_id and tracking\_id in track table) by taking relevant input.
-  \item Procedure for seller to see his rating, "getRating(IN seller\_id varchar(20))".
+  \item Procedure for seller to see their rating, "getRating(IN seller\_id varchar(20))".
   \item Procedure for seller to check whether there is already a product with given seller\_id and product\_id (this is useful when seller is adding a new product), "sellerCheckExistProd(IN product\_id varchar(20), IN seller\_id varchar(20))" -$>$ will return a row if there is a corresponding product.
   \item Procedure for seller to add new product, "addProduct(IN product\_id varchar(20), IN seller\_id varchar(20), IN product\_name varchar(20), IN product\_image varchar(300), IN price float, IN total\_stock int, IN pickup\_address varchar(60), IN description varchar(60))" -$>$ adds an entry in product table by taking suitable input details.
-  \item Procedure for seller to update his specific product details, "updateProductInfo(IN product\_id varchar(20), IN seller\_id varchar(20), IN product\_name varchar(20), IN product\_image varchar(300), IN price float, IN total\_stock int, IN pickup\_address varchar(60), IN description varchar(60))" -$>$ Note that it is possible to call this procedure by giving empty string for entries whose update is not deemed fit.
+  \item Procedure for seller to update their specific product details, "updateProductInfo(IN product\_id varchar(20), IN seller\_id varchar(20), IN product\_name varchar(20), IN product\_image varchar(300), IN price float, IN total\_stock int, IN pickup\_address varchar(60), IN description varchar(60))" -$>$ Note that it is possible to call this procedure by giving empty string for entries whose update is not deemed fit.
   \item Procedure to update seller's info, "sellerUpdateInfo(IN seller\_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone\_number DECIMAL(10) UNSIGNED, IN email\_id VARCHAR(20))" -$>$ Note that it is possible to call this procedure by giving empty string for entries whose update is not deemed fit.
   \item Procedure for seller to see their past sold products within a specific time duration, "seeSellingsBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)" -$>$ fetches the relevant entries from product\_order table.
   \item Procedure to see latest N sellings, "seeLatestNSellings(IN N INT)" -$>$ fetches the relevant entries from product\_order table.
@@ -367,7 +371,7 @@ Below you can see details description and implementation of various Procedures a
 
 \section{Tour Of GUI And Use Cases}
 \subsection{Login Window}
-On start, user will be popped with this window where they can enter their detail, and if the credentials are incorrect message will be shown depicting the same. User need not specify their role, it will be automatically determined from our User Table. Also if the user wants to create an account, they can select "SignUp" option.
+On start, user will be popped with this window where they can enter their detail, and if the credentials are incorrect, message will be shown depicting the same. User need not specify their role, it will be automatically determined from our User Table. Also if the user wants to create an account, they can select "SignUp" option.
 
 \dph{0.78}{log}{Login Window}
 
@@ -381,7 +385,7 @@ User can first select their role and then fill in their details, it implements v
 
 \subsection{Customer Window}
 
-Now suppose a user of role customer logs in, they would be greeted with following windows which are shown in figure.
+Now suppose a user of role customer logs in, they would be greeted with following window which is shown in figure.
 
 \dph{0.66}{customer}{Customer Window}
 
@@ -419,7 +423,7 @@ Facility for User to view their profile.
 
 \subsection{Seller Window}
 
-Now suppose a user of role seller logs in, they would be greeted with following windows which are shown in figure.
+Now suppose a user of role seller logs in, they would be greeted with following window which is shown in figure.
 
 \dph{0.66}{seller}{Seller Window}
 
@@ -432,7 +436,7 @@ Facility for seller to add a new product.
 
 \subsubsection{Update Existing Product}
 
-Facility for seller to update change existing product information.
+Facility for seller to update (change) existing product information.
 
 \dph{0.95}{mprod}{Update Existing Product}
 
@@ -507,11 +511,9 @@ Facility for User to view their profile.
 
 \newpage
 \section{Further Reading And Useful Links}
-\begin{center}
-\begin{itemize}
-  \item[\textbf{Schema: }] Complete implementation of schema, views, procedures, triggers, etc. can be found \href{https://github.com/nikhilyadv/DBMS-Lab-Project/blob/master/Schema.sql}{here}.
-  \item[\textbf{GUI: }] GUI source code can be found \href{https://github.com/nikhilyadv/DBMS-Lab-Project/tree/master/GUI}{here}.
-  \item[\textbf{Complete Project: }] All our work, including above can be found \href{https://github.com/nikhilyadv/DBMS-Lab-Project}{here}.
+\begin{itemize}[label=\heart]
+  \item \textbf{Schema: } Complete implementation of schema, views, procedures, triggers, etc. can be found \href{https://github.com/nikhilyadv/DBMS-Lab-Project/blob/master/Schema.sql}{here}.
+  \item \textbf{GUI: } GUI source code can be found \href{https://github.com/nikhilyadv/DBMS-Lab-Project/tree/master/GUI}{here}.
+  \item \textbf{Complete Project: } All our work, including above can be found \href{https://github.com/nikhilyadv/DBMS-Lab-Project}{here}.
 \end{itemize}
-\end{center}
 \end{document}
