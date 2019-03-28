@@ -103,16 +103,16 @@ Following is the list of requirements.
       \item Description
       \item Rating (Product rating is again updated by the users of role Customer)
     \end{enumerate}
-    \item It should be possible for seller to add or update his or her products.
-    \item It should be possible for seller to see his or her past sellings.
+    \item It should be possible for seller to add or update their products.
+    \item It should be possible for seller to see their past sellings.
     \item It should be possible for seller to see the products which they has listed. 
     \item It should be possible for seller to see their earnings in a specific duration. 
     \item Seller should be able to browse Shippers so that they can decide and contact various Shippers.
-    \item It should be possible for seller to see the latest purchasal's of his or her products which are pending to be shipped, thus seller should also have an interface to update customer with the sold product's shipment Tracking ID.
+    \item It should be possible for seller to see the latest purchasal's of their products which are pending to be shipped, thus seller should also have an interface to update customer with the sold product's shipment Tracking ID.
   \end{enumerate}
   \item Shipper requirements
     \begin{enumerate}
-      \item It should be possible for shipper to see his or her past shipments (using our interface) including source and destination of the product.
+      \item It should be possible for shipper to see their past shipments (using our interface) including source and destination of the product.
     \end{enumerate}
 \end{enumerate}
 
@@ -353,7 +353,7 @@ Below you can see details description and implementation of various Procedures a
   \item Procedure for seller to add new product, "addProduct(IN product\_id varchar(20), IN seller\_id varchar(20), IN product\_name varchar(20), IN product\_image varchar(300), IN price float, IN total\_stock int, IN pickup\_address varchar(60), IN description varchar(60))" -$>$ adds an entry in product table by taking suitable input details.
   \item Procedure for seller to update his specific product details, "updateProductInfo(IN product\_id varchar(20), IN seller\_id varchar(20), IN product\_name varchar(20), IN product\_image varchar(300), IN price float, IN total\_stock int, IN pickup\_address varchar(60), IN description varchar(60))" -$>$ Note that it is possible to call this procedure by giving empty string for entries whose update is not deemed fit.
   \item Procedure to update seller's info, "sellerUpdateInfo(IN seller\_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone\_number DECIMAL(10) UNSIGNED, IN email\_id VARCHAR(20))" -$>$ Note that it is possible to call this procedure by giving empty string for entries whose update is not deemed fit.
-  \item Procedure for seller to see his or her past sold products within a specific time duration, "seeSellingsBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)" -$>$ fetches the relevant entries from product\_order table.
+  \item Procedure for seller to see their past sold products within a specific time duration, "seeSellingsBetweenDuration(IN startTime TIMESTAMP, IN endTime TIMESTAMP)" -$>$ fetches the relevant entries from product\_order table.
   \item Procedure to see latest N sellings, "seeLatestNSellings(IN N INT)" -$>$ fetches the relevant entries from product\_order table.
   \item Procedure to see seller's already listed similar products with increasing price, "selQuerySimProducts(IN productName varchar(20))".
   \item Procedure to see seller's similar products sorted by rating, "selQueryProductsRat(IN productName varchar(20))".
@@ -361,7 +361,7 @@ Below you can see details description and implementation of various Procedures a
 \subsection{Shipper Procedures}
 \begin{enumerate}
   \item Procedure to update shipper's info, "shipperUpdateInfo(IN shipper\_id varchar(20), IN passwordd VARCHAR(20), IN named varchar(20), IN addressd VARCHAR(60), IN phone\_number DECIMAL(10) UNSIGNED, IN email\_id VARCHAR(20))" -$>$ works in the same way as other user's update info.
-  \item Procedure for shipper to see his or her past shipments within a specific time duration, "seeShipmentsBetweenDuration(IN startTime DATE, IN endTime DATE)" -$>$ fetches targeted entries from track table.
+  \item Procedure for shipper to see their past shipments within a specific time duration, "seeShipmentsBetweenDuration(IN startTime DATE, IN endTime DATE)" -$>$ fetches targeted entries from track table.
   \item Procedure to see latest N Shipments, "seeLatestNShipments(IN N INT)" -$>$ fetched targeted entries from track table.
 \end{enumerate}
 
