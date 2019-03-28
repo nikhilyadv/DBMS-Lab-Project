@@ -6,7 +6,7 @@
 \usepackage{minted}
 \usepackage{hyperref}
 \usepackage[parfill]{parskip}
-
+\usepackage{coloremoji}
 % End loading packages
 
 \newcommand{\bck}{
@@ -363,10 +363,7 @@ Below you can see details description and implementation of various Procedures a
   \item Procedure for shipper to see his or her past shipments within a specific time duration, "seeShipmentsBetweenDuration(IN startTime DATE, IN endTime DATE)" -$>$ fetches targeted entries from track table.
   \item Procedure to see latest N Shipments, "seeLatestNShipments(IN N INT)" -$>$ fetched targeted entries from track table.
 \end{enumerate}
-\section{Further Reading}
-\begin{itemize}
-  \item Complete implementation of schema, views, procedures, triggers, etc. can be found \href{https://github.com/nikhilyadv/DBMS-Lab-Project/blob/master/Schema.sql}{here}.
-\end{itemize}
+
 \section{Tour Of GUI And Use Cases}
 \subsection{Login Window}
 On start, user will be popped with this window where they can enter their detail, and if the credentials are incorrect message will be shown depicting the same. User need not specify their role, it will be automatically determined from our User Table. Also if the user wants to create an account, they can select "SignUp" option.
@@ -483,11 +480,39 @@ Facility for User to view their profile.
 
 \dph{0.79}{pseller}{View Profile: Seller}
 
-\newpage
+\subsection{Shipper Window}
 
-\section{Useful links}
+\subsubsection{Update Your Info}
+
+Facility for User to update their profile.
+
+\dph{0.99}{upship}{Update Info: Shipper}
+
+\subsubsection{See Past Shipments}
+
+Facility for shipper to see past shipments either by date or by setting latest "N" shipments. 
+
+\dph{0.99}{spship}{Update Info: Shipper}
+
+There is also a facility to see shipments in detail to see from where it was taken and where is to be delivered. 
+
+\dph{0.99}{spshipd}{Update Info: Shipper}
+
+\subsubsection{View Your Profile}
+
+Facility for User to view their profile.
+
+\dph{0.79}{pshipper}{View Profile: Shipper}
+
+\newpage
+\section{Further Reading And Useful Links}
 \begin{center}
-\textbf{Complete project - } \href{https://github.com/nikhilyadv/DBMS-Lab-Project}{Link}\\
-\textbf{GUI source code - } \href{https://github.com/nikhilyadv/DBMS-Lab-Project/tree/master/GUI}{Link}
+\begin{itemize}
+  \item[\textbf{Schema: }] Complete implementation of schema, views, procedures, triggers, etc. can be found \href{https://github.com/nikhilyadv/DBMS-Lab-Project/blob/master/Schema.sql}{here}.
+  \item[\textbf{GUI: }] GUI source code can be found \href{https://github.com/nikhilyadv/DBMS-Lab-Project/tree/master/GUI}{here}.
+️
+  \item[\textbf{Complete Project: }] All our work, including above can be found \href{https://github.com/nikhilyadv/DBMS-Lab-Project}{here}.
+\end{itemize}
+🌎
 \end{center}
 \end{document}
