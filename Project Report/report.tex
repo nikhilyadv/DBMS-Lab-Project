@@ -30,7 +30,21 @@
         \draw (-1,-1) -- (0,-1) -- (0,1) -- (1,1);
     \end{tikzpicture}%
 }
+\newcommand{\dph}[3]{
+\begin{figure}[H]
+  \centering
+  \iph{#1}{#2}
+  \caption{#3}
+\end{figure}
+}
 
+\newcommand{\oph}[2]{
+\begin{figure}[H]
+  \centering
+  \iph{0.78}{#1}
+  \caption{#2}
+\end{figure}
+}
 % End setting basic commands
 
 \setminted{breaklines=true, tabsize=2, breaksymbolleft=}
@@ -353,64 +367,124 @@ Below you can see details description and implementation of various Procedures a
 \begin{itemize}
   \item Complete implementation of schema, views, procedures, triggers, etc. can be found \href{https://github.com/nikhilyadv/DBMS-Lab-Project/blob/master/Schema.sql}{here}.
 \end{itemize}
-\section{Use Cases}
-Lets for this case assume that we a supplier. We first want to register and then add products to sell.
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.5]{login1.png} 
-    \caption{Login page.}
-\end{figure}
-So at the login page we will select SignUp. It will then open up the SignUp page.
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.5]{signup1.png}
-    \caption{SignUp page(Selecting role).}
-\end{figure}
-Since we are Supplier we will select supplier option and then proceed.
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.5]{signup2.png}
-    \caption{SignUp page(Entering Details).}
-\end{figure}
-After entering the details press the Register button. It will display that the user is successfully created.
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.5]{signup3.png}
-    \caption{SignUp page(Conformation).}
-\end{figure}
-After registering goto the login page by pressing the Switch to Login button.
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.5]{login2.png} 
-    \caption{Login page(Entering Details).}
-\end{figure}
-After login you will be taken to a welcome page which will have two options for you 
-\begin{itemize}
-    \item Either to add new products in the market.
-    \item Or to change the quantites or price of existing products. 
-\end{itemize}
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.5]{supp1.png} 
-    \caption{Welcome page for Supplier.}
-\end{figure}
-So lets add a new product. You will be taken to a page which will ask to fill the details of the product.
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.5]{supp2.png} 
-    \caption{Add new product.}
-\end{figure}
-Now the product has been added successfully.
+\section{Tour Of GUI And Use Cases}
+\subsection{Login Window}
+On start, user will be popped with this window where they can enter their detail, and if the credentials are incorrect message will be shown depicting the same. User need not specify their role, it will be automatically determined from our User Table. Also if the user wants to create an account, they can select "SignUp" option.
+
+\dph{0.78}{log}{Login Window}
+
+\subsection{Sign Up}
+
+User can first select their role and then fill in their details, it implements various logic such as to check whether user has checked exactly one tick box, passwords match, whether the required fields are left empty, such a user already exists, etc.
+
+\dph{0.78}{sign}{Sign Up: Select Role}
+
+\dph{0.78}{sign2}{Sign Up: Enter Details}
+
+\subsection{Customer Window}
+
+Now suppose a user of role customer logs in, they would be greeted with following windows which are shown in figure.
+
+\dph{0.66}{customer}{Customer Window}
+
+
+\subsubsection{Previous Products}
+
+Here user can chose how to see their previous products, either by date (again various logics are implemented to check whether the entered date is correct, etc.) or by giving "N" for latest "N" purchases. Users can now select a particular purchased product and give ratings, reviews, etc. They can also see shipment status.
+
+\dph{0.99}{previousprod}{Previous Products}
+
+\subsubsection{Browse Products}
+
+User can browse either by searching by name which will give results in decreasing order of rating or by searching within their budget. For the selected item, they can chose how much amount to add in cart and also see previous reviews of the product.
+
+\dph{0.99}{browseprod}{Browse Products}
+
+\subsubsection{Cart}
+
+Here user will be able to see items added in cart where they can update the quantity or remove the item from cart and obviously checkout from cart option is there whereby user will be asked to enter details payment details.
+
+\dph{0.99}{cart}{Cart}
+
+\subsubsection{Update Your Info}
+
+Facility for User to update their profile.
+
+\dph{0.99}{uppcust}{Update Info: Customer}
+
+\subsubsection{View Your Profile}
+
+Facility for User to view their profile.
+
+\dph{0.79}{pcust}{View Profile: Customer}
+
+
+\subsection{Seller Window}
+
+Now suppose a user of role seller logs in, they would be greeted with following windows which are shown in figure.
+
+\dph{0.66}{seller}{Seller Window}
+
+
+\subsubsection{Add New Products}
+
+Facility for seller to add a new product.
+
+\dph{0.99}{newprod}{Add New Product}
+
+\subsubsection{Update Existing Product}
+
+Facility for seller to update change existing product information.
+
+\dph{0.95}{mprod}{Update Existing Product}
+
+\subsubsection{See Your Products}
+
+Seller can browse their existing products sorted either by price or rating.
+
+\dph{0.99}{seeprod}{See Your Products}
+
+\subsubsection{See Past Sellings}
+
+Facility for seller to see their past sellings either between some date or latest "N" sellings.
+
+\dph{0.99}{psel}{Past Sellings}
+
+\subsubsection{See Earnings Between Duration}
+
+\dph{0.9}{ebd}{See Earnings Between Duration}
+
+
+\subsubsection{See Your Rating}
+Facility for seller to view their rating.
+
+\dph{0.8}{kyr}{Know Your Rating}
+
+\subsubsection{See Products Which Are Sold But Not Shipped}
+Facility for seller to ship a sold but non shipped product. 
+
+\dph{0.99}{ssp}{Products Sold But Not Shipped}
+
+\subsubsection{Browse Shippers}
+
+Facility for seller to see various shippers.
+
+\dph{0.99}{bship}{Browse Shippers}
+
+\subsubsection{Update Your Info}
+
+Facility for User to update their profile.
+
+\dph{0.99}{uppcust}{Update Info: Seller}
+
+\subsubsection{View Your Profile}
+
+Facility for User to view their profile.
+
+\dph{0.79}{pseller}{View Profile: Seller}
 
 \newpage
 
-\section{Progress And TODOS}
-\subsection{GUI}
-\begin{itemize}
-  \item Signup is working perfectly (just that inplace of integer if string is given then its an issue, can write a function to check it though).
-  \item Login is working perfectly.
-  \item 
-\end{itemize}
 \section{Useful links}
 \begin{center}
 \textbf{Complete project - } \href{https://github.com/nikhilyadv/DBMS-Lab-Project}{Link}\\
