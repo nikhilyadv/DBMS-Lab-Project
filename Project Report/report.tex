@@ -85,15 +85,15 @@ Following is the list of requirements.
   \begin{enumerate}
     \item Customers should be able to browse all products.
     \item They should be able to add those products in their cart. Thus each Customer should possess a cart into which they can add products for purchasal.
-    \item Note that each product could be sold by different sellers, show customer should be able to select a product corresponding to the seller he or she wished to buy from. 
+    \item Note that each product could be sold by different sellers, so customer should be able to select a product corresponding to the seller they wished to buy from. 
     \item Once all the items are added in cart, Customer should then be able to purchase all those items in cart at once.
     \item For each of the product the Customer has bought, it should be possible for customer to pass the rating and review for both the product as well as seller. 
   \end{enumerate}
 
   \item Seller requirements
   \begin{enumerate}
-    \item Each Seller possesses a rating which he or she should be able to see. This rating is given and updated by the users of role Customer who purchased the product from Seller.
-    \item Seller should list down the products he or she is willingly to sell. Each product should have:
+    \item Each Seller possesses a rating which they should be able to see. This rating is given and updated by the users of role Customer who purchased the product from Seller.
+    \item Seller should list down the products they is willingly to sell. Each product should have:
     \begin{enumerate}
       \item Product Name
       \item Product Image
@@ -105,9 +105,9 @@ Following is the list of requirements.
     \end{enumerate}
     \item It should be possible for seller to add or update his or her products.
     \item It should be possible for seller to see his or her past sellings.
-    \item It should be possible for seller to see the products which he or she has listed. 
+    \item It should be possible for seller to see the products which they has listed. 
     \item It should be possible for seller to see their earnings in a specific duration. 
-    \item Seller should be able to browse Shippers so that he or she can decide and contact various Shippers.
+    \item Seller should be able to browse Shippers so that they can decide and contact various Shippers.
     \item It should be possible for seller to see the latest purchasal's of his or her products which are pending to be shipped, thus seller should also have an interface to update customer with the sold product's shipment Tracking ID.
   \end{enumerate}
   \item Shipper requirements
@@ -212,7 +212,7 @@ create table payment (
 );
     
   \end{minted}
-  \item User will have a front end feature to add items in cart. When the user is ready to buy, it will generate an \ita{order\_id} for all those products which he or she chose. Note that \ita{order\_id} will be generated \ita{only} when user successfully does the payment.
+  \item User will have a front end feature to add items in cart. When the user is ready to buy, it will generate an \ita{order\_id} for all those products which they chose. Note that \ita{order\_id} will be generated \ita{only} when user successfully does the payment.
   \begin{minted}{SQL}
 /* Here: order_id -> R is the only relevant dependency and hence it is in BCNF  */
 /* Initially payment id can be null and then later once the customer does the payment, trigger will add the payment id */
@@ -302,7 +302,7 @@ Almost all what we wanted to achieve was possible with the help of procedures, v
 \begin{enumerate}
   \item View that will allow seller to view its details, "sellerProfile".
   \item View that will allow seller to see his/her various products, "sellerProducts".
-  \item View that will allow seller to see various orders which he or she have sold (seller\_id, product\_id, quantity, selling\_price, date\_), "sellerOrders".
+  \item View that will allow seller to see various orders which they have sold (seller\_id, product\_id, quantity, selling\_price, date\_), "sellerOrders".
 \end{enumerate}
 \subsubsection{Shipper Views}
 \begin{enumerate}
