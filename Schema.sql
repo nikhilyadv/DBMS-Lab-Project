@@ -412,10 +412,9 @@ DELIMITER ;
 -- Procedure for seller to see sold but not shipped products
 
 DELIMITER //
-CREATE PROCEDURE soldButNotShipped(IN seller_id varchar(20))
+CREATE PROCEDURE soldButNotShipped(IN sid varchar(20))
 BEGIN
-  select product_order.* from product_order join track on product_order.ship_index = track.index_ where shipper_id is NULL;
-  -- select * from product_order where product_order.seller_id = seller_id and ship_index is NULL;
+  select product_order.* from product_order join track on product_order.ship_index = track.index_ where shipper_id is NULL and seller_id = sid;
 END;
 //
 DELIMITER ;
@@ -737,25 +736,39 @@ DELIMITER ;
 
 -- Inserting data and creating dummy users without password
 DROP USER Nikhil;
+DROP USER John;
 DROP USER Sourabh;
+DROP USER Harry;
 DROP USER FEDEx;
+DROP USER BlueDart;
 
 CREATE USER Nikhil IDENTIFIED BY "hi";
+CREATE USER John IDENTIFIED BY "hi";
 CREATE USER Sourabh IDENTIFIED BY "hi";
+CREATE USER Harry IDENTIFIED BY "hi";
 CREATE USER FEDEx IDENTIFIED BY "hi";
-
+CREATE USER BlueDart IDENTIFIED BY "hi";
 
 GRANT customer to Nikhil;
+GRANT customer to John;
 GRANT seller to Sourabh;
+GRANT seller to Harry;
 GRANT shipper to FEDEx;
+GRANT shipper to BlueDart;
 
 INSERT INTO Users VALUES ("Nikhil", "hi", "customer");
+INSERT INTO Users VALUES ("John", "hi", "customer");
 INSERT INTO Users VALUES ("Sourabh", "hi", "seller");
+INSERT INTO Users VALUES ("Harry", "hi", "seller");
 INSERT INTO Users VALUES ("FEDEx", "hi", "shipper");
+INSERT INTO Users VALUES ("BlueDart", "hi", "shipper");
 
 INSERT INTO customer Values ("Nikhil","Nikhil Kumar","ROOM-119",8281112705,"111601013@");
+INSERT INTO customer Values ("John","John Snow","ROOM-111",8281112706,"121601013@");
 INSERT INTO seller Values ("Sourabh","Sourabh Agg","ROOM-211",8281112700,"111601025@",NULL);
+INSERT INTO seller Values ("Harry","Harry Potter","ROOM-311",8281112701,"121601025@",NULL);
 INSERT INTO shipper Values ("FEDEx","FEDEx","Delhi",1800123343,"111601020@");
+INSERT INTO shipper Values ("BlueDart","BlueDart","Bangalore",1800123344,"121601020@");
 
 INSERT INTO product Values ("1","Rasgulla", 'https://i.ndtvimg.com/i/2017-10/rasgulla-recipe_620x330_51508133855.jpg?downsize=650:400&output-quality=70&output-format=webp', "Sourabh",10,100.0,"RM3xx","Rasgulla from Aggarwal Sweets", NULL);
 INSERT INTO product Values ("2","Gulab Jamun", 'http://www.manjulaskitchen.com/blog/wp-content/uploads/gulab_jamun1.jpg', "Sourabh",100,100.0,"RM3xx","Gulab Jamun from Aggarwal Sweets", NULL);
@@ -763,8 +776,6 @@ INSERT INTO product Values ("2","Gulab Jamun", 'http://www.manjulaskitchen.com/b
 INSERT INTO payment Values ("1","4362536563578",'2019-01-01',"CompLabFF");
 
 INSERT INTO order_ Values ("1","Nikhil","RM-119","1");
-
--- INSERT INTO track(shipper_id) Values ("FEDEx");
 
 INSERT INTO product_order(product_id, order_id, seller_id, product_rating, seller_rating, ship_index, product_review, seller_review, quantity, selling_price) Values ("1","1","Sourabh",5,4,1,NULL,NULL,10, 10);
 
