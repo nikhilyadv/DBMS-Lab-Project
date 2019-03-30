@@ -600,7 +600,7 @@ class Seller:
 
     def basic(self):
         supp = Tk()
-        supp.title("Welcome Supplier")
+        supp.title("Welcome Seller")
         supp.protocol("WM_DELETE_WINDOW", lambda: self.on_closing (supp))
         Button(supp, text= 'Add new products', command= lambda: self.switchToAddProduct (supp)).grid(row=1, column=0)
         Button(supp, text= 'Change existing products information', command= lambda: self.switchToUpdateProd (supp)).grid(row=2, column=0)
