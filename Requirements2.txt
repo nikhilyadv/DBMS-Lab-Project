@@ -1,8 +1,0 @@
-Requirements: 
-
-    1) Company maintains the details of stock like their id, name, quantity, rating etc.
-    2) Company maintains the details of users like their id, name, address, phone number, ewallet.
-    3) Only users which have purchased the product can leave rating and review to product, they can also give rating to the seller. Thus users should also be able to see their past puchases.
-    4) Users can add balance to their ewallet.
-    5) Company maintains the details of its suppliers like their id, name, address, phone number and rating. Each supplier has at least some stock for some item. (Suppliers can add new product (stock) and mention its quantity which he/she has.)
-    6) When users browses for a product, suppliers will be listed based on the quantity user wants.
